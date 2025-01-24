@@ -1,8 +1,10 @@
 import React from 'react';
 import './GuestPage.css'; 
+import { useNavigate } from 'react-router-dom';
 import logo from '../../img/logo.png';
 
 const GuestPage = () => {
+  const navigate = useNavigate();
   return (
     <div className="guest-page-container">
       <div className="guest-page">
@@ -16,14 +18,14 @@ const GuestPage = () => {
         <div className="access-panel">
           <div className="registration-section">
             <div className="registration">
-              <h1 className="section-title">Registration</h1>
+              <h1 className="section-title" onClick={() => navigate('/register')}>Registration</h1>
               <h3>The first step to education</h3>
               <p>To gain access to the platform, you need to create an account. It's quick and easy. 
                 Once you're registered, you'll be able to access all educational materials!</p>
             </div>
             <div className="login">
               <h2 className='section-title'>Already a member?</h2>
-              <button className="login-button">Login to your account</button>
+              <button className="login-button" onClick={() => navigate('/login')}>Login to your account</button>
               <p>If you've already used Dispersion, login to access your personal dashboard and resources.</p>
             </div>
           </div>
