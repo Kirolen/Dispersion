@@ -130,3 +130,41 @@
     }
   }
   
+  .role-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 15px;
+  }
+  
+  .role-label {
+    color: #8560be;
+    font-size: 14px;
+    margin-bottom: 5px;
+  }
+  
+  .role-select {
+    background: #1b1b1b;
+    border: 1px solid #674f99;
+    color: #fff;
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 14px;
+    width: 100%;
+  }
+  
+  .role-select:hover {
+    border-color: #8560be;
+  }
+
+  .error-message {
+    color: #ff4d4f;
+    margin-top: 10px;
+    font-size: 14px;
+  }
+  
+  .success-message {
+    color: #4caf50;
+    margin-top: 10px;
+    font-size: 14px;
+  }
