@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './AuthPages.css'; 
 import api from '../../utils/api';
 
 export const LoginPage = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -24,8 +26,10 @@ export const LoginPage = () => {
     setSuccessMessage(''); 
 
     try {
-      const response = await api.post('/auth/login', {email: formData.email, password: formData.password}); // Виклик API
-      setSuccessMessage('Login successful! Welcome!'); 
+      const response = await api.post('/auth/login', {email: formData.email, password: formData.password}); 
+      const token = response.data.token;
+      localStorage.setItem('authToken', token);
+      navigate('/home');
     } catch (err) {
       setError(err.response?.data?.message || 'An error occurred during login.'); 
     }
@@ -76,6 +80,7 @@ export const LoginPage = () => {
 };
 
 export const RegisterPage = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     first_name: '',
     last_name: '',
@@ -101,7 +106,7 @@ export const RegisterPage = () => {
 
     try {
       const response = await api.post('/auth/registration', {first_name: formData.first_name, last_name: formData.last_name, email: formData.email, password: formData.password, role: formData.role}); // Виклик API
-      setSuccessMessage('Registration successful! You can now log in.'); 
+      navigate('/auth-login');
     } catch (err) {
       setError(err.response?.data?.message || 'An error occurred during registration.'); 
     }

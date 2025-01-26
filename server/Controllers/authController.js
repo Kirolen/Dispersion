@@ -43,7 +43,7 @@ class authController {
             if (!validPassword) {
                 return res.status(500).json({ message: `Wrong passwrod!`});
             }
-            const token = generateAccessToken(user._id, user.role)
+            const token = generateAccessToken(user._id, user.role, user.courses)
 
             return res.json({token});
         } catch (error) {
@@ -51,7 +51,6 @@ class authController {
         }
     }
 
-    // Define the getUsers method
     async getUsers(req, res) {
         try {
             const users = await User.find()

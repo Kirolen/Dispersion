@@ -1,7 +1,20 @@
 .header {
-    background-color: #4CAF50;
-    padding: 20px;
-    color: white;
-    text-align: center;
-  }
-  
+  background-color: #000; 
+  color: white;
+  text-align: center;
+  padding: 30px 20px;
+  border-bottom: 3px solid #8560be; 
+}
+
+.title {
+  font-size: 36px;
+  font-weight: bold;
+  margin: 0;
+  color: #8560be;
+}
+
+.subtitle {
+  font-size: 18px;
+  color: #819198;
+  margin-top: 10px;
+}
