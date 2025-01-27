@@ -2,7 +2,9 @@ const { validationResult } = require('express-validator');
 const Course = require('../Models/Course');
 const User = require('../Models/User');
 const EnrollmentCourse = require('../Models/EnrollmentCourse')
-
+const CourseOwner =  require('../Models/CourseOwner')
+const {secret} = require('../Config/config')
+const jwt = require('jsonwebtoken')
 class courseController {
     async addCourse(req, res) {
         try {
@@ -23,8 +25,12 @@ class courseController {
                 return res.status(400).json({ success: false, message: 'Course already exists' });
             }
 
-            const course = new Course({ course_name, teacher_id });
+            const course = new Course({ course_name });
             await course.save();
+            const course_id = course.id
+
+            const courseOwner = new CourseOwner({course_id, teacher_id})
+            await courseOwner.save();
 
             res.status(201).json({
                 success: true,
@@ -82,25 +88,71 @@ class courseController {
         }
     }
 
-    async getCourse(req, res) {
+    async getAllCourses(req, res) {
         try {
-            const { user_id } = req.body;  
-    
+            const token = req.headers['authorization']?.split(' ')[1]; // Assuming the token is sent as "Bearer <token>"
+
+            if (!token) {
+                return res.status(400).json({ success: false, message: 'Token not provided' });
+            }
+            const decoded = jwt.verify(token, secret); 
+            const user_id = decoded.id;
+
             const user = await User.findById(user_id);
             if (!user) {
                 return res.status(404).json({ success: false, message: 'User not found' });
             }
-    
-            const enrollments = await EnrollmentCourse.find({ student_id: user_id }).populate('course_id', 'course_name teacher_id');
-            const courses = enrollments.map((enrollment) => enrollment.course_id);
-    
-            res.json({ success: true, data: courses });
+            if (user.role === "Student") {
+                const enrollments = await EnrollmentCourse.find({ student_id: user_id }).populate('course_id', 'course_name teacher_id');
+                const courses = enrollments.map((enrollment) => enrollment.course_id);
+                return res.json({ success: true, data: courses });
+              } else if (user.role === "Teacher") {
+                const courseOwners = await CourseOwner.find({ teacher_id: user_id }).populate('course_id', 'course_name teacher_id');
+                const courses = courseOwners.map((courseOwner) => courseOwner.course_id);
+                return res.json({ success: true, data: courses });
+              } else {
+                return res.status(403).json({ success: false, message: 'Invalid user role' });
+              }
+            
+            
         } catch (error) {
             res.status(500).json({ success: false, message: 'Error fetching courses for the user', error });
         }
     }
     
+    async getCourseById(req, res) {
+        try {
+            const { courseId } = req.params;
 
+            const course = await Course.findById(courseId);
+            if (!course) {
+                return res.status(404).json({ success: false, message: 'Курс не знайдено' });
+            }
+
+            const owner = await CourseOwner.findOne({ course_id: courseId }).populate('teacher_id', 'first_name last_name email');
+            const enrollments = await EnrollmentCourse.find({ course_id: courseId }).populate('student_id', 'first_name last_name email');
+    
+            const students = enrollments.map((enrollment) => ({
+                id: enrollment.student_id._id,
+                name: `${enrollment.student_id.first_name} ${enrollment.student_id.last_name}`,
+                email: enrollment.student_id.email,
+            }));
+    
+            const response = {
+                course_name: course.course_name,
+                teacher: owner ? {
+                    id: owner.teacher_id._id,
+                    name: `${owner.teacher_id.first_name} ${owner.teacher_id.last_name}`,
+                    email: owner.teacher_id.email,
+                } : null,
+                students,
+            };
+    
+            return res.json({ success: true, data: response });
+        } catch (error) {
+            res.status(500).json({ success: false, message: 'Помилка при отриманні інформації про курс', error });
+        }
+    }
 }
 
 module.exports = new courseController();

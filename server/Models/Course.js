@@ -2,7 +2,6 @@ const {Schema, model} = require('mongoose')
 
 const Course = new Schema({
     course_name: {type: String, required: true},
-    teacher_id: {type: String, required: true},
     material_ids: [{type: String}]
 })
 

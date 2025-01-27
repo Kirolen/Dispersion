@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-d
 import { LoginPage, RegisterPage } from './components/AuthPages/AuthPages';
 import GuestPage from './components/GuesrPage/GuestPage';
 import HomePage from './components/HomePage/HomePage'
+import CoursePage from './components/CoursePage/CoursePage'
 import './styles/main.css';
 import Layout from './components/Layout';
 
@@ -17,6 +18,7 @@ const App = () => {
           <Route path="/auth-register" element={<RegisterPage />} />
           <Route path="/auth-login" element={<LoginPage />} />
           <Route path="/Home" element={<Layout><HomePage /></Layout>} />
+           <Route path="/course/:courseId" element={<Layout><CoursePage /></Layout>} />
         </Routes>
       </div>
     </Router>

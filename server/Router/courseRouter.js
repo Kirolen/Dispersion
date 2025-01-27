@@ -7,7 +7,7 @@ const roleMiddleware = require('../middlewares/roleMiddleware')
 const router = new Router();
 
 router.post(
-    '/add-courses',
+    '/create-courses',
     [   authMiddleware,
         body('course_name').notEmpty().withMessage('Course name is required'),
         body('teacher_id').notEmpty().withMessage('Teacher ID is required')
@@ -16,6 +16,7 @@ router.post(
 );
 router.post('/join-course', authMiddleware, courseController.joinCourse);
 router.get('/get-students', roleMiddleware("Teacher"), courseController.getStudentsByCourse)
-router.get('/get-my-courses', authMiddleware, courseController.getCourse)
+router.get('/get-my-courses', authMiddleware, courseController.getAllCourses)
+router.get('/courses/:courseId', authMiddleware, courseController.getCourseById);
 
 module.exports = router;
