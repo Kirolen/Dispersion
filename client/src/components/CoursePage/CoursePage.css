@@ -1,0 +1,238 @@
+.course-page {
+    padding: 20px;
+    color: #fff;
+  }
+  
+  .course-header {
+    background: #200055;
+    padding: 30px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #8560be;
+  }
+  
+  .course-header h1 {
+    color: #8560be;
+    margin: 0 0 10px 0;
+  }
+  
+  .course-code {
+    color: #819198;
+    margin: 0;
+  }
+  
+  .course-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #8560be;
+    padding-bottom: 10px;
+  }
+  
+  .tab {
+    padding: 10px 20px;
+    background: none;
+    border: none;
+    color: #819198;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.3s ease;
+  }
+  
+  .tab:hover {
+    color: #8560be;
+  }
+  
+  .tab.active {
+    color: #8560be;
+    border-bottom: 2px solid #8560be;
+  }
+  
+  .course-content {
+    background: #200055;
+    border-radius: 10px;
+    padding: 20px;
+    border: 1px solid #8560be;
+  }
+  
+  /* Stream Section */
+  .announcement-box {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  
+  .announcement-input {
+    flex: 1;
+    padding: 15px;
+    border: 1px solid #8560be;
+    border-radius: 5px;
+    background: #1b005a;
+    color: white;
+  }
+  
+  .post-button {
+    padding: 0 20px;
+    background: #8560be;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+  }
+  
+  .post-button:hover {
+    background: #674f99;
+  }
+  
+  .announcement-card {
+    background: #1b005a;
+    border: 1px solid #8560be;
+    border-radius: 5px;
+    padding: 20px;
+    margin-bottom: 15px;
+  }
+  
+  .announcement-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  
+  .author {
+    color: #8560be;
+    font-weight: bold;
+  }
+  
+  .date {
+    color: #819198;
+  }
+  
+  /* Classwork Section */
+  .add-work {
+    margin-bottom: 20px;
+  }
+  
+  .add-work-button {
+    background: #8560be;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .assignment-card {
+    background: #1b005a;
+    border: 1px solid #8560be;
+    border-radius: 5px;
+    padding: 20px;
+    margin-bottom: 15px;
+  }
+  
+  .assignment-card h3 {
+    color: #8560be;
+    margin: 0 0 10px 0;
+  }
+  
+  .assignment-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 15px;
+    color: #819198;
+  }
+  
+  .view-button {
+    background: #8560be;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  /* People Section */
+  .teachers-list,
+  .students-list {
+    margin-bottom: 30px;
+  }
+  
+  .teachers-list h2,
+  .students-list h2 {
+    color: #8560be;
+    margin-bottom: 15px;
+  }
+  
+  .person-card {
+    display: flex;
+    justify-content: space-between;
+    padding: 15px;
+    background: #1b005a;
+    border: 1px solid #8560be;
+    border-radius: 5px;
+    margin-bottom: 10px;
+  }
+  
+  .person-name {
+    color: #fff;
+  }
+  
+  .person-email {
+    color: #819198;
+  }
+  
+  /* Grades Section */
+  .grades-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .grades-header h2 {
+    color: #8560be;
+    margin: 0;
+  }
+  
+  .export-button {
+    background: #8560be;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .grades-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .grades-table th,
+  .grades-table td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #8560be;
+  }
+  
+  .grades-table th {
+    color: #8560be;
+    font-weight: bold;
+  }
+  
+  .grades-table td {
+    color: #819198;
+  }
+  
+  .no-content {
+    text-align: center;
+    color: #819198;
+    padding: 30px;
+  }
+  
+  .loading,
+  .error {
+    text-align: center;
+    color: #819198;
+    padding: 50px;
+  }

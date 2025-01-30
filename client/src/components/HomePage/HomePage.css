@@ -1,41 +1,163 @@
+.home-container {
+  padding: 20px;
+  color: #fff;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #8560be;
+}
+
+.dashboard-header h1 {
+  color: #8560be;
+  margin: 0;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 15px;
+}
+
+.action-buttons button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.create-button, .join-button {
+  background: #8560be;
+  color: white;
+}
+
+.create-button:hover, .join-button:hover {
+  background: #674f99;
+}
+
+.logout-button {
+  background: #1b005a;
+  color: #6d3fd3;
+}
+
+.logout-button:hover {
+  background: #2a0066;
+}
+
+.courses-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  padding: 20px 0;
+}
+
+.course-card {
+  background: #200055;
+  border: 1px solid #8560be;
+  border-radius: 10px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.course-card:hover {
+  transform: translateY(-5px);
+}
+
+.course-card-content {
+  padding: 20px;
+}
+
+.course-card-content h3 {
+  color: #8560be;
+  margin: 0 0 10px 0;
+}
+
+.course-card-content p {
+  color: #819198;
+  margin: 0;
+  font-size: 0.9em;
+}
+
+.course-card-footer {
+  padding: 15px 20px;
+  background: #1b005a;
+  display: flex;
+  justify-content: space-between;
+  color: #819198;
+  font-size: 0.85em;
+}
+
 .modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-  
-  .modal-content {
-    background-color: white;
-    padding: 20px;
-    border-radius: 10px;
-    width: 300px;
-    text-align: center;
-  }
-  
-  .modal input {
-    margin: 10px 0;
-    padding: 10px;
-    width: 100%;
-    border-radius: 5px;
-  }
-  
-  .modal button {
-    margin-top: 10px;
-    padding: 10px 20px;
-    border: none;
-    background-color: #8560be;
-    color: white;
-    border-radius: 5px;
-    cursor: pointer;
-  }
-  
-  .modal button:hover {
-    background-color: #674f99;
-  }
-  
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: #200055;
+  padding: 30px;
+  border-radius: 10px;
+  width: 400px;
+  border: 2px solid #8560be;
+}
+
+.modal-content h2 {
+  color: #8560be;
+  margin: 0 0 20px 0;
+  text-align: center;
+}
+
+.modal-content input {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 20px;
+  border: 1px solid #8560be;
+  border-radius: 5px;
+  background: #1b005a;
+  color: white;
+}
+
+.modal-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.modal-buttons button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.submit-button {
+  background: #8560be;
+  color: white;
+}
+
+.cancel-button {
+  background: #1b005a;
+  color: #6d3fd3;
+}
+
+.submit-button:hover {
+  background: #674f99;
+}
+
+.cancel-button:hover {
+  background: #2a0066;
+}

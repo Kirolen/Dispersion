@@ -90,7 +90,7 @@ class courseController {
 
     async getAllCourses(req, res) {
         try {
-            const token = req.headers['authorization']?.split(' ')[1]; // Assuming the token is sent as "Bearer <token>"
+            const token = req.headers['authorization']?.split(' ')[1]; 
 
             if (!token) {
                 return res.status(400).json({ success: false, message: 'Token not provided' });
@@ -99,6 +99,7 @@ class courseController {
             const user_id = decoded.id;
 
             const user = await User.findById(user_id);
+
             if (!user) {
                 return res.status(404).json({ success: false, message: 'User not found' });
             }
