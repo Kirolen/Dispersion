@@ -17,6 +17,6 @@ router.post(
 router.post('/join-course', authMiddleware, courseController.joinCourse);
 router.get('/get-students', roleMiddleware("Teacher"), courseController.getStudentsByCourse)
 router.get('/get-my-courses', authMiddleware, courseController.getAllCourses)
-router.get('/courses/:courseId', authMiddleware, courseController.getCourseById);
+router.get('/course-info/:courseId', authMiddleware, courseController.getCourseById);
 
 module.exports = router;

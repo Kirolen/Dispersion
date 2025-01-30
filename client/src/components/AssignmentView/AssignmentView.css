@@ -1,0 +1,136 @@
+.assignment-view {
+    padding: 20px;
+    color: #fff;
+  }
+  
+  .assignment-view-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #8560be;
+  }
+  
+  .assignment-view-header h1 {
+    color: #8560be;
+    margin: 0;
+  }
+  
+  .back-button {
+    background: #1b005a;
+    color: #8560be;
+    border: 1px solid #8560be;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .assignment-view-content {
+    background: #200055;
+    border: 1px solid #8560be;
+    border-radius: 10px;
+    padding: 20px;
+  }
+  
+  .assignment-details {
+    margin-bottom: 30px;
+  }
+  
+  .assignment-details h2 {
+    color: #8560be;
+    margin-bottom: 15px;
+  }
+  
+  .description {
+    color: #fff;
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+  
+  .meta-info {
+    display: flex;
+    gap: 20px;
+    color: #819198;
+  }
+  
+  .submissions-section {
+    margin-bottom: 30px;
+  }
+  
+  .submission-card {
+    background: #1b005a;
+    border: 1px solid #8560be;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+  }
+  
+  .submission-header {
+    display: flex;
+    justify-content: space-between;
+    color: #819198;
+    margin-bottom: 10px;
+  }
+  
+  .feedback {
+    border-top: 1px solid #8560be;
+    padding-top: 10px;
+    margin-top: 10px;
+  }
+  
+  .feedback h3 {
+    color: #8560be;
+    margin-bottom: 10px;
+  }
+  
+  .grading-section {
+    background: #1b005a;
+    border: 1px solid #8560be;
+    border-radius: 8px;
+    padding: 20px;
+  }
+  
+  .grade-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  
+  .form-group label {
+    color: #8560be;
+  }
+  
+  .form-group input,
+  .form-group textarea {
+    background: #200055;
+    border: 1px solid #8560be;
+    border-radius: 5px;
+    padding: 8px;
+    color: #fff;
+  }
+  
+  .form-group textarea {
+    min-height: 100px;
+    resize: vertical;
+  }
+  
+  .submit-grade {
+    background: #8560be;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+  }
+  
+  .submit-grade:hover {
+    background: #674f99;
+  }

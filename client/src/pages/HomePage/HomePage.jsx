@@ -9,11 +9,13 @@ const HomePage = (props) => {
   const [showModal, setShowModal] = useState(false);
   const [courseAction, setCourseAction] = useState('');
   const [courseName, setCourseName] = useState('');
+  const [courseDesc, setCourseDesc] = useState('');
   const [courseCode, setCourseCode] = useState('');
   const [courses, setCourses] = useState([]);
 
   useEffect(() => {
-    handleMyCourse();
+    const res = handleMyCourse();
+    console.log(res)
   }, []);
 
   const handleLogout = () => {
@@ -40,9 +42,10 @@ const HomePage = (props) => {
   const handleSubmit = async () => {
     try {
       if (courseAction === 'create') {
-        await createCourse(courseName, props.user_id);
+        await createCourse(courseName, courseDesc, props.user_id);
         alert('Course created successfully!');
       } else if (courseAction === 'join') {
+        console.log("user: " + props.user_id)
         await joinCourse(props.user_id, courseCode);
         alert('Successfully joined the course!');
       }
@@ -55,9 +58,8 @@ const HomePage = (props) => {
 
   const handleMyCourse = async () => {
     try {
-      //const result = await getMyCourses();
-      //setCourses(result);
-      setCourses( mockCourses());
+      const result = await getMyCourses();
+      setCourses([...result, ...mockCourses()]);
     } catch (error) {
       console.error('Error fetching courses:', error);
     }
@@ -67,7 +69,7 @@ const HomePage = (props) => {
     <div className="home-container">
       <div className="dashboard-header">
         <h1>Welcome to Dispersion</h1>
-        <div className="action-buttons">
+        <div className="action-buttons" >
           {props.user_role === 'Teacher' ? (
             <button className="create-button" onClick={handleCreateCourse}>
               Create Course
@@ -86,13 +88,13 @@ const HomePage = (props) => {
       <div className="courses-grid">
         {courses.map((course) => (
           <div
-            key={course._id}
+            key={course.course_id}
             className="course-card"
-            onClick={() => navigate(`/course/${course._id}`)}
+            onClick={() => navigate(`/course/${course.course_id}/stream`)}
           >
             <div className="course-card-content">
               <h3>{course.course_name}</h3>
-              <p>{course.description || 'No description available'}</p>
+              <p>{course.course_desc || 'No description available'}</p>
             </div>
             <div className="course-card-footer">
               <span>Teacher: {course.teacher_name || 'Unknown'}</span>
@@ -106,14 +108,22 @@ const HomePage = (props) => {
         <div className="modal">
           <div className="modal-content">
             <h2>{courseAction === 'create' ? 'Create New Course' : 'Join Course'}</h2>
-            {courseAction === 'create' ? (
-              <input
-                type="text"
-                placeholder="Course Name"
-                value={courseName}
-                onChange={(e) => setCourseName(e.target.value)}
-              />
-            ) : (
+            {courseAction === 'create' ? 
+              <div style={{display:"flex", flexDirection:"column"}}>
+                <input
+                  type="text"
+                  placeholder="Course Name"
+                  value={courseName}
+                  onChange={(e) => setCourseName(e.target.value)}
+                />
+                <input
+                  type="text"
+                  placeholder="Short description"
+                  value={courseDesc}
+                  onChange={(e) => setCourseDesc(e.target.value)}
+                />
+               </div>               
+             : (
               <input
                 type="text"
                 placeholder="Enter Course Code"
