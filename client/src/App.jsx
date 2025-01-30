@@ -10,6 +10,7 @@ import './styles/main.css';
 import Layout from './components/Layout/Layout';
 import ProfilePage from './components/ProfilePage/ProfilePage';
 import SettingsPage from './components/SettingsPage/SettingsPage';
+import TestCreationForm from './components/TestCreationForm/TestCreationForm';
 
 const App = () => {
   const [user_id, setID] = useState("");
@@ -41,6 +42,7 @@ const App = () => {
           <Route path="/course/:courseId" element={<Layout><CoursePage /></Layout>} />
           <Route path="/profile" element={<Layout><ProfilePage /></Layout>} />
           <Route path="/settings" element={<Layout><SettingsPage /></Layout>} />
+          <Route path="/test" element={<TestCreationForm/>} />
         </Routes>
        
       </div>

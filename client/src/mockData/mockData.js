@@ -19,7 +19,7 @@ export const mockUsers = [
     }
   ];
   
-  export const mockCourses = [
+  export const mockCourses = () => { return [
     {
       _id: '1',
       course_name: 'Introduction to React',
@@ -68,7 +68,7 @@ export const mockUsers = [
         }
       ]
     }
-  ];
+  ];}
   
   export const mockGrades = [
     {

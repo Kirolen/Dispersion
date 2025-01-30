@@ -1,0 +1,146 @@
+.test-creation-form {
+    padding: 20px;
+    background: #200055;
+    border: 1px solid #8560be;
+    border-radius: 10px;
+    color: #fff;
+  }
+  
+  .test-creation-form h2 {
+    color: #8560be;
+    margin-bottom: 20px;
+  }
+  
+  .form--test-group {
+    margin-bottom: 20px;
+  }
+  
+  .form-test-group label {
+    display: block;
+    color: #8560be;
+    margin-bottom: 5px;
+  }
+  
+  .form-test-group input,
+  .form-test-group textarea,
+  .form-test-group option,
+  .form-test-group select {
+    width: 20%;
+    padding: 10px;
+    background: #1b005a;
+    border: 1px solid #8560be;
+    border-radius: 5px;
+    color: #fff;
+  }
+  
+  .form-group textarea {
+    min-height: 100px;
+    resize: vertical;
+  }
+  
+  .questions-section {
+    margin-top: 30px;
+  }
+  
+  .questions-section h3 {
+    color: #8560be;
+    margin-bottom: 20px;
+  }
+  
+  .question-card {
+    background: #1b005a;
+    border: 1px solid #8560be;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  
+  .question-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+  }
+  
+  .question-header h4 {
+    color: #8560be;
+    margin: 0;
+  }
+  
+  .options-group {
+    margin-top: 15px;
+  }
+  
+  .option-input {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  
+  .option-input input[type="text"] {
+    flex: 1;
+    padding: 8px;
+    background: #200055;
+    border: 1px solid #8560be;
+    border-radius: 5px;
+    color: #fff;
+  }
+  
+  .option-input input[type="radio"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+  }
+  
+  .add-question {
+    background: #8560be;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+  }
+  
+  .remove-question {
+    background: #ff4d4f;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .form-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 30px;
+  }
+  
+  .submit-button,
+  .cancel-button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 500;
+  }
+  
+  .submit-button {
+    background: #8560be;
+    color: white;
+  }
+  
+  .cancel-button {
+    background: #1b005a;
+    color: #6d3fd3;
+  }
+  
+  .submit-button:hover {
+    background: #674f99;
+  }
+  
+  .cancel-button:hover {
+    background: #2a0066;
+  }

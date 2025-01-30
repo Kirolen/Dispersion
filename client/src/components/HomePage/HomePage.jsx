@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createCourse, joinCourse, getMyCourses } from '../../api/courseService';
 import './HomePage.css';
+import {mockCourses} from "../../mockData/mockData"
 
 const HomePage = (props) => {
   const navigate = useNavigate();
@@ -12,9 +13,7 @@ const HomePage = (props) => {
   const [courses, setCourses] = useState([]);
 
   useEffect(() => {
-    if (props.user_id) {
-      handleMyCourse();
-    }
+    handleMyCourse();
   }, []);
 
   const handleLogout = () => {
@@ -56,8 +55,9 @@ const HomePage = (props) => {
 
   const handleMyCourse = async () => {
     try {
-      const result = await getMyCourses();
-      setCourses(result);
+      //const result = await getMyCourses();
+      //setCourses(result);
+      setCourses( mockCourses());
     } catch (error) {
       console.error('Error fetching courses:', error);
     }

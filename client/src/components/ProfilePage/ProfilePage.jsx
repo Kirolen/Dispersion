@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { mockUsers } from '../../mockData/index';
+import { mockUsers } from '../../mockData/mockData';
 import './ProfilePage.css';
 
 const ProfilePage = () => {
