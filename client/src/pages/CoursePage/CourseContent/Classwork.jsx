@@ -56,7 +56,6 @@ const Classwork = () => {
       const handleAddTest = () => {
         navigate('/test');
       };
-    
 
     return (
         <div className="classwork-section">
@@ -150,7 +149,7 @@ const Classwork = () => {
 
                     <div className="form-actions">
                       <button type="submit" className="submit-button">Create Assignment</button>
-                      <button type="button" className="cancel-button" onClick={() => setShowWorkForm(false)}>
+                      <button className="cancel-button" onClick={() => setShowWorkForm(false)}>
                         Cancel
                       </button>
                     </div>

@@ -13,7 +13,7 @@ const HomePage = (props) => {
   const [courseCode, setCourseCode] = useState('');
   const [courses, setCourses] = useState([]);
 
-  useEffect(() => {
+  useEffect(() =>  {
     const res = handleMyCourse();
     console.log(res)
   }, []);

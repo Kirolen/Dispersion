@@ -169,6 +169,23 @@ class courseController {
                 return res.status(404).json({ success: false, message: 'Курс не знайдено' });
             }
 
+            const response = {
+                course_name: course.course_name
+            };
+    
+            return res.json({ success: true, data: response });
+        } catch (error) {
+            res.status(500).json({ success: false, message: 'Помилка при отриманні інформації про курс', error });
+        }
+    } 
+
+    async getCoursePeople(req, res) {
+        try {
+            const { courseId } = req.params;
+            const course = await Course.findById(courseId);
+            if (!course) {
+                return res.status(404).json({ success: false, message: 'Курс не знайдено' });
+            }
             const owner = await CourseOwner.findOne({ course_id: courseId }).populate('teacher_id', 'first_name last_name email');
             const enrollments = await EnrollmentCourse.find({ course_id: courseId }).populate('student_id', 'first_name last_name email');
     
@@ -187,12 +204,12 @@ class courseController {
                 } : null,
                 students,
             };
-    
+            
             return res.json({ success: true, data: response });
         } catch (error) {
-            res.status(500).json({ success: false, message: 'Помилка при отриманні інформації про курс', error });
+            res.status(500).json({ success: false, message: 'Error retrieving data!', error });
         }
-    } 
+    }
 }
 
 module.exports = new courseController();

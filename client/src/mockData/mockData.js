@@ -126,6 +126,25 @@ export const mockCalendarEvents = [
   }
 ];
 
+export const mockPeople = () => {
+  return {
+        course_name: "Introduction to React",
+        teacher: {
+            "id": "6794d3f961b44ffa5121d757",
+            "name": "kostik teacher",
+            "email": "teacher@gmail.com"
+        },
+        students: [
+            {
+                "id": "6794dc45e494e39164ab26c8",
+                "name": "kostik student",
+                "email": "student@gmail.com"
+            }
+        ]
+  }
+}
+
+
 export const mockCourses = () => { 
   return [
     {

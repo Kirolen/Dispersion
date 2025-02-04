@@ -1,71 +1,79 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { mockCourses } from "../../../mockData/mockData";
-import {getCourseChat, addMessage} from '../../../api//courseService'
+import makeToast from '../../../Toaster/Toaster';
 
 
-const Stream = (props) => {
-    const [announcement, setAnnouncement] = useState('');
-    const [localAnnouncements, setLocalAnnouncements] = useState([]);
-    const {courseId } = useParams();
+const Stream = ({socket, user_id, setupToken}) => {
+  const {courseId } = useParams();
+  const [messages, setMessages] = useState([]);
+  const [message, setMessage] = useState('');
 
-    useEffect(() => {
-        const fetchCourseDetails = async () => {
-         try {
-            if (courseId === "1") {
-                setLocalAnnouncements(mockCourses()[0].announcements);
-            }
-        else {
-          const res = await getCourseChat(courseId);
-          console.log(res)
-          setLocalAnnouncements(res)
+  useEffect(() => {
+    if (!socket) {
+      setupToken() 
+      return; 
+    }
+    console.log(`📢 Joining course chat ${courseId}`);
+    socket.emit("joinCourseChat", { courseId });
+
+    socket.on("getMessages", (loadedMessages) => {
+        setMessages(loadedMessages);
+    });
+
+    socket.on("newMessage", (newMessage) => {
+      console.log("new message:", newMessage)
+      setMessages((prevMessages) => [...prevMessages, newMessage]);
+  });
+
+    return () => {
+        if (socket) { 
+            console.log(`📤 Leaving course chat ${courseId}`);
+            socket.emit("leaveCourseChat", { courseId });
         }
-      } catch (error) {
-        console.error('Error fetching course details:', error);
-      }
     };
+}, [socket, courseId]);
 
-    fetchCourseDetails();
-  }, [courseId]);
 
-    const handleAnnouncementSubmit = async () => {
-        if (!announcement.trim()) return;
-        
-        const res = await addMessage(courseId, announcement)
-        const newAnnouncement = {
-          message: announcement,
-          author: props.username || "",
-          date: new Date().toLocaleString()
-        };
-    
-        setLocalAnnouncements([newAnnouncement, ...localAnnouncements]);
-        setAnnouncement('');
-      };
-    
+const sendMessage = () => {
+  
+  console.log(message)
+  console.log(socket)
+    if (socket && message.trim()) {
+        socket.emit("chatroomMessage", { courseId, user_id, message });
+        setMessage("");
+    }
+};
 
-    return (<div className="stream-section">
+  return (
+    <div className="stream-section">
       <div className="announcement-box">
         <input
           type="text"
           placeholder="Share something with your class..."
           className="announcement-input"
-          value={announcement}
-          onChange={(e) => setAnnouncement(e.target.value)}
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
         />
-        <button className="post-button" onClick={handleAnnouncementSubmit}>Post</button>
+        <button className="post-button" onClick={sendMessage}>Post</button>
       </div>
-      <div className="stream-feed">
-        {localAnnouncements.map((announcement, index) => (
-          <div key={announcement.id || index} className="announcement-card">
-            <div className="announcement-header">
-              <span className="author">{announcement.author || ""}</span>
-              <span className="date">{announcement.created_at || ""}</span>
-            </div>
-            <p className="announcement-content">{announcement.message || ""}</p>
-          </div>
-        ))}
-      </div>
-    </div>)
-  }
 
-  export default Stream
+      <div className="stream-feed">
+        {messages.length > 0 ? (
+          messages.map((announcement, index) => (
+            <div key={announcement.id || index} className="announcement-card">
+              <div className="announcement-header">
+                <span className="author">{announcement.author || ""}</span>
+                <span className="date">{announcement.created_at || ""}</span>
+              </div>
+              <p className="announcement-content">{announcement.message || ""}</p>
+            </div>
+          ))
+        ) : (
+          <div>No announcements yet.</div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default Stream;
