@@ -97,14 +97,14 @@ const App = () => {
           <Route path="/auth-login" element={<LoginPage />} />
           <Route path="/home" element={<Layout><HomePage user_id={user_id} user_role={role}/></Layout>} />
           <Route path="/course/:courseId/stream" element={<Layout><CoursePage><Stream socket={socket} setupToken={setupToken} user_id={user_id}/></CoursePage></Layout>} />
-          <Route path="/course/:courseId/classwork" element={<Layout><CoursePage><Classwork username={name}/></CoursePage></Layout>} />
+          <Route path="/course/:courseId/classwork" element={<Layout><CoursePage><Classwork user_id={user_id} role={role}/></CoursePage></Layout>} />
           <Route path="/course/:courseId/student" element={<Layout><CoursePage><People/></CoursePage></Layout>} />
           <Route path="/course/:courseId/grades" element={<Layout><CoursePage><Grades/></CoursePage></Layout>} />
           <Route path="/profile" element={<Layout><ProfilePage /></Layout>} />
           <Route path="/settings" element={<Layout><SettingsPage /></Layout>} />
           <Route path="/test" element={<TestCreationForm/>} />
           <Route path="/assignments" element={<Layout><AssignmentsPage /></Layout>} />
-          <Route path="/assignment/:assignmentId" element={<Layout><AssignmentView /></Layout>} />
+          <Route path="/assignment/:assignmentId" element={<Layout><AssignmentView user_id={user_id} role={role}/></Layout>} />
           <Route path="/calendar" element={<Layout><CalendarPage /></Layout>} />
           <Route path="/messages" element={<Layout><MessagesPage /></Layout>} />
         </Routes>

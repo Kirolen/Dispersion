@@ -24,9 +24,8 @@ const People = () => {
     fetchCourseDetails();
   }, [courseId]);
 
-  // Render loading state or check for null
   if (!courseInfoPeople) {
-    return <div>Loading...</div>; // Show a loading state while data is being fetched
+    return <div>Loading...</div>; 
   }
 
   return (

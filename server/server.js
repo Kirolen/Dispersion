@@ -4,6 +4,7 @@ const http = require('http');
 const authRoutes = require('./routes/authRoutes')
 const courseRoutes = require('./routes/courseRoutes')
 const messageRoutes = require('./routes/messageRoutes')
+const materialRoutes = require('./routes/materialRoutes')
 const jwt = require('jsonwebtoken')
 const cors = require('cors');
 const PORT = process.env.PORT || 5000
@@ -18,6 +19,7 @@ app.use(express.json())
 app.use("/auth", authRoutes)
 app.use("", courseRoutes)
 app.use("", messageRoutes)
+app.use("/material", materialRoutes)
 mongoose.connect("mongodb+srv://kostik:kostik@dispersioncluster.fy1nx.mongodb.net/?retryWrites=true&w=majority&appName=DispersionCluster")
         
 const io = require("socket.io")(server, {
