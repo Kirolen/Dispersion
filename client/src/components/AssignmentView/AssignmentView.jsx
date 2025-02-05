@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getMaterialInfo } from '../../api/materialService'
+import { getTaskInfoForStudent } from '../../api/materialService'
 import './AssignmentView.css';
 
 const AssignmentView = ({ user_id, role }) => {
@@ -16,7 +16,7 @@ const AssignmentView = ({ user_id, role }) => {
   useEffect(() => {
     const fetchAssignmentDetails = async () => {
       try {
-        const data = await getMaterialInfo(assignmentId, user_id);
+        const data = await getTaskInfoForStudent(assignmentId, user_id);
         console.log(data)
         setAssignment(data.data);
         setStatus(data.userDetails?.status || 'Не здано');

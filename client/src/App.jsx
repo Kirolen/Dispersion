@@ -99,7 +99,7 @@ const App = () => {
           <Route path="/course/:courseId/stream" element={<Layout><CoursePage><Stream socket={socket} setupToken={setupToken} user_id={user_id}/></CoursePage></Layout>} />
           <Route path="/course/:courseId/classwork" element={<Layout><CoursePage><Classwork user_id={user_id} role={role}/></CoursePage></Layout>} />
           <Route path="/course/:courseId/student" element={<Layout><CoursePage><People/></CoursePage></Layout>} />
-          <Route path="/course/:courseId/grades" element={<Layout><CoursePage><Grades/></CoursePage></Layout>} />
+          <Route path="/course/:courseId/grades" element={<Layout><CoursePage><Grades user_id={user_id} role={role}/></CoursePage></Layout>} />
           <Route path="/profile" element={<Layout><ProfilePage /></Layout>} />
           <Route path="/settings" element={<Layout><SettingsPage /></Layout>} />
           <Route path="/test" element={<TestCreationForm/>} />

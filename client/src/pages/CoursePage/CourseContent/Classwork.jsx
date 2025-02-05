@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { getCoursePeople } from '../../../api/courseService';
 import { useNavigate } from 'react-router-dom';
-import { addMaterial, getAllMaterials, getMaterials } from '../../../api/materialService'
+import { addTask, getAllCourseMaterials, getCourseMaterialsForStudent } from '../../../api/materialService'
 
 
 
@@ -32,11 +32,12 @@ const Classwork = ({ role, user_id }) => {
         setUsers(people);
         let assignments;
         if (role === "Teacher") {
-          assignments = await getAllMaterials(courseId);
+          assignments = await getAllCourseMaterials(courseId);
         }
         else {
-          assignments = await getMaterials(courseId, user_id);
+          assignments = await getCourseMaterialsForStudent(courseId, user_id);
         }
+        console.log(assignments)
         setPublishedAssignments(assignments);
       } catch (error) {
         console.error('Error fetching course details:', error);
@@ -57,7 +58,7 @@ const Classwork = ({ role, user_id }) => {
     }
 
     try {
-      await addMaterial(
+      await addTask(
         workForm.title,
         workForm.description,
         materialType,
@@ -81,7 +82,7 @@ const Classwork = ({ role, user_id }) => {
       setShowWorkForm(false);
       setMaterialType('');
 
-      const updatedAssignments = await getAllMaterials(courseId);
+      const updatedAssignments = await getAllCourseMaterials(courseId);
       setPublishedAssignments(updatedAssignments);
     } catch (error) {
       console.error('Error adding material:', error);
@@ -253,7 +254,7 @@ const Classwork = ({ role, user_id }) => {
               <div className="assignment-footer">
                 <span>Due: {new Date(assignment.dueDate).toLocaleString()}</span>
                 <span>{assignment.points} points</span>
-               {role === "Teachet" ? 
+               {role === "Teacher" ? 
                <></> : 
                <button className="view-button" onClick={() => navigate(`/assignment/${assignment._id}`)}>View Assignment</button>} 
               </div>)}

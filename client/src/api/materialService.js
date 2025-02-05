@@ -1,8 +1,8 @@
 import api from './api';
 
-export const addMaterial = async (title, description, type, dueDate, points, course_id, assignedUsers, attachments) => {
+export const addTask = async (title, description, type, dueDate, points, course_id, assignedUsers, attachments) => {
     try {
-        const response = await api.post('/material/send-material',
+        const response = await api.post('/material/add-material',
             {
                 title,
                 description,
@@ -19,28 +19,46 @@ export const addMaterial = async (title, description, type, dueDate, points, cou
     }
 };
 
-export const getMaterials = async (course_id, user_id) => {
+export const getCourseMaterialsForStudent = async (course_id, user_id) => {
     try {
-        const response = await api.get(`/material/get-material/${course_id}?userId=${user_id}`);
+        const response = await api.get(`/material/get-course-material-for-student/${course_id}?userId=${user_id}`);
         return response.data.data;
     } catch (error) {
         throw new Error('Error creating course: ' + error.message);
     }
 };
 
-export const getAllMaterials = async (course_id) => {
+export const getAllCourseMaterials = async (course_id) => {
     try {
-        const response = await api.get(`/material/get-all-material/${course_id}`);
+        const response = await api.get(`/material/get-all-course-material/${course_id}`);
         return response.data.data;
     } catch (error) {
         throw new Error('Error creating course: ' + error.message);
     }
 };
 
-export const getMaterialInfo = async (material_id, user_id) => {
+export const getTaskInfoForStudent = async (material_id, user_id) => {
     try {
-        const response = await api.get(`/material/get-material-info/${material_id}?userId=${user_id}`);
+        const response = await api.get(`/material/get-task-info-for-student/${material_id}?userId=${user_id}`);
         return response.data;
+    } catch (error) {
+        throw new Error('Error creating course: ' + error.message);
+    }
+};
+
+export const getStudentsTasksResult = async (material_id) => {
+    try {
+        console.log(material_id)
+        const response = await api.get(`/material/get-students-tasks-result/${material_id}`);
+        return response.data;
+    } catch (error) {
+        throw new Error('Error creating course: ' + error.message);
+    }
+};
+export const getStudentTasksResult = async (course_id, user_id) => {
+    try {
+        const response = await api.get(`/material/get-student-task-result/${course_id}?userId=${user_id}`);
+        return response.data.data;
     } catch (error) {
         throw new Error('Error creating course: ' + error.message);
     }
