@@ -46,15 +46,15 @@
     padding: 15px;
   }
   
-  .event-card.assignment {
+  .event-card.Assignment {
     border-left: 4px solid #ff9800;
   }
   
-  .event-card.test {
+  .event-card.Test {
     border-left: 4px solid #f44336;
   }
   
-  .event-card.meeting {
+  .event-card.Meeting {
     border-left: 4px solid #4caf50;
   }
   

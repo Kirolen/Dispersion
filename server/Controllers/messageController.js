@@ -1,9 +1,5 @@
-
-const jwt = require('jsonwebtoken')
-
 const Course = require('../Models/Course');
 const Message = require('../Models/Message')
-const {secret} = require('../Config/config')
 
 class messageController {
     async addMessage(course_id, sender_id, message) {

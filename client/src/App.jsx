@@ -106,7 +106,7 @@ const App = () => {
           <Route path="/test" element={<TestCreationForm/>} />
           <Route path="/assignments" element={<Layout><AssignmentsPage user_id={user_id} role={role}/></Layout>} />
           <Route path="/assignment/:assignmentId" element={<Layout><AssignmentView user_id={user_id} role={role}/></Layout>} />
-          <Route path="/calendar" element={<Layout><CalendarPage /></Layout>} />
+          <Route path="/calendar" element={<Layout><CalendarPage user_id={user_id} /></Layout>} />
           <Route path="/messages" element={<Layout><MessagesPage /></Layout>} />
         </Routes>
        

@@ -5,6 +5,7 @@ const authRoutes = require('./routes/authRoutes')
 const courseRoutes = require('./routes/courseRoutes')
 const messageRoutes = require('./routes/messageRoutes')
 const materialRoutes = require('./routes/materialRoutes')
+const calendarEventRoutes = require('./routes/calendarEventRoutes')
 const jwt = require('jsonwebtoken')
 const cors = require('cors');
 const PORT = process.env.PORT || 5000
@@ -12,7 +13,8 @@ const {secret} = require('./Config/config')
 const {getMessages, addMessage} = require('./Controllers/messageController')
 const app = express()
 const server = http.createServer(app);
-const User = require("./Models/User")
+const User = require("./Models/User");
+const calendarEventControler = require('./Controllers/calendarEventControler');
 app.use(cors())
 app.use(express.json())
 
@@ -20,6 +22,7 @@ app.use("/auth", authRoutes)
 app.use("", courseRoutes)
 app.use("", messageRoutes)
 app.use("/material", materialRoutes)
+app.use("/calendar", calendarEventRoutes)
 mongoose.connect("mongodb+srv://kostik:kostik@dispersioncluster.fy1nx.mongodb.net/?retryWrites=true&w=majority&appName=DispersionCluster")
         
 const io = require("socket.io")(server, {
