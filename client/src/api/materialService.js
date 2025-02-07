@@ -37,7 +37,7 @@ export const getAllCourseMaterials = async (course_id) => {
     }
 };
 
-export const getTaskInfoForStudent = async (material_id, user_id) => {
+export const getStudentTaskInfo = async (material_id, user_id) => {
     try {
         const response = await api.get(`/material/get-task-info-for-student/${material_id}?userId=${user_id}`);
         return response.data;
@@ -58,6 +58,42 @@ export const getStudentsTasksResult = async (material_id) => {
 export const getStudentTasksResult = async (course_id, user_id) => {
     try {
         const response = await api.get(`/material/get-student-task-result/${course_id}?userId=${user_id}`);
+        return response.data.data;
+    } catch (error) {
+        throw new Error('Error creating course: ' + error.message);
+    }
+};
+
+export const handInTask = async (material_id, user_id, files, type) => {
+    try {
+        const response = await api.post("/material/hand-in-task", {material_id, user_id, files, type});
+        return response.data.data;
+    } catch (error) {
+        throw new Error('Error creating course: ' + error.message);
+    }
+};
+
+export const gradeTask = async (material_id, student_id, teacher_id, grade, message) => {
+    try {
+        const response = await api.post('/material/grade-student-task', {material_id, student_id, teacher_id, grade, message});
+        return response.data.data;
+    } catch (error) {
+        throw new Error('Error creating course: ' + error.message);
+    }
+};
+
+export const getAllStudentAssigments = async (user_id) => {
+    try {
+        const response = await api.get(`/material/get-all-course-tasks/${user_id}`);
+        return response.data.data;
+    } catch (error) {
+        throw new Error('Error creating course: ' + error.message);
+    }
+};
+
+export const getFilteredCourses = async (user_id, filterValue) => {
+    try {
+        const response = await api.get(`/material/get-filtered-courses/${user_id}?filterValue=${filterValue}`);
         return response.data.data;
     } catch (error) {
         throw new Error('Error creating course: ' + error.message);

@@ -63,7 +63,8 @@ const App = () => {
       if (authToken) {
         try {
           const decodedTokenData = jwtDecode(authToken); 
-  
+          
+          console.log("UserID: " + decodedTokenData.id)
           setID(decodedTokenData.id || ''); 
           setRole(decodedTokenData.role || '');
           setName(decodedTokenData.name)
@@ -103,7 +104,7 @@ const App = () => {
           <Route path="/profile" element={<Layout><ProfilePage /></Layout>} />
           <Route path="/settings" element={<Layout><SettingsPage /></Layout>} />
           <Route path="/test" element={<TestCreationForm/>} />
-          <Route path="/assignments" element={<Layout><AssignmentsPage /></Layout>} />
+          <Route path="/assignments" element={<Layout><AssignmentsPage user_id={user_id} role={role}/></Layout>} />
           <Route path="/assignment/:assignmentId" element={<Layout><AssignmentView user_id={user_id} role={role}/></Layout>} />
           <Route path="/calendar" element={<Layout><CalendarPage /></Layout>} />
           <Route path="/messages" element={<Layout><MessagesPage /></Layout>} />

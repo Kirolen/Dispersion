@@ -134,3 +134,41 @@
   .submit-grade:hover {
     background: #674f99;
   }
+
+.assignment-view span {
+ margin: 20px 0 20px 0;
+}
+
+.feedback-section {
+  background-color: #674f99; /* Фон фіолетового кольору */
+  padding: 20px; /* Відступи всередині */
+  border-radius: 10px; /* Округлені кути */
+  color: #ffffff; /* Білий колір тексту для контрасту */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Тінь для глибини */
+  max-width: 600px; /* Максимальна ширина */
+  margin: 20px auto; /* Центрування блоку */
+}
+
+.feedback-section h3 {
+  font-size: 1.5em; /* Великий розмір заголовка */
+  margin-bottom: 10px; /* Відступ від нижнього елемента */
+  font-weight: bold; /* Жирний шрифт */
+  text-align: center; /* Центрування заголовка */
+}
+
+.feedback-section p {
+  font-size: 1.2em; /* Середній розмір шрифта */
+  line-height: 1.6; /* Відстань між рядками */
+  text-align: center; /* Центрування тексту */
+}
+
+.feedback-section h3:last-child {
+  font-size: 1em; /* Меньший шрифт для імені */
+  font-style: italic; /* Курсив для імені */
+  color: #f1e6ff; /* Світлий колір для імені */
+  margin-bottom: 15px; /* Відступ перед основним текстом */
+}
+
+.feedback-section p {
+  color: #e0c7f7; /* Світлий колір для тексту відгуку */
+}

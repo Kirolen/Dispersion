@@ -82,7 +82,7 @@ const Grades = ({ role, user_id }) => {
                                                 <td>{submission.grade || 'Not graded'}</td>
                                                 <td>
                                                     <button onClick={() => navigate(`/assignment/${selectedAssignment._id}?ref=${submission.student_id}`)}>
-                                                        Grade
+                                                        {submission.status === "graded" ? "Change grade" : "Grade"}
                                                     </button>
                                                 </td>
                                             </tr>

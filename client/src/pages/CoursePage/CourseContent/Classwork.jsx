@@ -58,6 +58,15 @@ const Classwork = ({ role, user_id }) => {
     }
 
     try {
+      console.log(workForm.title,
+        workForm.description,
+        materialType,
+        dueDateTime,
+        workForm.points,
+        courseId,
+        workForm.assignedUsers,
+        workForm.attachments)
+
       await addTask(
         workForm.title,
         workForm.description,

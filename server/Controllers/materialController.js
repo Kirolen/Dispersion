@@ -1,12 +1,14 @@
 const Material = require('../Models/Material');
 const AssignedUsers = require('../Models/AssignedUsers');
-const mongoose = require('mongoose')
+const User = require("../Models/User");
+const CourseOwner = require("../Models/CourseOwner")
+const mongoose = require('mongoose');
 
 class materialController {
     async addTask(req, res) {
         try {
             const { title, description, type, dueDate, points, course_id, assignedUsers, attachments } = req.body;
-
+            console.log(title, description, type, dueDate, points, course_id, assignedUsers, attachments)
             const newMaterial = await Material.create({
                 title,
                 description,
@@ -39,18 +41,8 @@ class materialController {
     //return all published materials for one student
     async getCourseMaterialsForStudent(req, res) {
         try {
-            let { courseId } = req.params;
-            let { userId } = req.query;
-
-            courseId = courseId.trim();
-            userId = userId.trim()
-            if (!mongoose.Types.ObjectId.isValid(courseId)) {
-                return res.status(400).json({ success: false, message: "❌ Invalid course ID" });
-            }
-
-            if (!mongoose.Types.ObjectId.isValid(userId)) {
-                return res.status(400).json({ success: false, message: "❌ Invalid user ID" });
-            }
+            const { courseId } = req.params;
+            const { userId } = req.query;
 
             const assignedMaterials = await AssignedUsers.find({ user_id: userId }).select('material_id');
             const materialIds = assignedMaterials.map(a => a.material_id);
@@ -92,7 +84,7 @@ class materialController {
     }
 
     //return info about task materials for all students. Get access only teacher
-    async getTaskInfoForStudent(req, res) {
+    async getStudentTaskInfo(req, res) {
         try {
             let { materialId } = req.params;
             let { userId } = req.query;
@@ -107,6 +99,7 @@ class materialController {
                 return res.status(400).json({ success: false, message: "❌ Invalid user ID" });
             }
             const material = await Material.findById(materialId).lean();
+            console.log("Material found...")
             if (!material) {
                 return res.status(404).json({ success: false, message: "❌ Material not found" });
             }
@@ -171,7 +164,45 @@ class materialController {
         }
     }
 
-    //return for stundent his tasks result 
+    async getAllStudentAssigments(req, res) {
+        try {
+            const { userId } = req.params;
+
+            const assignedMaterials = await AssignedUsers.find({ user_id: userId }).select('material_id');
+            const materialIds = assignedMaterials.map(a => a.material_id);
+            const materials = await Material.find({
+                _id: { $in: materialIds },  
+                $or: [
+                    { type: 'practice' }     
+                ]
+            }).sort({ createdAt: -1 });
+
+            if (materials.length === 0) {
+                return res.status(200).json({ success: true, data: [] });
+            }
+
+            const userDetails = await User.findById(userId).select("name email role").lean(); 
+
+            const materialsWithUserAssignments = await Promise.all(materials.map(async (material) => {
+                const userAssignment = await AssignedUsers.findOne({ material_id: material._id, user_id: userId })
+                    .select("grade userFile status response")
+                    .lean();
+
+                return {
+                    ...material.toObject(),  
+                    userDetails,             
+                    userAssignment: userAssignment || null  
+                };
+            }));
+
+            return res.status(200).json({ success: true, data: materialsWithUserAssignments });
+
+        } catch (error) {
+            console.error("❌ Error fetching assignments:", error);
+            return res.status(500).json({ success: false, message: "❌ Error fetching assignments", error });
+        }
+    }
+
     async getStudentTasksResult(req, res) {
         try {
             const { courseId } = req.params;
@@ -179,31 +210,31 @@ class materialController {
 
             const assignedMaterials = await AssignedUsers.find({ user_id: userId }).select('material_id');
             const materialIds = assignedMaterials.map(a => a.material_id);
-    
+
             const assignments = await Material.find({
                 course_id: courseId,
                 $or: [{ _id: { $in: materialIds } }]
             }).sort({ createdAt: -1 });
-    
+
             const tasksStatus = await Promise.all(assignments.map(async (assignment) => {
-                const assignedUser = await AssignedUsers.findOne({ 
-                    user_id: userId, 
-                    material_id: assignment._id 
+                const assignedUser = await AssignedUsers.findOne({
+                    user_id: userId,
+                    material_id: assignment._id
                 });
-    
+
                 return {
                     _id: assignment._id,
-                    title: assignment.title, 
+                    title: assignment.title,
                     grade: assignedUser ? assignedUser.grade || 'Not graded' : 'Not graded',
                     status: assignedUser ? assignedUser.status || 'Not submitted' : 'Not submitted'
                 };
             }));
-    
+
             return res.status(200).json({
                 success: true,
                 data: tasksStatus
             });
-    
+
         } catch (error) {
             console.error("❌ Error fetching material info:", error);
             return res.status(500).json({
@@ -213,7 +244,144 @@ class materialController {
             });
         }
     }
+
+    async handInTask(req, res) {
+        try {
+            const { material_id, user_id, files, type } = req.body;
+
+            const material = await Material.findById(material_id);
+            if (!material) {
+                return res.status(404).json({ success: false, message: "❌ Завдання не знайдено" });
+            }
+
+            const isSending = (type === "send")
+            console.log("Course finded...")
+            const curDate = new Date()
+            const checkStatus = curDate > material.dueDate ? "passed_with_lateness" : "passed_in_time"
+            console.log("Date checked...")
+            const submission = await AssignedUsers.findOneAndUpdate(
+                { material_id, user_id },
+                {
+                    status: isSending ? checkStatus : "not_passed",
+                    attachments: files,
+                    submitted_at: isSending ? curDate : null,
+                    grade: null,
+                },
+                { new: true, upsert: true }
+            );
+
+            return res.status(200).json({
+                success: true,
+                message: "✅ Завдання успішно здано",
+                data: submission
+            });
+
+        } catch (error) {
+            console.error("❌ Помилка при здачі завдання:", error);
+            return res.status(500).json({ success: false, message: "❌ Помилка сервера", error });
+        }
+    }
+
+    async gradeTask(req, res) {
+        try {
+            const { material_id, student_id, teacher_id, grade, message } = req.body;
+            const material = await Material.findById(material_id);
+            if (!material) {
+                return res.status(404).json({ success: false, message: "❌ Завдання не знайдено" });
+            }
+
+            const teacher = await User.findById(teacher_id);
+            if (!teacher) {
+                return res.status(404).json({ success: false, message: "❌ Вчитель не знайдений" });
+            }
+
+            const submission = await AssignedUsers.findOneAndUpdate(
+                { material_id, user_id: student_id },
+                {
+                    status: "graded",
+                    grade: grade,
+                    response: { message: message, name: `${teacher.first_name} ${teacher.last_name}` }
+                },
+                { new: true }
+            );
+
+            if (!submission) {
+                return res.status(404).json({ success: false, message: "❌ Подання не знайдено" });
+            }
+
+            return res.status(200).json({
+                success: true,
+                message: "✅ Завдання успішно оцінено",
+                data: submission
+            });
+
+        } catch (error) {
+            console.error("❌ Помилка при оцінюванні завдання:", error);
+            return res.status(500).json({ success: false, message: "❌ Помилка сервера", error });
+        }
+    }
+
+    async getFilteredCourses(req, res) {
+        try {
+            const { userId } = req.params;
+            const { filterValue } = req.query;
+            console.log("Fetching courses for teacher:", userId);
     
+            const teacher = await User.findById(userId);
+            if (!teacher) return res.status(404).json({ success: false, message: "❌ Teacher not found" });
+    
+            const courseOwners = await CourseOwner.find({ teacher_id: userId }).populate("course_id", "course_name course_desc");
+            
+            const coursesWithTasks = await Promise.all(courseOwners.map(async ({ course_id }) => {
+                const assignments = await Material.find({ course_id: course_id._id, type: "practice" }).select("title").lean();
+                
+                const tasks = await Promise.all(assignments.map(async (assignment) => {
+                    const assignedUsers = await AssignedUsers.find({ material_id: assignment._id }).populate("user_id", "name").lean();
+                    
+                    let students = assignedUsers.map(({ user_id, grade = "Not graded", status = "Not submitted" }) => ({
+                        user_id: user_id._id,
+                        name: user_id.name,
+                        grade,
+                        status
+                    }));
+    
+                    if (filterValue) {
+                        if (filterValue === "passed") {
+                            students = students.filter(student => student.status === "passed_with_lateness" || student.status === "passed_in_time");
+                        } else {
+                            students = students.filter(student => student.status === filterValue);
+                        }
+                    }
+    
+                    if (students.length === 0) return null; 
+                    
+                    return {
+                        _id: assignment._id,
+                        title: assignment.title,
+                        points: assignment.points,
+                        students
+                    };
+                }));
+    
+                const filteredTasks = tasks.filter(task => task !== null);
+                if (filteredTasks.length === 0) return null;
+    
+                return { course_id: course_id._id, course_name: course_id.course_name, tasks: filteredTasks };
+            }));
+    
+            const filteredCoursesWithTasks = coursesWithTasks.filter(course => course !== null);
+            
+            res.status(200).json({ success: true, data: filteredCoursesWithTasks });
+        } catch (error) {
+            console.error("❌ Error fetching courses with tasks:", error);
+            res.status(500).json({ success: false, message: "❌ Server error", error });
+        }
+    }
+    
+    
+    
+    
+
 }
 
 module.exports = new materialController();
