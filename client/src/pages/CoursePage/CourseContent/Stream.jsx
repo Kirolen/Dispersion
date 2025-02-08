@@ -1,48 +1,61 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import makeToast from '../../../Toaster/Toaster';
+import { markLastCourseMessageAsRead, findCoursesWithUnreadMessages } from '../../../api/messageService'
+import { useSocket } from '../../../context/SocketContext';
 
-
-const Stream = ({socket, user_id, setupToken}) => {
-  const {courseId } = useParams();
+const Stream = () => {
+  const { courseId } = useParams();
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState('');
+  const { socket, user_id, setCourseNotification } = useSocket()
 
   useEffect(() => {
-    if (!socket) {
-      setupToken() 
-      return; 
-    }
-    console.log(`📢 Joining course chat ${courseId}`);
-    socket.emit("joinCourseChat", { courseId });
+    const fetchMessages = async () => {
+      if (!socket) {
+        return;
+      }
+      console.log(`📢 Joining course chat ${courseId}`);
+      socket.emit("joinCourseChat", { courseId });
 
-    socket.on("getMessages", (loadedMessages) => {
+      socket.on("getMessages", (loadedMessages) => {
         setMessages(loadedMessages);
-    });
+      });
 
-    socket.on("newMessage", (newMessage) => {
-      console.log("new message:", newMessage)
-      setMessages((prevMessages) => [...prevMessages, newMessage]);
-  });
+      socket.on("newMessage", (newMessage) => {
+        console.log("new message:", newMessage);
+        setMessages((prevMessages) => [...prevMessages, newMessage]);
+      });
+    };
+
+    fetchMessages();
 
     return () => {
-        if (socket) { 
-            console.log(`📤 Leaving course chat ${courseId}`);
-            socket.emit("leaveCourseChat", { courseId });
-        }
+      if (socket?.emit) {
+        console.log(`📤 Leaving course chat ${courseId}`);
+        socket.emit("leaveCourseChat", { courseId });
+      }
     };
-}, [socket, courseId]);
+  }, [socket, courseId]);
 
+  useEffect(() => {
+    const markMessagesAsRead = async () => {
+      await markLastCourseMessageAsRead(user_id, courseId);
+      const notification = await findCoursesWithUnreadMessages(user_id);
+      setCourseNotification(notification.unreadCourses);
+    };
 
-const sendMessage = () => {
-  
-  console.log(message)
-  console.log(socket)
+    markMessagesAsRead();
+  }, [messages]);
+
+  const sendMessage = () => {
+
+    console.log(message)
+    console.log(socket)
     if (socket && message.trim()) {
-        socket.emit("chatroomMessage", { courseId, user_id, message });
-        setMessage("");
+      socket.emit("chatroomMessage", { courseId, user_id, message });
+      setMessage("");
     }
-};
+  };
 
   return (
     <div className="stream-section">

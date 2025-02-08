@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createCourse, joinCourse, getMyCourses } from '../../api/courseService';
 import './HomePage.css';
-import {mockCourses} from "../../mockData/mockData"
+import { mockCourses } from "../../mockData/mockData"
+import { useSocket } from '../../context/SocketContext';
 
-const HomePage = (props) => {
+const HomePage = () => {
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
   const [courseAction, setCourseAction] = useState('');
@@ -12,8 +13,9 @@ const HomePage = (props) => {
   const [courseDesc, setCourseDesc] = useState('');
   const [courseCode, setCourseCode] = useState('');
   const [courses, setCourses] = useState([]);
+  const { user_id, role, courseNotification} = useSocket()
 
-  useEffect(() =>  {
+  useEffect(() => {
     const res = handleMyCourse();
     console.log(res)
   }, []);
@@ -42,11 +44,10 @@ const HomePage = (props) => {
   const handleSubmit = async () => {
     try {
       if (courseAction === 'create') {
-        await createCourse(courseName, courseDesc, props.user_id);
+        await createCourse(courseName, courseDesc, user_id);
         alert('Course created successfully!');
       } else if (courseAction === 'join') {
-        console.log("user: " + props.user_id)
-        await joinCourse(props.user_id, courseCode);
+        await joinCourse(user_id, courseCode);
         alert('Successfully joined the course!');
       }
       handleMyCourse();
@@ -70,7 +71,7 @@ const HomePage = (props) => {
       <div className="dashboard-header">
         <h1>Welcome to Dispersion</h1>
         <div className="action-buttons" >
-          {props.user_role === 'Teacher' ? (
+          {role === 'Teacher' ? (
             <button className="create-button" onClick={handleCreateCourse}>
               Create Course
             </button>
@@ -93,7 +94,12 @@ const HomePage = (props) => {
             onClick={() => navigate(`/course/${course.course_id}/stream`)}
           >
             <div className="course-card-content">
-              <h3>{course.course_name}</h3>
+              <h3>{course.course_name}
+                {courseNotification.includes(course.course_id) && (
+                  <span className="notification-dot">🔴</span>
+                )}
+
+              </h3>
               <p>{course.course_desc || 'No description available'}</p>
             </div>
             <div className="course-card-footer">
@@ -108,8 +114,8 @@ const HomePage = (props) => {
         <div className="modal">
           <div className="modal-content">
             <h2>{courseAction === 'create' ? 'Create New Course' : 'Join Course'}</h2>
-            {courseAction === 'create' ? 
-              <div style={{display:"flex", flexDirection:"column"}}>
+            {courseAction === 'create' ?
+              <div style={{ display: "flex", flexDirection: "column" }}>
                 <input
                   type="text"
                   placeholder="Course Name"
@@ -122,15 +128,15 @@ const HomePage = (props) => {
                   value={courseDesc}
                   onChange={(e) => setCourseDesc(e.target.value)}
                 />
-               </div>               
-             : (
-              <input
-                type="text"
-                placeholder="Enter Course Code"
-                value={courseCode}
-                onChange={(e) => setCourseCode(e.target.value)}
-              />
-            )}
+              </div>
+              : (
+                <input
+                  type="text"
+                  placeholder="Enter Course Code"
+                  value={courseCode}
+                  onChange={(e) => setCourseCode(e.target.value)}
+                />
+              )}
             <div className="modal-buttons">
               <button className="submit-button" onClick={handleSubmit}>
                 {courseAction === 'create' ? 'Create' : 'Join'}

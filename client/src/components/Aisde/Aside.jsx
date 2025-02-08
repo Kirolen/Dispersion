@@ -1,11 +1,40 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useSocket } from '../../context/SocketContext';
 import "./Aside.css";
+import { findCoursesWithUnreadMessages } from '../../api/messageService';
+
+import makeToast from '../../Toaster/Toaster';
 
 const Aside = () => {
   const location = useLocation();
   const [isCollapsed, setIsCollapsed] = useState(false);
-  
+  const { socket, user_id, courseNotification, setCourseNotification } = useSocket();
+
+  useEffect(() => {
+    if (socket && user_id) {
+      const handleNewGlobalNotification = async (data) => {
+        const notification = await findCoursesWithUnreadMessages(user_id);
+        setCourseNotification(notification.unreadCourses);
+        makeToast("info", `${data.sender}: ${data.message}`);
+      };
+
+      socket.on("newGlobalNotification", handleNewGlobalNotification);
+
+      const fetchUnreadMessages = async () => {
+        const notification = await findCoursesWithUnreadMessages(user_id);
+        setCourseNotification(notification.unreadCourses);
+      };
+      fetchUnreadMessages();
+
+      return () => {
+        if (socket) {
+          socket.off("newGlobalNotification", handleNewGlobalNotification);
+        }
+      };
+    }
+  }, [socket, user_id]);  
+
   const links = [
     { href: "/home", label: "Dashboard", icon: "📊" },
     { href: "/my-courses", label: "My Courses", icon: "📚" },
@@ -16,9 +45,11 @@ const Aside = () => {
     { href: "/settings", label: "Settings", icon: "⚙️" }
   ];
 
+  const unreadMessagesCount = courseNotification.length;
+
   return (
     <aside className={`aside-bar ${isCollapsed ? 'collapsed' : ''}`}>
-      <button 
+      <button
         className="toggle-button"
         onClick={() => setIsCollapsed(!isCollapsed)}
       >
@@ -36,6 +67,9 @@ const Aside = () => {
           >
             <span className="nav-icon">{link.icon}</span>
             <span className="nav-label">{link.label}</span>
+            {link.label === "Dashboard" && unreadMessagesCount > 0 && (
+              <span>🔴</span>
+            )}
           </Link>
         ))}
       </nav>

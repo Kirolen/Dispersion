@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken')
 
 const Course = require('../Models/Course');
 const User = require('../Models/User');
-const EnrollmentCourse = require('../Models/EnrollmentCourse')
+const CourseAccess = require('../Models/CourseAccess')
 const CourseOwner =  require('../Models/CourseOwner')
 const {secret} = require('../Config/config')
 
@@ -58,13 +58,14 @@ class courseController {
             if (!course) {
                 return res.status(404).json({ success: false, message: 'Course not found' });
             }
-
-            const existingEnrollment = await EnrollmentCourse.findOne({ student_id: user_id, course_id });
+      
+            const existingEnrollment = await CourseAccess.findOne({ student_id: user_id, course_id });
             if (existingEnrollment) {
                 return res.status(400).json({ success: false, message: 'User already enrolled in this course' });
             }
-    
-            const enrollment = new EnrollmentCourse({ student_id: user_id, course_id });
+
+            console.log("Course find")
+            const enrollment = new CourseAccess({ student_id: user_id, course_id});
             await enrollment.save();
     
             res.json({ success: true, message: 'User successfully joined the course' });
@@ -82,7 +83,7 @@ class courseController {
                 return res.status(404).json({ success: false, message: 'Course not found' });
             }
 
-            const enrollments = await EnrollmentCourse.find({ course_id }).populate('student_id', 'first_name last_name email');
+            const enrollments = await CourseAccess.find({ course_id }).populate('student_id', 'first_name last_name email');
             const students = enrollments.map((enrollment) => enrollment.student_id);
 
             res.json({ success: true, data: students });
@@ -109,7 +110,7 @@ class courseController {
             }
     
             if (user.role === "Student") {
-                const enrollments = await EnrollmentCourse.find({ student_id: user_id })
+                const enrollments = await CourseAccess.find({ student_id: user_id })
                     .populate({
                         path: 'course_id',
                         select: 'course_name course_desc',
@@ -187,7 +188,7 @@ class courseController {
                 return res.status(404).json({ success: false, message: 'Курс не знайдено' });
             }
             const owner = await CourseOwner.findOne({ course_id: courseId }).populate('teacher_id', 'first_name last_name email');
-            const enrollments = await EnrollmentCourse.find({ course_id: courseId }).populate('student_id', 'first_name last_name email');
+            const enrollments = await CourseAccess.find({ course_id: courseId }).populate('student_id', 'first_name last_name email');
     
             const students = enrollments.map((enrollment) => ({
                 id: enrollment.student_id._id,

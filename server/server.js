@@ -9,12 +9,13 @@ const calendarEventRoutes = require('./routes/calendarEventRoutes')
 const jwt = require('jsonwebtoken')
 const cors = require('cors');
 const PORT = process.env.PORT || 5000
-const {secret} = require('./Config/config')
-const {getMessages, addMessage} = require('./Controllers/messageController')
+const { secret } = require('./Config/config')
+const { getMessages, addMessage } = require('./Controllers/messageController')
 const app = express()
 const server = http.createServer(app);
 const User = require("./Models/User");
-const calendarEventControler = require('./Controllers/calendarEventControler');
+const Course = require('./Models/Course')
+
 app.use(cors())
 app.use(express.json())
 
@@ -24,7 +25,7 @@ app.use("", messageRoutes)
 app.use("/material", materialRoutes)
 app.use("/calendar", calendarEventRoutes)
 mongoose.connect("mongodb+srv://kostik:kostik@dispersioncluster.fy1nx.mongodb.net/?retryWrites=true&w=majority&appName=DispersionCluster")
-        
+
 const io = require("socket.io")(server, {
     cors: {
         origin: "*",
@@ -33,7 +34,7 @@ const io = require("socket.io")(server, {
 });
 
 io.use((socket, next) => {
-    const token = socket.handshake.query.token; 
+    const token = socket.handshake.query.token;
     console.log(`🔑 Incoming auth token: ${token}`);
 
     if (!token) {
@@ -52,11 +53,11 @@ io.use((socket, next) => {
     }
 });
 
-  io.on("connection", (socket) => {
+io.on("connection", (socket) => {
     console.log(`🟢 New WebSocket connection: ${socket.id}`);
-  
+
     socket.on("disconnect", (reason) => {
-      console.log(`🔴 WebSocket disconnected: ${socket.id} (${reason})`);
+        console.log(`🔴 WebSocket disconnected: ${socket.id} (${reason})`);
     });
 
     socket.on("joinCourseChat", async ({ courseId }) => {
@@ -69,7 +70,7 @@ io.use((socket, next) => {
         } catch (error) {
             console.error("Error loading messages:", error);
         }
-        
+
     });
 
     socket.on("leaveCourseChat", ({ courseId }) => {
@@ -83,12 +84,26 @@ io.use((socket, next) => {
                 const newMessage = await addMessage(courseId, user_id, message);
                 console.log("New message saved:", newMessage);
 
-                const sender = await User.findById(user_id); 
-io.to(courseId).emit("newMessage", {
-    message: newMessage.message,
-    author: sender ? `${sender.first_name} ${sender.last_name}` : "Unknown",
-    created_at: newMessage.created_at.toLocaleString(),
-});
+                const sender = await User.findById(user_id);
+                const course = await Course.findById(courseId); 
+
+                const courseName = course ? course.course_name : "Unknown Course";
+
+                const messageData = {
+                    message: newMessage.message,
+                    author: sender ? `${sender.first_name} ${sender.last_name}` : "Unknown",
+                    created_at: newMessage.created_at.toLocaleString(),
+                    courseId: courseId,
+                    courseName: courseName,
+                };
+
+                io.to(courseId).emit("newMessage", messageData);
+
+                socket.broadcast.emit("newGlobalNotification", {
+                    message: `New message in ${courseName}: ${newMessage.message}`,
+                    courseId: courseId,
+                    sender: sender ? `${sender.first_name} ${sender.last_name}` : "Unknown"
+                });
             } catch (error) {
                 console.error("Error sending message:", error);
             }
@@ -99,16 +114,16 @@ io.to(courseId).emit("newMessage", {
 process.on("SIGINT", () => {
     console.log("🛑 Shutting down server...");
     io.close(() => {
-      console.log("✅ WebSocket server closed");
-      process.exit(0);
+        console.log("✅ WebSocket server closed");
+        process.exit(0);
     });
-  });
+});
 
 const start = async () => {
     try {
-       server.listen(PORT, () => console.log(`servers started on port ${PORT}`))
+        server.listen(PORT, () => console.log(`servers started on port ${PORT}`))
     }
-    catch(error){
+    catch (error) {
         console.log(error)
     }
 }

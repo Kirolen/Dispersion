@@ -31,7 +31,8 @@ class CalendarEventController {
 
     async getCalendarEvent(req, res) {
         try {
-            const events = await CalendarEvent.find(); 
+            const {user_id} = req.params;
+            const events = await CalendarEvent.find({user_id}); 
 
             const eventsInUTC = events.map(event => {
                 return {
