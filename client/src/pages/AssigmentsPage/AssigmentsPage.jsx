@@ -9,8 +9,8 @@ const AssignmentsPage = ({ user_id, role }) => {
   const [filteredAssignments, setFilteredAssignments] = useState([]);
   const [filter, setFilter] = useState('all');
   const [courses, setCourses] = useState([]);
-  const [loading, setLoading] = useState(true); // Add loading state
-  const [error, setError] = useState(null); // Add error state
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null); 
 
   useEffect(() => {
     const fetchAssignmentsDetails = async () => {
@@ -25,6 +25,7 @@ const AssignmentsPage = ({ user_id, role }) => {
         } else {
           const data = await getFilteredCourses(user_id, "");
           setCourses(data);
+          console.log(data)
         }
       } catch (error) {
         setError('Error fetching data. Please try again later.');
@@ -130,12 +131,12 @@ const AssignmentsPage = ({ user_id, role }) => {
                                 </thead>
                                 <tbody>
                                   {assignment.students.map(student => (
-                                    <tr key={student.student_id}>
+                                    <tr key={student.user_id}>
                                       <td>{student.user_id}</td>
                                       <td>{student.status}</td>
                                       <td>{student.grade || 'Not graded'}</td>
                                       <td>
-                                        <button onClick={() => navigate(`/assignment/${assignment._id}?ref=${student.student_id}`)}>
+                                        <button onClick={() => navigate(`/assignment/${assignment._id}?ref=${student.user_id}`)}>
                                           {student.status === "graded" ? "Change grade" : "Grade"}
                                         </button>
                                       </td>

@@ -1,26 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import './CoursePage.css';
-import { mockCourses } from "../../mockData/mockData";
-import {getCourseInfo} from '../../api//courseService'
+import { getCourseInfo } from '../../api//courseService'
 
-const CoursePage = ({children}) => {
+const CoursePage = ({ children }) => {
   const { courseId } = useParams();
   const navigate = useNavigate();
   const [courseName, setCourseName] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('stream');
-  
+
   useEffect(() => {
     const fetchCourseDetails = async () => {
       try {
-        if (courseId === "1") {
-          setCourseName("mockCourses()[0]");
-        }
-        else {
-          const res = await getCourseInfo(courseId);
-          setCourseName(res)
-        }
+        const res = await getCourseInfo(courseId);
+        setCourseName(res)
         setLoading(false);
       } catch (error) {
         console.error('Error fetching course details:', error);

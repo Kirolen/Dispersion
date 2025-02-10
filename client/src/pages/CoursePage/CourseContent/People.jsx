@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { getCoursePeople } from '../../../api/courseService';
-import { mockPeople } from '../../../mockData/mockData';
-
 const People = () => {
   const { courseId } = useParams();
   const [courseInfoPeople, setCourseInfoPeople] = useState(null);
@@ -10,12 +8,8 @@ const People = () => {
   useEffect(() => {
     const fetchCourseDetails = async () => {
       try {
-        if (courseId === "1") {
-          setCourseInfoPeople(mockPeople());
-        } else {
-          const res = await getCoursePeople(courseId);
-          setCourseInfoPeople(res);
-        }
+        const res = await getCoursePeople(courseId);
+        setCourseInfoPeople(res);
       } catch (error) {
         console.error('Error fetching course details:', error);
       }

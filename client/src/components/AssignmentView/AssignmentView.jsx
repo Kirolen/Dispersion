@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
-import { getStudentTaskInfo, handInTask, gradeTask } from "../../api/materialService";
+import { getStudentTaskInfo, submitSubmission, gradeTask, returnSubmission, updateStundetTask } from "../../api/materialService";
+import { uploadFile, deleteFile } from "../../api/fileService";
 import "./AssignmentView.css";
 
 const AssignmentView = ({ user_id, role }) => {
@@ -24,6 +25,8 @@ const AssignmentView = ({ user_id, role }) => {
         const assignmentData = response.data;
         console.log(assignmentData)
         setAssignment(assignmentData);
+        setAttachments(assignmentData.userDetails.attachments)
+        console.log(assignmentData.userDetails?.status)
         setStatus(assignmentData.userDetails?.status || "not_passed");
       } catch (error) {
         console.error("Error fetching assignment details:", error);
@@ -33,22 +36,41 @@ const AssignmentView = ({ user_id, role }) => {
     fetchAssignmentDetails();
   }, [assignmentId, user_id]);
 
-  const handleFileChange = (e) => {
-    const newFiles = Array.from(e.target.files);
-    setAttachments((prevFiles) => [...prevFiles, ...newFiles]);
+  const handleFileChange = async (e) => {
+    const newFile = Array.from(e.target.files);
+    const response = await uploadFile(newFile)
+    const file = {
+      filename: response.filename,
+      url: response.url,
+      type: response.type
+    }
+
+    const newAttachments = [...attachments, file]
+
+    await updateStundetTask(assignmentId, user_id, newAttachments)
+    setAttachments((prevFiles) => [...prevFiles, file]);
     e.target.value = "";
   };
 
-  const removeAttachment = (indexToRemove) => {
-    setAttachments((prevAttachments) =>
-      prevAttachments.filter((_, index) => index !== indexToRemove)
-    );
+  const removeAttachment = async (indexToRemove) => {
+    const fileToDelete = attachments[indexToRemove];
+
+    if (!fileToDelete || !fileToDelete.url) {
+      console.error("❌ Помилка: URL файлу не знайдено");
+      return;
+    }
+
+    await deleteFile(assignmentId, fileToDelete.url);
+    const newAttachments = attachments.filter((_, index) => index !== indexToRemove)
+    await updateStundetTask(assignmentId, user_id, newAttachments)
+    setAttachments(newAttachments)
   };
 
   const handleSubmitAssignment = async () => {
     try {
-      const response = await handInTask(assignmentId, user_id, attachments, "send");
-      setStatus("submitted");
+
+      const response = await submitSubmission(assignmentId, user_id);
+      setStatus(response.status);
     } catch (error) {
       console.error("Error submitting assignment:", error);
       alert("Сталася помилка під час подання завдання.");
@@ -57,7 +79,9 @@ const AssignmentView = ({ user_id, role }) => {
 
   const handleReturnAssignment = async () => {
     try {
-      const response = await handInTask(assignmentId, user_id, attachments, "return");
+      const response = await returnSubmission(assignmentId, user_id)
+      console.log(response.attachments)
+      setAttachments(response.attachments)
       setStatus("not_passed");
     } catch (error) {
       console.error("Error submitting assignment:", error);
@@ -85,9 +109,7 @@ const AssignmentView = ({ user_id, role }) => {
     <div className="assignment-view">
       <header className="assignment-view-header">
         <h1>{assignment.title}</h1>
-        <button onClick={() => navigate(-1)} className="back-button">
-          Back to Assignments
-        </button>
+        <button onClick={() => navigate(-1)} className="back-button"> Back to Assignments </button>
       </header>
 
       <div className="assignment-view-content">
@@ -111,98 +133,92 @@ const AssignmentView = ({ user_id, role }) => {
             <span>Points: {assignment.userDetails.grade} / {assignment.points}</span>
             <span>Status: {status}</span>
           </div>
+          {assignment.attachments.length > 0 && <div className="material">
+            <div className="attachments-preview">
+               <h2>Прикріплені файли</h2>
+                {assignment.attachments.map((file, index) => (
+                  <div key={index} className="attachment-item">
+                    <a href={"http://localhost:5000" + file.url} target="_blank" rel="noopener noreferrer">
+                      {file.filename}
+                    </a>
+                  </div>
+                ))}
+              </div>
+          </div>}
         </section>
 
         {role === "Student" && (
           <section className="submission-section">
-            <h2>
-              {status === "submitted" ? "Ваше подання" : "Подати завдання"}
-            </h2>
+            <h2>{status === "submitted" ? "Ваше подання" : "Подати завдання"}</h2>
 
-            {status === "not_passed" ? (
-              <>
-                <label htmlFor="fileInput">Attachments</label>
-                <input
-                  id="fileInput"
-                  type="file"
-                  multiple
-                  onChange={handleFileChange}
-                  className="file-input"
-                />
-                {attachments.length > 0 && (
-                  <div className="attachments-preview">
-                    {attachments.map((file, index) => (
-                      <div key={index} className="attachment-item">
-                        <span>{file.name}</span>
-                        <button
-                          type="button"
-                          onClick={() => removeAttachment(index)}
-                        >
-                          ×
-                        </button>
-                      </div>
-                    ))}
+            <label htmlFor="fileInput">Attachments</label>
+            {status === "not_passed" &&
+            <input id="fileInput" type="file" multiple onChange={handleFileChange} className="file-input" />
+            }
+            {attachments.length > 0 && (
+              <div className="attachments-preview">
+                {attachments.map((file, index) => (
+                  <div key={index} className="attachment-item">
+                    <a href={"http://localhost:5000" + file.url} target="_blank" rel="noopener noreferrer">
+                      {file.filename}
+                    </a>
+                    {status === "not_passed" && (
+                      <button type="button" onClick={() => removeAttachment(index)}>×</button>
+                    )}
                   </div>
-                )}
-                <button
-                  onClick={handleSubmitAssignment}
-                  className="submit-button"
-                >
-                  Submit Assignment
-                </button>
-              </>
-            ) : (
-              <>
-                {status === "graded" ? (
-                  <div className="feedback-section">
-                    <h3>Відгук:</h3>
-                    <h3>{assignment.userDetails.response.name || "Відгук ще не надано."}</h3>
-                    <p>{assignment.userDetails.response.message || "Відгук ще не надано."}</p>
-                  </div>
-                ) : (
-                  <></>
-                )}
-                <button
-                    onClick={handleReturnAssignment}
-                    className="return-button"
-                  >
-                    Return Assignment
-                  </button>
-              </>
+                ))}
+              </div>
+            )}
+
+            {status === "not_passed" && (
+              <button onClick={handleSubmitAssignment} className="submit-button">
+                Submit Assignment
+              </button>
+            )}
+
+            {(status === "passed_in_time" || status ==="passed_with_lateness" || status==="graded") && (
+              <button onClick={handleReturnAssignment} className="return-button">
+                Return Assignment
+              </button>
+            )}
+
+            {status === "graded" && (
+              <div className="feedback-section">
+                <h3>Відгук:</h3>
+                <h3>{assignment.userDetails.response?.name || "Відгук ще не надано."}</h3>
+                <p>{assignment.userDetails.response?.message || "Відгук ще не надано."}</p>
+              </div>
             )}
           </section>
         )}
 
-
         {role === "Teacher" && (
           <section className="grading-section">
             <h2>Оцінити завдання</h2>
+            <h3>Прикріплені файли студента:</h3>
+            {attachments.length > 0 ? (
+              <div className="attachments-preview">
+                {attachments.map((file, index) => (
+                  <div key={index} className="attachment-item">
+                    <a href={"http://localhost:5000" + file.url} target="_blank" rel="noopener noreferrer">
+                      {file.filename}
+                    </a>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p>Немає прикріплених файлів.</p>
+            )}
             <form onSubmit={handleGradeSubmit} className="grade-form">
               <div className="form-group">
-                <label htmlFor="gradeInput">
-                  Grade (out of {assignment.points})
-                </label>
-                <input
-                  id="gradeInput"
-                  type="number"
-                  value={grade}
-                  onChange={(e) => setGrade(e.target.value)}
-                  max={assignment.points}
-                  min="0"
-                />
+                <label htmlFor="gradeInput">Grade (out of {assignment.points})</label>
+                <input id="gradeInput" type="number" value={grade} onChange={(e) => setGrade(e.target.value)} max={assignment.points} min="0" />
               </div>
               <div className="form-group">
                 <label htmlFor="feedbackInput">Feedback</label>
-                <textarea
-                  id="feedbackInput"
-                  value={feedback}
-                  onChange={(e) => setFeedback(e.target.value)}
-                  placeholder="Provide feedback..."
-                />
+                <textarea id="feedbackInput" value={feedback} onChange={(e) => setFeedback(e.target.value)} placeholder="Provide feedback..." />
               </div>
-              <button onClick={handleGradeSubmit} className="submit-grade">
-                Submit Grade
-              </button>
+              <button type="submit" className="submit-grade">Submit Grade</button>
             </form>
           </section>
         )}

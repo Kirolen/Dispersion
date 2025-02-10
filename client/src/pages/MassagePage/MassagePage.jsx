@@ -1,13 +1,37 @@
 import React, { useState } from 'react';
 import './MessagesPage.css';
-import { mockMessages, mockUsers } from '../../mockData/mockData';
 
 const MessagesPage = () => {
-  const [messages] = useState(mockMessages);
-  const [selectedMessage, setSelectedMessage] = useState(null);
+  const [messages] = useState([]);
+  const [addedUsers, setAddedUsers] = useState([]);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [newUser, setNewUser] = useState('');
+  const [showAddUserModal, setShowAddUserModal] = useState(false);
 
+  // Simulated function for getting user info
   const getUser = (id) => {
-    return mockUsers.find(user => user.id === id);
+    // You can replace this with an actual API call to get user data
+    return { id, first_name: `User ${id}`, last_name: `Lastname ${id}`, avatar: `https://i.pravatar.cc/150?img=${id}` };
+  };
+
+  // Function to handle adding a user
+  const handleAddUser = () => {
+    const userId = newUser.trim();
+    if (userId && !addedUsers.includes(userId)) {
+      setAddedUsers([...addedUsers, userId]);
+    }
+    setNewUser('');
+    setShowAddUserModal(false);
+  };
+
+  // Handle selecting a user to open a chat
+  const handleUserSelect = (userId) => {
+    setSelectedUser(userId);
+  };
+
+  // Handle closing the chat
+  const handleCloseChat = () => {
+    setSelectedUser(null);
   };
 
   return (
@@ -18,52 +42,79 @@ const MessagesPage = () => {
 
       <div className="messages-content">
         <div className="messages-list">
-          {messages.map((message) => {
-            const sender = getUser(message.sender_id);
+          {/* Left Panel: List of added users */}
+          {addedUsers.map((userId) => {
+            const user = getUser(userId);
             return (
               <div
-                key={message.id}
-                className={`message-card ${selectedMessage?.id === message.id ? 'selected' : ''} ${!message.read ? 'unread' : ''}`}
-                onClick={() => setSelectedMessage(message)}
+                key={user.id}
+                className={`message-card ${selectedUser === user.id ? 'selected' : ''}`}
+                onClick={() => handleUserSelect(user.id)}
               >
                 <div className="message-sender">
-                  <img src={sender.avatar} alt={sender.first_name} className="sender-avatar" />
+                  <img src={user.avatar} alt={user.first_name} className="sender-avatar" />
                   <div className="sender-info">
-                    <h3>{`${sender.first_name} ${sender.last_name}`}</h3>
-                    <span className="message-time">
-                      {new Date(message.timestamp).toLocaleString()}
-                    </span>
+                    <h3>{`${user.first_name} ${user.last_name}`}</h3>
                   </div>
                 </div>
-                <p className="message-preview">{message.content}</p>
               </div>
             );
           })}
+
+          {/* Button to add a new user */}
+          <button className="add-user-button" onClick={() => setShowAddUserModal(true)}>
+            +
+          </button>
         </div>
 
-        {selectedMessage && (
-          <div className="message-detail">
-            <div className="message-detail-header">
-              <h2>Message Details</h2>
-              <button onClick={() => setSelectedMessage(null)}>Close</button>
-            </div>
-            <div className="message-detail-content">
-              <div className="message-sender-detail">
-                <img
-                  src={getUser(selectedMessage.sender_id).avatar}
-                  alt={getUser(selectedMessage.sender_id).first_name}
-                  className="sender-avatar-large"
-                />
-                <div className="sender-info-detail">
-                  <h3>{`${getUser(selectedMessage.sender_id).first_name} ${getUser(selectedMessage.sender_id).last_name}`}</h3>
-                  <span>{new Date(selectedMessage.timestamp).toLocaleString()}</span>
+        <div className="message-detail">
+          {/* Right Panel: Chat with selected user */}
+          {selectedUser && (
+            <div className="chat-window">
+              <div className="message-detail-header">
+                <h2>{`Chat with ${getUser(selectedUser).first_name} ${getUser(selectedUser).last_name}`}</h2>
+                <button onClick={handleCloseChat}>Close Chat</button>
+              </div>
+              <div className="message-detail-content">
+                <div className="message-sender-detail">
+                  <img
+                    src={getUser(selectedUser).avatar}
+                    alt={getUser(selectedUser).first_name}
+                    className="sender-avatar-large"
+                  />
+                  <div className="sender-info-detail">
+                    <h3>{`${getUser(selectedUser).first_name} ${getUser(selectedUser).last_name}`}</h3>
+                    <span>{new Date().toLocaleString()}</span>
+                  </div>
+                </div>
+                <div className="message-content">
+                  {/* Here you can display messages of the selected user */}
+                  <p>No messages yet.</p>
                 </div>
               </div>
-              <p className="message-content">{selectedMessage.content}</p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Add User Modal */}
+      {showAddUserModal && (
+        <div className="modal">
+          <div className="modal-content">
+            <h2>Add New User</h2>
+            <input
+              type="text"
+              value={newUser}
+              onChange={(e) => setNewUser(e.target.value)}
+              placeholder="Enter user ID"
+            />
+            <div className="modal-buttons">
+              <button onClick={handleAddUser}>Add User</button>
+              <button onClick={() => setShowAddUserModal(false)}>Cancel</button>
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 };

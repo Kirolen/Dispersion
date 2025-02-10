@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
-import { mockUsers } from '../../mockData/mockData';
 import './ProfilePage.css';
 
 const ProfilePage = () => {
-  const [user] = useState(mockUsers[0]);
+  const [user] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     first_name: user.first_name,
@@ -20,7 +19,6 @@ const ProfilePage = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Here you would typically update the user data through an API
     setIsEditing(false);
   };
 

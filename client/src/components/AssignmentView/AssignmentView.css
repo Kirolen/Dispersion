@@ -1,174 +1,138 @@
+/* Основний контейнер */
 .assignment-view {
-    padding: 20px;
-    color: #fff;
-  }
-  
-  .assignment-view-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 30px;
-    padding-bottom: 20px;
-    border-bottom: 2px solid #8560be;
-  }
-  
-  .assignment-view-header h1 {
-    color: #8560be;
-    margin: 0;
-  }
-  
-  .back-button {
-    background: #1b005a;
-    color: #8560be;
-    border: 1px solid #8560be;
-    padding: 8px 15px;
-    border-radius: 5px;
-    cursor: pointer;
-  }
-  
-  .assignment-view-content {
-    background: #200055;
-    border: 1px solid #8560be;
-    border-radius: 10px;
-    padding: 20px;
-  }
-  
-  .assignment-details {
-    margin-bottom: 30px;
-  }
-  
-  .assignment-details h2 {
-    color: #8560be;
-    margin-bottom: 15px;
-  }
-  
-  .description {
-    color: #fff;
-    line-height: 1.6;
-    margin-bottom: 20px;
-  }
-  
-  .meta-info {
-    display: flex;
-    gap: 20px;
-    color: #819198;
-  }
-  
-  .submissions-section {
-    margin-bottom: 30px;
-  }
-  
-  .submission-card {
-    background: #1b005a;
-    border: 1px solid #8560be;
-    border-radius: 8px;
-    padding: 15px;
-    margin-bottom: 15px;
-  }
-  
-  .submission-header {
-    display: flex;
-    justify-content: space-between;
-    color: #819198;
-    margin-bottom: 10px;
-  }
-  
-  .feedback {
-    border-top: 1px solid #8560be;
-    padding-top: 10px;
-    margin-top: 10px;
-  }
-  
-  .feedback h3 {
-    color: #8560be;
-    margin-bottom: 10px;
-  }
-  
-  .grading-section {
-    background: #1b005a;
-    border: 1px solid #8560be;
-    border-radius: 8px;
-    padding: 20px;
-  }
-  
-  .grade-form {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-  }
-  
-  .form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-  }
-  
-  .form-group label {
-    color: #8560be;
-  }
-  
-  .form-group input,
-  .form-group textarea {
-    background: #200055;
-    border: 1px solid #8560be;
-    border-radius: 5px;
-    padding: 8px;
-    color: #fff;
-  }
-  
-  .form-group textarea {
-    min-height: 100px;
-    resize: vertical;
-  }
-  
-  .submit-grade {
-    background: #8560be;
-    color: white;
-    border: none;
-    padding: 10px;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-top: 10px;
-  }
-  
-  .submit-grade:hover {
-    background: #674f99;
-  }
-
-.assignment-view span {
- margin: 20px 0 20px 0;
+  padding: 30px;
+  color: #fff;
+  background-color: #121212;
+  min-height: 100vh;
+  font-family: 'Arial', sans-serif;
 }
 
+/* Заголовок */
+.assignment-view-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #8e44ad;
+}
+
+.assignment-view-header h1 {
+  color: #8e44ad;
+  margin: 0;
+  font-size: 2rem;
+}
+
+.back-button {
+  background: transparent;
+  color: #8e44ad;
+  border: 2px solid #8e44ad;
+  padding: 10px 15px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.back-button:hover {
+  background: #8e44ad;
+  color: white;
+}
+
+/* Основний контент */
+.assignment-view-content {
+  background: #1c1c1c;
+  border-radius: 12px;
+  padding: 25px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.assignment-details h2 {
+  color: #8e44ad;
+  margin-bottom: 15px;
+  font-size: 1.5rem;
+}
+
+.description {
+  color: #ddd;
+  line-height: 1.6;
+  font-size: 1.1rem;
+  margin-bottom: 20px;
+}
+
+.meta-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  color: #bbb;
+  font-size: 1rem;
+}
+
+/* Форма оцінювання */
+.grade-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  background: #222;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+}
+
+.form-group label {
+  color: #8e44ad;
+  font-weight: bold;
+}
+
+.form-group input,
+.form-group textarea {
+  background: #333;
+  border: 1px solid #8e44ad;
+  border-radius: 5px;
+  padding: 10px;
+  color: #fff;
+  font-size: 1rem;
+}
+
+.form-group textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.submit-grade {
+  background: #8e44ad;
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.submit-grade:hover {
+  background: #732d91;
+}
+
+/* Відгук */
 .feedback-section {
-  background-color: #674f99; /* Фон фіолетового кольору */
-  padding: 20px; /* Відступи всередині */
-  border-radius: 10px; /* Округлені кути */
-  color: #ffffff; /* Білий колір тексту для контрасту */
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Тінь для глибини */
-  max-width: 600px; /* Максимальна ширина */
-  margin: 20px auto; /* Центрування блоку */
+  background-color: #2a2a2a;
+  padding: 20px;
+  border-radius: 10px;
+  color: #fff;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  max-width: 600px;
+  margin: 20px auto;
+  text-align: center;
 }
 
 .feedback-section h3 {
-  font-size: 1.5em; /* Великий розмір заголовка */
-  margin-bottom: 10px; /* Відступ від нижнього елемента */
-  font-weight: bold; /* Жирний шрифт */
-  text-align: center; /* Центрування заголовка */
+  font-size: 1.4rem;
+  margin-bottom: 10px;
+  font-weight: bold;
+  color: #8e44ad;
 }
 
 .feedback-section p {
-  font-size: 1.2em; /* Середній розмір шрифта */
-  line-height: 1.6; /* Відстань між рядками */
-  text-align: center; /* Центрування тексту */
-}
-
-.feedback-section h3:last-child {
-  font-size: 1em; /* Меньший шрифт для імені */
-  font-style: italic; /* Курсив для імені */
-  color: #f1e6ff; /* Світлий колір для імені */
-  margin-bottom: 15px; /* Відступ перед основним текстом */
-}
-
-.feedback-section p {
-  color: #e0c7f7; /* Світлий колір для тексту відгуку */
+  font-size: 1.2rem;
+  line-height: 1.6;
+  color: #ddd;
 }

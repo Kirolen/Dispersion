@@ -3,8 +3,7 @@ import { useParams } from 'react-router-dom';
 import { getCoursePeople } from '../../../api/courseService';
 import { useNavigate } from 'react-router-dom';
 import { addTask, getAllCourseMaterials, getCourseMaterialsForStudent } from '../../../api/materialService'
-
-
+import { uploadFile, deleteFile } from "../../../api/fileService";
 
 const Classwork = ({ role, user_id }) => {
 
@@ -98,18 +97,38 @@ const Classwork = ({ role, user_id }) => {
     }
   };
 
-  const handleFileChange = (e) => {
-    const files = Array.from(e.target.files);
+  const handleFileChange = async (e) => {
+    const newFile = Array.from(e.target.files);
+    const response = await uploadFile(newFile)
+    const file = {
+      filename: response.filename,
+      url: response.url,
+      type: response.type
+    }
+
+    const newAttachments = [...workForm.attachments, file]
+
     setWorkForm(prev => ({
       ...prev,
-      attachments: [...prev.attachments, ...files]
+      attachments: newAttachments
     }));
   };
 
-  const removeAttachment = (index) => {
+  const removeAttachment = async (indexToRemove) => {
+
+    const fileToDelete = workForm.attachments[indexToRemove];
+    console.log(fileToDelete)
+    if (!fileToDelete || !fileToDelete.url) {
+      console.error("❌ Помилка: URL файлу не знайдено");
+      return;
+    }
+
+    await deleteFile(null, fileToDelete.url);
+    const newAttachments = workForm.attachments.filter((_, index) => index !== indexToRemove)
+
     setWorkForm(prev => ({
       ...prev,
-      attachments: prev.attachments.filter((_, i) => i !== index)
+      attachments: newAttachments
     }));
   };
 
@@ -223,7 +242,9 @@ const Classwork = ({ role, user_id }) => {
                   <div className="attachments-preview">
                     {workForm.attachments.map((file, index) => (
                       <div key={index} className="attachment-item">
-                        <span>{file.name}</span>
+                        <a href={"http://localhost:5000" + file.url} target="_blank" rel="noopener noreferrer">
+                      {file.filename}
+                    </a>
                         <button type="button" onClick={() => removeAttachment(index)}>×</button>
                       </div>
                     ))}
@@ -235,6 +256,15 @@ const Classwork = ({ role, user_id }) => {
                   <button className="cancel-button" onClick={() => {
                     setMaterialType('')
                     setShowWorkForm(false)
+                    setWorkForm({
+                      title: '',
+                      description: '',
+                      dueDate: '',
+                      dueTime: '',
+                      points: 100,
+                      attachments: [],
+                      assignedUsers: [],
+                    });
                   }}>
                     Cancel
                   </button>
@@ -263,9 +293,9 @@ const Classwork = ({ role, user_id }) => {
               <div className="assignment-footer">
                 <span>Due: {new Date(assignment.dueDate).toLocaleString()}</span>
                 <span>{assignment.points} points</span>
-               {role === "Teacher" ? 
-               <></> : 
-               <button className="view-button" onClick={() => navigate(`/assignment/${assignment._id}`)}>View Assignment</button>} 
+                {role === "Teacher" ?
+                  <></> :
+                  <button className="view-button" onClick={() => navigate(`/assignment/${assignment._id}`)}>View Assignment</button>}
               </div>)}
           </div>
         ))}

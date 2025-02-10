@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createCourse, joinCourse, getMyCourses } from '../../api/courseService';
 import './HomePage.css';
-import { mockCourses } from "../../mockData/mockData"
 import { useSocket } from '../../context/SocketContext';
 
 const HomePage = () => {
@@ -60,7 +59,7 @@ const HomePage = () => {
   const handleMyCourse = async () => {
     try {
       const result = await getMyCourses();
-      setCourses([...result, ...mockCourses()]);
+      setCourses([...result]);
     } catch (error) {
       console.error('Error fetching courses:', error);
     }
