@@ -4,17 +4,48 @@ import { MdEmojiEmotions } from "react-icons/md";
 import { FaImage, FaMicrophone } from "react-icons/fa";
 import EmojiPicker from "emoji-picker-react";
 import { useEffect, useState, useRef } from "react";
+import { getChat } from "../../../api/personalChatService";
+import { useSocket } from "../../../context/SocketContext";
 
 
-const PersonalChat = () => {
+const PersonalChat = ({ chatId }) => {
+    const [chat, setChat] = useState()
+    const [member, setMember] = useState([])
     const [open, setOpen] = useState(false)
     const [text, setText] = useState("")
-
+    const { user_id } = useSocket()
     const endRef = useRef(null)
 
-    useEffect(()=> {
-        endRef.current?.scrollIntoView({behavior:"smooth" })
-    }, {})
+    useEffect(() => {
+        endRef.current?.scrollIntoView({ behavior: "smooth" })
+    }, [])
+
+    useEffect(() => {
+        const fetchChat = async () => {
+            try {
+                const response = await getChat(chatId);
+                const chat = response.data.chat;
+
+                if (chat && chat.members && chat.members.length >= 2) {
+                    const [member1, member2] = chat.members;
+
+                    if (member1._id === user_id) setMember(member2);
+                    else setMember(member1);
+                } else {
+                    console.error("Chat members are missing or invalid.");
+                }
+
+                setChat(chat);
+            } catch (error) {
+                console.error("Error fetching chat:", error);
+            }
+        };
+
+        if (chatId) {
+            fetchChat();
+        }
+    }, [chatId, user_id]);
+
 
     const handleEmoji = (e) => {
         setText(prev => prev + e.emoji)
@@ -27,7 +58,7 @@ const PersonalChat = () => {
                 <div className="user">
                     <img src="https://i.pinimg.com/736x/5e/32/aa/5e32aa2c79cd463ab74e034aaace4eb1.jpg" alt="ayase" className="user-chat-avatar" />
                     <div className="texts">
-                        <span>Momo Ayase</span>
+                        <span>{member.first_name} {member.last_name}</span>
                         <p>Lorem ipsum dolor sit amet consectetur adipisicing elit.</p>
                     </div>
                 </div>
@@ -36,65 +67,24 @@ const PersonalChat = () => {
                 </div>
             </div>
             <div className="center">
-                <div className="message"><img src="https://i.pinimg.com/736x/5e/32/aa/5e32aa2c79cd463ab74e034aaace4eb1.jpg" alt="ayase" className="user-chat-avatar" />
-                    <div className="texts">
-                        <p>
-                            Lorem, ipsum dolor sit amet consectetur adipisicing elit. Ullam
-                            eos dicta aperiam perferendis iste tempore maxime reprehenderit
-                            pariatur exercitationem dolore ad, inventore voluptates.
-                            Praesentium, quo magnam in nobis sunt assumenda!
-                        </p>
-                        <span>1 minute ago</span>
+                {chat?.messages?.map((message) => (
+                    <div
+                        key={message._id}
+                        className={`message ${message.sender === chatId ? "own" : ""}`}
+                    >
+                        {message.sender !== chatId && (
+                            <img
+                                src="https://i.pinimg.com/736x/5e/32/aa/5e32aa2c79cd463ab74e034aaace4eb1.jpg"
+                                alt="user-avatar"
+                                className="user-chat-avatar"
+                            />
+                        )}
+                        <div className="texts">
+                            <p>{message.text}</p>
+                            <span>{new Date(message.createdAt).toLocaleTimeString()}</span>
+                        </div>
                     </div>
-                </div>
-                <div className="message own">
-                    <div className="texts">
-                        <p>
-                            Lorem, ipsum dolor sit amet consectetur adipisicing elit. Ullam
-                            eos dicta aperiam perferendis iste tempore maxime reprehenderit
-                            pariatur exercitationem dolore ad, inventore voluptates.
-                            Praesentium, quo magnam in nobis sunt assumenda!
-                        </p>
-                        <span>1 minute ago</span>
-                    </div>
-                </div>
-                <div className="message">
-                    <img src="https://i.pinimg.com/736x/5e/32/aa/5e32aa2c79cd463ab74e034aaace4eb1.jpg" alt="ayase" className="user-chat-avatar" />
-                    <div className="texts">
-                        <p>
-                            Lorem, ipsum dolor sit amet consectetur adipisicing elit. Ullam
-                            eos dicta aperiam perferendis iste tempore maxime reprehenderit
-                            pariatur exercitationem dolore ad, inventore voluptates.
-                            Praesentium, quo magnam in nobis sunt assumenda!
-                        </p>
-                        <span>1 minute ago</span>
-                    </div>
-                </div>
-                <div className="message own">
-                   
-                    <div className="texts">
-                    <img src="https://c.wallhere.com/photos/38/1d/anime_anime_girls_Oshi_no_Ko_Kurokawa_Akane-2247722.jpg!d" alt="akane"/>
-                        <p>
-                            Lorem, ipsum dolor sit amet consectetur adipisicing elit. Ullam
-                            eos dicta aperiam perferendis iste tempore maxime reprehenderit
-                            pariatur exercitationem dolore ad, inventore voluptates.
-                            Praesentium, quo magnam in nobis sunt assumenda!
-                        </p>
-                        <span>1 minute ago</span>
-                    </div>
-                </div>
-                <div className="message">
-                    <img src="https://i.pinimg.com/736x/5e/32/aa/5e32aa2c79cd463ab74e034aaace4eb1.jpg" alt="ayase" className="user-chat-avatar" />
-                    <div className="texts">
-                        <p>
-                            Lorem, ipsum dolor sit amet consectetur adipisicing elit. Ullam
-                            eos dicta aperiam perferendis iste tempore maxime reprehenderit
-                            pariatur exercitationem dolore ad, inventore voluptates.
-                            Praesentium, quo magnam in nobis sunt assumenda!
-                        </p>
-                        <span>1 minute ago</span>
-                    </div>
-                </div>
+                ))}
                 <div ref={endRef}></div>
             </div>
             <div className="bottom">

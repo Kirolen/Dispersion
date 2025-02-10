@@ -3,11 +3,11 @@ import "./List.css"
 import UserInfo from "./UserInfo/UserInfo";
 
 
-const MainChatList = () => {
+const MainChatList = ({setChatId}) => {
     return (
     <div className="main-chat-list">
         <UserInfo/>
-        <ChatList/>
+        <ChatList setChatId={setChatId}/>
     </div>   )
 }
 

@@ -1,9 +1,15 @@
 const { Schema, model } = require('mongoose');
 
-const CourseOwner = new Schema({
-    user_1: { type: Schema.Types.ObjectId, ref: 'Course', required: true },
-    teacher_id: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-    last_read_message: { type: Schema.Types.ObjectId, ref: 'CourseMessage', default: null},
-});
+const ChatSchema = new Schema({
+    members: [{ type: Schema.Types.ObjectId, ref: 'User', required: true }], 
+    isGroup: { type: Boolean, default: false }, 
+    groupName: { type: String, default: null }, 
+    messages: [{ type: Schema.Types.ObjectId, ref: 'Message' }], 
+    lastMessage: { type: Schema.Types.ObjectId, ref: 'Message' }, 
+    createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true }, 
+    isActiveFor: [{ type: Schema.Types.ObjectId, ref: 'User' }], 
+    createdAt: { type: Date, default: Date.now }, 
+    updatedAt: { type: Date, default: Date.now } 
+}, { timestamps: true });
 
-module.exports = model('CourseOwner', CourseOwner);
+module.exports = model('Chat', ChatSchema);

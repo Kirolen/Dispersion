@@ -7,6 +7,7 @@ const messageRoutes = require('./routes/messageRoutes')
 const materialRoutes = require('./routes/materialRoutes')
 const calendarEventRoutes = require('./routes/calendarEventRoutes')
 const fileRoutes = require("./routes/fileRoutes")
+const chatRoutes = require("./routes/chatRoutes")
 const jwt = require('jsonwebtoken')
 const cors = require('cors');
 const PORT = process.env.PORT || 5000
@@ -28,6 +29,8 @@ app.use("/material", materialRoutes)
 app.use("/calendar", calendarEventRoutes)
 
 app.use("/file", fileRoutes)
+app.use("/chat", chatRoutes)
+
 app.use('/storage', express.static(path.join(__dirname, 'storage')));
 mongoose.connect("mongodb+srv://kostik:kostik@dispersioncluster.fy1nx.mongodb.net/?retryWrites=true&w=majority&appName=DispersionCluster")
 
