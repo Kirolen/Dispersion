@@ -80,12 +80,12 @@ io.on("connection", (socket) => {
         if (logSocket) console.log(`🔴 WebSocket disconnected: ${socket.id} (${reason})`);
     });
 
-    socket.on("joinChat", async ({ chatId }) => {
+    socket.on("joinChat", async ({ chatId, user_id, course_id }) => {
         socket.join(chatId);
         console.log("A user joined chatroom: " + chatId);
 
         try {
-            const messages = await getMessages(chatId)
+            const messages = await getMessages(chatId, user_id, course_id)
    
             if (logSocket) console.log(messages)
             socket.emit("getMessages", messages);

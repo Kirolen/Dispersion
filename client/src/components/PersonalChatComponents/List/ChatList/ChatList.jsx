@@ -13,8 +13,10 @@ const ChatList = ({setChatId}) => {
     useEffect(() => {
         const fetchChats = async () => {
             try {
+                if (!user_id) return
                 const response = await getUserChats();
                 setChats(response.data.chats);
+                console.log(response.data.chats[0]._id)
                 setChatId(response.data.chats[0]._id)
             } catch (error) {
                 console.error("Error fetching chats:", error);

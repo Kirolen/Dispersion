@@ -5,6 +5,7 @@ const Course = require('../Models/Course');
 const CourseAccess = require('../Models/CourseAccess');
 const CourseOwner = require('../Models/CourseOwner')
 
+
 class ChatController {
     async searchUsers(req, res) {
         try {
@@ -109,6 +110,7 @@ class ChatController {
         }
     }
 
+    //add last message if course
     async addMessage(chatId, sender, text, attachments) {
         try {
             const chat = await Chat.findOne({
@@ -135,14 +137,12 @@ class ChatController {
             chat.messages.push(newMessage._id);
             await chat.save();
     
-            // Populate sender details
             const populatedMessage = await Message.findById(newMessage._id)
                 .populate({
                     path: "sender",
                     select: "_id first_name last_name"
                 });
     
-            // Format created_at date
             const createdAt = new Date(populatedMessage.createdAt);
             const formattedDate = createdAt
                 .toLocaleString('en-GB', {
@@ -167,18 +167,18 @@ class ChatController {
                 attachments: populatedMessage.attachments
             };
     
-            console.log("NEW MESSAGE DETAIL:", formattedMessage);
             return formattedMessage;
         } catch (error) {
             console.error("Error adding message:", error);
             return null;
         }
     }
-    
 
-    async getMessages(chatId) {
+    async getMessages(chatId, user_id, course_id) {
         try {
-            const chat = await Chat.findOne({ _id: chatId })
+            const user = await User.findById(user_id);
+    
+            const chat = await Chat.findById(chatId)
                 .populate({
                     path: "messages",
                     populate: {
@@ -193,9 +193,42 @@ class ChatController {
             }
     
             chat.isActiveFor = chat.members;
-            await chat.save(); 
+            await chat.save();
     
-            console.log("CHAT DETAIL:", chat._id);
+            const messagesToUpdate = chat.messages.filter(message => {
+                return !message.seenBy.some(userSeen => userSeen.userId.toString() === user_id.toString());
+            });
+    
+            if (messagesToUpdate.length > 0) {
+                await Message.updateMany(
+                    { _id: { $in: messagesToUpdate.map(m => m._id) } }, 
+                    { $push: { seenBy: { userId: user_id, timestamp: new Date() } } }
+                );
+            }
+    
+            if (chat.isCourseChat && course_id) {
+                const lastMessage = await Message.findOne({ chatId: chat._id })
+                    .sort({ createdAt: -1 })
+                    .select('_id createdAt');
+    
+                console.log("Last message: ", lastMessage);
+    
+                if (user.role === "Student") {
+                    const studentCourse = await CourseAccess.findOne({ course_id, student_id: user_id });
+                    if (studentCourse) {
+                        studentCourse.last_read_message = lastMessage._id;
+                        await studentCourse.save();
+                    }
+                }
+    
+                if (user.role === "Teacher") {
+                    const teacherCourse = await CourseOwner.findOne({ course_id, teacher_id: user_id });
+                    if (teacherCourse) {
+                        teacherCourse.last_read_message = lastMessage._id;
+                        await teacherCourse.save();
+                    }
+                }
+            }
     
             const transformedMessages = chat.messages.map(message => {
                 const createdAt = new Date(message.createdAt);
@@ -210,7 +243,7 @@ class ChatController {
                         hour12: false
                     })
                     .split('/')
-                    .join('.'); 
+                    .join('.');
     
                 return {
                     id: message._id,
@@ -221,7 +254,6 @@ class ChatController {
                 };
             });
     
-            console.log("MESSAGES DETAIL:", transformedMessages);
             return transformedMessages;
     
         } catch (error) {
@@ -230,6 +262,7 @@ class ChatController {
         }
     }
     
+
 
     async findCoursesWithUnreadMessages(req, res) {
         try {

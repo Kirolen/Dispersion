@@ -22,10 +22,10 @@ const PersonalChat = ({ chatId }) => {
     useEffect(() => {
         const fetchMessages = async () => {
             try {
-                if (!socket) {
+                if (!socket || !chatId.trim()) {
                     return;
                 }
-                socket.emit("joinChat", { chatId });
+                socket.emit("joinChat", { chatId, user_id, course_id: null });
                 socket.on("getMessages", (loadedMessages) => {
                     setMessages(loadedMessages);
                 });

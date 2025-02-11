@@ -20,7 +20,7 @@ const Stream = () => {
         return;
       }
       console.log(`📢 Joining course chat ${chatId}`);
-      socket.emit("joinChat", { chatId });
+      socket.emit("joinChat", { chatId, user_id, course_id: courseId });
 
       socket.on("getMessages", (loadedMessages) => {
         setMessages(loadedMessages);
@@ -44,9 +44,10 @@ const Stream = () => {
 
   useEffect(() => {
     const markMessagesAsRead = async () => {
-      await markLastCourseMessageAsRead(user_id, courseId);
-      const notification = await findCoursesWithUnreadMessages(user_id);
-      setCourseNotification(notification.unreadCourses);
+     // await markLastCourseMessageAsRead(user_id, courseId);
+     // const notification = await findCoursesWithUnreadMessages(user_id);
+     //
+     //  setCourseNotification(notification.unreadCourses);
     };
 
     markMessagesAsRead();
