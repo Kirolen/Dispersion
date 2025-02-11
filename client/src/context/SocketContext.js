@@ -2,7 +2,7 @@ import React, { createContext, useState, useEffect, useContext } from 'react';
 import io from 'socket.io-client';
 import makeToast from '../Toaster/Toaster';
 import { jwtDecode } from 'jwt-decode';
-import { findCoursesWithUnreadMessages } from '../api/messageService';
+import { findCoursesWithUnreadMessages } from '../api/personalChatService';
 const SocketContext = createContext();
 
 export const useSocket = () => {

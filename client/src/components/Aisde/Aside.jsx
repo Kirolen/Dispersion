@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useSocket } from '../../context/SocketContext';
 import "./Aside.css";
-import { findCoursesWithUnreadMessages } from '../../api/messageService';
+import { findCoursesWithUnreadMessages } from '../../api/personalChatService';
 
 import makeToast from '../../Toaster/Toaster';
 
@@ -14,6 +14,7 @@ const Aside = () => {
   useEffect(() => {
     if (socket && user_id) {
       const handleNewGlobalNotification = async (data) => {
+        console.log("aside")
         const notification = await findCoursesWithUnreadMessages(user_id);
         setCourseNotification(notification.unreadCourses);
         makeToast("info", `${data.sender}: ${data.message}`);
@@ -22,6 +23,7 @@ const Aside = () => {
       socket.on("newGlobalNotification", handleNewGlobalNotification);
 
       const fetchUnreadMessages = async () => {
+        console.log("aside")
         const notification = await findCoursesWithUnreadMessages(user_id);
         setCourseNotification(notification.unreadCourses);
       };

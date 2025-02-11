@@ -3,7 +3,6 @@ const mongoose = require('mongoose')
 const http = require('http');
 const authRoutes = require('./routes/authRoutes')
 const courseRoutes = require('./routes/courseRoutes')
-const messageRoutes = require('./routes/messageRoutes')
 const materialRoutes = require('./routes/materialRoutes')
 const calendarEventRoutes = require('./routes/calendarEventRoutes')
 const fileRoutes = require("./routes/fileRoutes")
@@ -12,7 +11,7 @@ const jwt = require('jsonwebtoken')
 const cors = require('cors');
 const PORT = process.env.PORT || 5000
 const { secret } = require('./Config/config')
-const { getMessages, addMessage } = require('./Controllers/messageController')
+const {getMessagess, addMessage} = require('./Controllers/chatController')
 const app = express()
 const server = http.createServer(app);
 const User = require("./Models/User");
@@ -27,7 +26,6 @@ app.use(express.json())
 
 app.use("/auth", authRoutes)
 app.use("", courseRoutes)
-app.use("", messageRoutes)
 app.use("/material", materialRoutes)
 app.use("/calendar", calendarEventRoutes)
 
@@ -85,7 +83,10 @@ io.on("connection", (socket) => {
         console.log("A user joined chatroom: " + courseId);
 
         try {
-            const messages = await getMessages(courseId)
+            console.log("getting...")
+            const messages = await getMessagess(null, courseId)
+   
+            console.log(messages)
             socket.emit("getMessages", messages);
         } catch (error) {
             console.error("Error loading messages:", error);
@@ -127,21 +128,20 @@ io.on("connection", (socket) => {
         }
     });
 
-    socket.on("chatroomMessage", async ({ courseId, user_id, message }) => {
-        if (message.trim().length > 0) {
+    socket.on("chatroomMessage", async ({ courseId, user_id, messageText }) => {
+        console.log(messageText)
+        if (messageText?.trim().length > 0) {
             try {
-                const newMessage = await addMessage(courseId, user_id, message);
-                console.log("New message saved:", newMessage);
-
+                const newMessage = await addMessage(null, user_id, messageText, [], courseId);
                 const sender = await User.findById(user_id);
                 const course = await Course.findById(courseId);
 
                 const courseName = course ? course.course_name : "Unknown Course";
 
                 const messageData = {
-                    message: newMessage.message,
+                    message: newMessage.text,
                     author: sender ? `${sender.first_name} ${sender.last_name}` : "Unknown",
-                    created_at: newMessage.created_at.toLocaleString(),
+                    created_at: newMessage.createdAt.toLocaleString(),
                     courseId: courseId,
                     courseName: courseName,
                 };
@@ -149,7 +149,7 @@ io.on("connection", (socket) => {
                 io.to(courseId).emit("newMessage", messageData);
 
                 socket.broadcast.emit("newGlobalNotification", {
-                    message: `New message in ${courseName}: ${newMessage.message}`,
+                    message: `New message in ${courseName}: ${newMessage.text}`,
                     courseId: courseId,
                     sender: sender ? `${sender.first_name} ${sender.last_name}` : "Unknown"
                 });

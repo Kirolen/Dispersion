@@ -39,7 +39,7 @@ export const getChat = async (chatId) => {
 
 export const sendMessage = async (chatId, text, attachments) => {
     try {
-        const response = await api.post(`/chat/send-message`, {chatId, text, attachments});
+        const response = await api.post(`/chat/send-message`, { chatId, text, attachments });
         return response
     } catch (error) {
         throw new Error('Error search users: ' + error.message);
@@ -52,5 +52,26 @@ export const getMessages = async (chatId) => {
         return response
     } catch (error) {
         throw new Error('Error search users: ' + error.message);
+    }
+};
+
+export const findCoursesWithUnreadMessages = async (user_id) => {
+    try {
+        console.log(user_id)
+        const response = await api.get(`/chat/get-courses-with-unread-messages/${user_id}`);
+        return response.data
+    } catch (error) {
+        throw new Error('Error creating course: ' + error.message);
+    }
+};
+
+export const markLastCourseMessageAsRead = async (user_id, course_id) => {
+    try {
+        console.log(user_id, course_id)
+        const response = await api.post('/chat/mark-last-course-message', { user_id, course_id });
+        console.log(response.data)
+        return response.data
+    } catch (error) {
+        throw new Error('Error creating course: ' + error.message);
     }
 };

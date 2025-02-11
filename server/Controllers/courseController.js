@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken')
 
 const Course = require('../Models/Course');
 const User = require('../Models/User');
+const Chat = require('../Models/Chat')
 const CourseAccess = require('../Models/CourseAccess')
 const CourseOwner =  require('../Models/CourseOwner')
 const {secret} = require('../Config/config')
@@ -34,6 +35,17 @@ class courseController {
 
             const courseOwner = new CourseOwner({course_id, teacher_id})
             await courseOwner.save();
+            
+            const courseChat = new Chat ({
+                members: [teacher_id], 
+                isGroup: true,
+                isCourseChat: course_id, 
+                groupName: course_name, 
+                createdBy: teacher_id, 
+                isActiveFor: [teacher_id]
+            })
+            
+            await courseChat.save()
 
             res.status(201).json({
                 success: true,
@@ -64,10 +76,16 @@ class courseController {
                 return res.status(400).json({ success: false, message: 'User already enrolled in this course' });
             }
 
-            console.log("Course find")
             const enrollment = new CourseAccess({ student_id: user_id, course_id});
             await enrollment.save();
-    
+            
+            let chat = await Chat.findOne({ isCourseChat: course_id });
+            if (chat) {
+                chat.members.push(user_id); 
+                chat.isActiveFor.push(user_id); 
+                await chat.save();
+            }
+           
             res.json({ success: true, message: 'User successfully joined the course' });
         } catch (error) {
             res.status(500).json({ success: false, message: 'Error joining the course', error });

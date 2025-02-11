@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
-import { markLastCourseMessageAsRead, findCoursesWithUnreadMessages } from '../../../api/messageService'
+import { findCoursesWithUnreadMessages, markLastCourseMessageAsRead } from '../../../api/personalChatService'
 import { useSocket } from '../../../context/SocketContext';
 
 const Stream = () => {
@@ -8,7 +8,11 @@ const Stream = () => {
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState('');
   const { socket, user_id, setCourseNotification } = useSocket()
+  const endRef = useRef(null)
 
+  useEffect(() => {
+    endRef.current?.scrollIntoView({ behavior: "smooth" })
+  }, [messages])
   useEffect(() => {
     const fetchMessages = async () => {
       if (!socket) {
@@ -52,7 +56,7 @@ const Stream = () => {
     console.log(message)
     console.log(socket)
     if (socket && message.trim()) {
-      socket.emit("chatroomMessage", { courseId, user_id, message });
+      socket.emit("chatroomMessage", { courseId, user_id, messageText: message });
       setMessage("");
     }
   };
@@ -71,7 +75,7 @@ const Stream = () => {
       </div>
 
       <div className="stream-feed">
-        {messages.length > 0 ? (
+        {messages?.length > 0 ? (
           messages.map((announcement, index) => (
             <div key={announcement.id || index} className="announcement-card">
               <div className="announcement-header">
@@ -84,6 +88,8 @@ const Stream = () => {
         ) : (
           <div>No announcements yet.</div>
         )}
+
+        <div ref={endRef}></div>
       </div>
     </div>
   );

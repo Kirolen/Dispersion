@@ -58,9 +58,9 @@
   border: 1px solid #8560be;
   flex: 1;
   overflow-y: auto;
+  max-height: 400px;
 }
 
-/* Stream Section */
 .announcement-box {
   display: flex;
   gap: 10px;
