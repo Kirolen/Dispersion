@@ -1,15 +1,12 @@
 const { validationResult } = require('express-validator');
-const jwt = require('jsonwebtoken')
-
 const Course = require('../Models/Course');
 const User = require('../Models/User');
 const Chat = require('../Models/Chat')
 const CourseAccess = require('../Models/CourseAccess')
-const CourseOwner =  require('../Models/CourseOwner')
-const {secret} = require('../Config/config')
+const CourseOwner = require('../Models/CourseOwner')
+
 
 class courseController {
-
     async addCourse(req, res) {
         try {
             const errors = validationResult(req);
@@ -33,18 +30,18 @@ class courseController {
             await course.save();
             const course_id = course.id
 
-            const courseOwner = new CourseOwner({course_id, teacher_id})
+            const courseOwner = new CourseOwner({ course_id, teacher_id })
             await courseOwner.save();
-            
-            const courseChat = new Chat ({
-                members: [teacher_id], 
+
+            const courseChat = new Chat({
+                members: [teacher_id],
                 isGroup: true,
-                isCourseChat: course_id, 
-                groupName: course_name, 
-                createdBy: teacher_id, 
+                isCourseChat: course_id,
+                groupName: course_name,
+                createdBy: teacher_id,
                 isActiveFor: [teacher_id]
             })
-            
+
             await courseChat.save()
 
             res.status(201).json({
@@ -70,22 +67,22 @@ class courseController {
             if (!course) {
                 return res.status(404).json({ success: false, message: 'Course not found' });
             }
-      
+
             const existingEnrollment = await CourseAccess.findOne({ student_id: user_id, course_id });
             if (existingEnrollment) {
                 return res.status(400).json({ success: false, message: 'User already enrolled in this course' });
             }
 
-            const enrollment = new CourseAccess({ student_id: user_id, course_id});
+            const enrollment = new CourseAccess({ student_id: user_id, course_id });
             await enrollment.save();
-            
+
             let chat = await Chat.findOne({ isCourseChat: course_id });
             if (chat) {
-                chat.members.push(user_id); 
-                chat.isActiveFor.push(user_id); 
+                chat.members.push(user_id);
+                chat.isActiveFor.push(user_id);
                 await chat.save();
             }
-           
+
             res.json({ success: true, message: 'User successfully joined the course' });
         } catch (error) {
             res.status(500).json({ success: false, message: 'Error joining the course', error });
@@ -111,35 +108,34 @@ class courseController {
     }
 
     async getAllCourses(req, res) {
-        try {
-            const token = req.headers['authorization']?.split(' ')[1];
-    
-            if (!token) {
-                return res.status(400).json({ success: false, message: 'Token not provided' });
-            }
-    
-            const decoded = jwt.verify(token, secret);
-            const user_id = decoded.id;
-    
-            const user = await User.findById(user_id);
-    
+        try {    
+            const user = req.user;
             if (!user) {
-                return res.status(404).json({ success: false, message: 'User not found' });
+                console.log("Error: User not found");
+                return res.status(401).json({ success: false, message: "User not authenticated" });
             }
     
-            if (user.role === "Student") {
-                const enrollments = await CourseAccess.find({ student_id: user_id })
+            const existUser = await User.findById(user.id);
+            if (!existUser) {
+                return res.status(404).json({ success: false, message: "User not found" });
+            }
+    
+            if (existUser.role === "Student") {
+                const enrollments = await CourseAccess.find({ student_id: existUser._id })
                     .populate({
-                        path: 'course_id',
-                        select: 'course_name course_desc',
+                        path: "course_id",
+                        select: "course_name course_desc",
                     });
     
                 const courses = await Promise.all(
                     enrollments.map(async (enrollment) => {
-                        const courseOwner = await CourseOwner.findOne({ course_id: enrollment.course_id._id }).populate({
-                            path: 'teacher_id',
-                            select: 'first_name last_name',
-                        });
+                        const courseOwner = await CourseOwner.findOne({ course_id: enrollment.course_id._id })
+                            .populate({
+                                path: "teacher_id",
+                                select: "first_name last_name",
+                            });
+    
+                        const chat = await Chat.findOne({ isCourseChat: enrollment.course_id._id });
     
                         return {
                             course_id: enrollment.course_id._id,
@@ -147,38 +143,48 @@ class courseController {
                             course_desc: enrollment.course_id.course_desc,
                             teacher_name: courseOwner?.teacher_id
                                 ? `${courseOwner.teacher_id.first_name} ${courseOwner.teacher_id.last_name}`
-                                : 'Unknown',
+                                : "Unknown",
+                            chatId: chat ? chat._id : null,
                         };
                     })
                 );
     
                 return res.json({ success: true, data: courses });
     
-            } else if (user.role === "Teacher") {
-                const courseOwners = await CourseOwner.find({ teacher_id: user_id })
+            } else if (existUser.role === "Teacher") {
+    
+                const courseOwners = await CourseOwner.find({ teacher_id: existUser._id })
                     .populate({
-                        path: 'course_id',
-                        select: 'course_name course_desc',
+                        path: "course_id",
+                        select: "course_name course_desc",
                     });
     
-                const courses = courseOwners.map((courseOwner) => ({
-                    course_id: courseOwner.course_id._id,
-                    course_name: courseOwner.course_id.course_name,
-                    course_desc: courseOwner.course_id.course_desc,
-                    teacher_name: `${user.first_name} ${user.last_name}`,
-                }));
+                const courses = await Promise.all(
+                    courseOwners.map(async (courseOwner) => {
+                        const chat = await Chat.findOne({ isCourseChat: courseOwner.course_id._id });
+    
+                        return {
+                            course_id: courseOwner.course_id._id,
+                            course_name: courseOwner.course_id.course_name,
+                            course_desc: courseOwner.course_id.course_desc,
+                            teacher_name: `${existUser.first_name} ${existUser.last_name}`,
+                            chatId: chat ? chat._id : null,
+                        };
+                    })
+                );
     
                 return res.json({ success: true, data: courses });
     
             } else {
-                return res.status(403).json({ success: false, message: 'Invalid user role' });
+                return res.status(403).json({ success: false, message: "Invalid user role" });
             }
-    
         } catch (error) {
-            res.status(500).json({ success: false, message: 'Error fetching courses for the user', error });
+            console.error("Error fetching courses:", error);
+            res.status(500).json({ success: false, message: "Error fetching courses for the user", error });
         }
     }
     
+
     async getCourseById(req, res) {
         try {
             const { courseId } = req.params;
@@ -191,12 +197,12 @@ class courseController {
             const response = {
                 course_name: course.course_name
             };
-    
+
             return res.json({ success: true, data: response });
         } catch (error) {
             res.status(500).json({ success: false, message: 'Помилка при отриманні інформації про курс', error });
         }
-    } 
+    }
 
     async getCoursePeople(req, res) {
         try {
@@ -207,13 +213,13 @@ class courseController {
             }
             const owner = await CourseOwner.findOne({ course_id: courseId }).populate('teacher_id', 'first_name last_name email');
             const enrollments = await CourseAccess.find({ course_id: courseId }).populate('student_id', 'first_name last_name email');
-    
+
             const students = enrollments.map((enrollment) => ({
                 id: enrollment.student_id._id,
                 name: `${enrollment.student_id.first_name} ${enrollment.student_id.last_name}`,
                 email: enrollment.student_id.email,
             }));
-    
+
             const response = {
                 course_name: course.course_name,
                 teacher: owner ? {
@@ -223,7 +229,7 @@ class courseController {
                 } : null,
                 students,
             };
-            
+
             return res.json({ success: true, data: response });
         } catch (error) {
             res.status(500).json({ success: false, message: 'Error retrieving data!', error });

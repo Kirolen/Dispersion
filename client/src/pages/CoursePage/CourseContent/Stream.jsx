@@ -4,7 +4,7 @@ import { findCoursesWithUnreadMessages, markLastCourseMessageAsRead } from '../.
 import { useSocket } from '../../../context/SocketContext';
 
 const Stream = () => {
-  const { courseId } = useParams();
+  const { courseId, chatId } = useParams();
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState('');
   const { socket, user_id, setCourseNotification } = useSocket()
@@ -13,13 +13,14 @@ const Stream = () => {
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [messages])
+
   useEffect(() => {
     const fetchMessages = async () => {
       if (!socket) {
         return;
       }
-      console.log(`📢 Joining course chat ${courseId}`);
-      socket.emit("joinCourseChat", { courseId });
+      console.log(`📢 Joining course chat ${chatId}`);
+      socket.emit("joinChat", { chatId });
 
       socket.on("getMessages", (loadedMessages) => {
         setMessages(loadedMessages);
@@ -36,7 +37,7 @@ const Stream = () => {
     return () => {
       if (socket?.emit) {
         console.log(`📤 Leaving course chat ${courseId}`);
-        socket.emit("leaveCourseChat", { courseId });
+        socket.emit("leaveChat", { courseId });
       }
     };
   }, [socket, courseId]);
@@ -52,11 +53,8 @@ const Stream = () => {
   }, [messages]);
 
   const sendMessage = () => {
-
-    console.log(message)
-    console.log(socket)
     if (socket && message.trim()) {
-      socket.emit("chatroomMessage", { courseId, user_id, messageText: message });
+      socket.emit("sendMessage", { chatId, sender: user_id, text: message, attachments: [] });
       setMessage("");
     }
   };
@@ -82,7 +80,7 @@ const Stream = () => {
                 <span className="author">{announcement.author || ""}</span>
                 <span className="date">{announcement.created_at || ""}</span>
               </div>
-              <p className="announcement-content">{announcement.message || ""}</p>
+              <p className="announcement-content">{announcement.text || ""}</p>
             </div>
           ))
         ) : (

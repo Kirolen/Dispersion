@@ -20,13 +20,25 @@ const PersonalChat = ({ chatId }) => {
     }, [messages])
 
     useEffect(() => {
-        const fetchChat = async () => {
+        const fetchMessages = async () => {
             try {
+                if (!socket) {
+                    return;
+                }
+                socket.emit("joinChat", { chatId });
+                socket.on("getMessages", (loadedMessages) => {
+                    setMessages(loadedMessages);
+                });
+
+                socket.on("newMessage", (newMessage) => {
+                    console.log(newMessage)
+                    if (newMessage.chatId === chatId) {
+                        setMessages((prev) => [...prev, newMessage]);
+                    }
+                });
+
                 const response = await getChat(chatId);
                 const chat = response.data.chat;
-                const chatMessages = await getMessages(chatId);
-
-                setMessages(chatMessages.data.messages);
 
                 if (chat && chat.members && chat.members.length >= 2) {
                     const [member1, member2] = chat.members;
@@ -37,38 +49,22 @@ const PersonalChat = ({ chatId }) => {
             }
         };
 
-        if (chatId && socket) {
-            fetchChat();
-            socket.emit("joinChat", { userId: user_id, chatId });
-        }
-    }, [chatId, user_id, socket]);
+        fetchMessages();
 
-    useEffect(() => {
-        if (!socket) return;
-        socket.on("newMessage", (message) => {
-            if (message.chatId === chatId) {
-                setMessages((prev) => [...prev, message]);
-            }
-        });
+    return () => {
+      if (socket?.emit) {
+        socket.emit("leaveChat", { chatId });
+      }
+    };
+  }, [socket, chatId]);
 
-        return () => {
-            socket.off("newMessage");
-        };
-    }, [chatId, socket]);
 
     const handleSendMessage = async () => {
-        if (!text.trim()) return;
-
         try {
-            const messageData = {
-                chatId,
-                sender: user_id,
-                text: text.trim(),
-                attachments: [],
-            };
-
-            socket.emit("sendMessage", messageData);
-            setText("");
+            if (socket && text.trim()) {
+                socket.emit("sendMessage", { chatId, sender: user_id, text, attachments: [] });
+                setText("");
+            }
         } catch (error) {
             console.error("Error sending message:", error);
         }
@@ -96,10 +92,10 @@ const PersonalChat = ({ chatId }) => {
             <div className="center">
                 {messages?.map((message) => (
                     <div
-                        key={message._id}
-                        className={`message ${message.sender === user_id ? "own" : ""}`}
+                        key={message.id}
+                        className={`message ${message.sender._id === user_id ? "own" : ""}`}
                     >
-                        {message.sender !== user_id && (
+                        {message.sender._id !== user_id && (
                             <img
                                 src="https://i.pinimg.com/736x/5e/32/aa/5e32aa2c79cd463ab74e034aaace4eb1.jpg"
                                 alt="user-avatar"
@@ -108,7 +104,7 @@ const PersonalChat = ({ chatId }) => {
                         )}
                         <div className="texts">
                             <p>{message.text}</p>
-                            <span>{new Date(message.createdAt).toLocaleTimeString()}</span>
+                            <span>{new Date(message.created_at).toLocaleTimeString()}</span>
                         </div>
                     </div>
                 ))}

@@ -15,8 +15,7 @@ const HomePage = () => {
   const { user_id, role, courseNotification} = useSocket()
 
   useEffect(() => {
-    const res = handleMyCourse();
-    console.log(res)
+    handleMyCourse();
   }, []);
 
   const handleLogout = () => {
@@ -59,6 +58,10 @@ const HomePage = () => {
   const handleMyCourse = async () => {
     try {
       const result = await getMyCourses();
+      console.log("--------------------")
+      console.log("HomePage - load courses")
+      console.log(result)
+      console.log("--------------------")
       setCourses([...result]);
     } catch (error) {
       console.error('Error fetching courses:', error);
@@ -90,7 +93,7 @@ const HomePage = () => {
           <div
             key={course.course_id}
             className="course-card"
-            onClick={() => navigate(`/course/${course.course_id}/stream`)}
+            onClick={() => navigate(`/course/${course.course_id}/stream/${course.chatId}`)}
           >
             <div className="course-card-content">
               <h3>{course.course_name}

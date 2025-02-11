@@ -35,7 +35,7 @@ const App = () => {
           <Route path="/auth-register" element={<RegisterPage />} />
           <Route path="/auth-login" element={<LoginPage />} />
           <Route path="/home" element={<Layout><HomePage user_id={user_id} user_role={role} /></Layout>} />
-          <Route path="/course/:courseId/stream" element={<Layout><CoursePage><Stream /></CoursePage></Layout>} />
+          <Route path="/course/:courseId/stream/:chatId" element={<Layout><CoursePage><Stream /></CoursePage></Layout>} />
           <Route path="/course/:courseId/classwork" element={<Layout><CoursePage><Classwork user_id={user_id} role={role} /></CoursePage></Layout>} />
           <Route path="/course/:courseId/student" element={<Layout><CoursePage><People /></CoursePage></Layout>} />
           <Route path="/course/:courseId/grades" element={<Layout><CoursePage><Grades user_id={user_id} role={role} /></CoursePage></Layout>} />
