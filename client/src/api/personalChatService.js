@@ -36,3 +36,21 @@ export const getChat = async (chatId) => {
         throw new Error('Error search users: ' + error.message);
     }
 };
+
+export const sendMessage = async (chatId, text, attachments) => {
+    try {
+        const response = await api.post(`/chat/send-message`, {chatId, text, attachments});
+        return response
+    } catch (error) {
+        throw new Error('Error search users: ' + error.message);
+    }
+};
+
+export const getMessages = async (chatId) => {
+    try {
+        const response = await api.get(`/chat/get-messages/${chatId}`);
+        return response
+    } catch (error) {
+        throw new Error('Error search users: ' + error.message);
+    }
+};

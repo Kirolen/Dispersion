@@ -14,8 +14,8 @@ const ChatList = ({setChatId}) => {
         const fetchChats = async () => {
             try {
                 const response = await getUserChats();
-                console.log(response)
                 setChats(response.data.chats);
+                setChatId(response.data.chats[0]._id)
             } catch (error) {
                 console.error("Error fetching chats:", error);
             }

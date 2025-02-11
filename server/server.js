@@ -17,6 +17,9 @@ const app = express()
 const server = http.createServer(app);
 const User = require("./Models/User");
 const Course = require('./Models/Course')
+const Message = require('./Models/Message')
+
+const Chat = require('./Models/Chat')
 const path = require('path');
 
 app.use(cors())
@@ -61,10 +64,19 @@ io.use((socket, next) => {
     }
 });
 
+let onlineUsers = new Map();
+
 io.on("connection", (socket) => {
     console.log(`🟢 New WebSocket connection: ${socket.id}`);
+    onlineUsers.set(socket.userId, socket.id);
+    console.log(onlineUsers)
 
     socket.on("disconnect", (reason) => {
+        onlineUsers.forEach((value, key) => {
+            if (value === socket.id) {
+                onlineUsers.delete(key);
+            }
+        });
         console.log(`🔴 WebSocket disconnected: ${socket.id} (${reason})`);
     });
 
@@ -78,12 +90,41 @@ io.on("connection", (socket) => {
         } catch (error) {
             console.error("Error loading messages:", error);
         }
-
     });
 
     socket.on("leaveCourseChat", ({ courseId }) => {
         socket.leave(courseId);
         console.log("A user left chatroom: " + courseId);
+    });
+
+    socket.on("joinChat", ({ userId, chatId }) => {
+        socket.join(chatId);
+        console.log(`👤 User ${userId} joined chat ${chatId}`);
+    });
+
+    socket.on("sendMessage", async ({ chatId, sender, text, attachments }) => {
+        console.log("Message: " + text)
+        try {
+            const newMessage = new Message({
+                chatId,
+                sender,
+                text,
+                attachments: attachments || [],
+                seenBy: [{ userId: sender, timestamp: new Date() }]
+            });
+
+            await newMessage.save();
+
+            await Chat.findByIdAndUpdate(chatId, {
+                lastMessage: newMessage._id,
+                $push: { messages: newMessage._id }
+            });
+
+            io.to(chatId).emit("newMessage", newMessage);
+            console.log("📩 Message sent:", newMessage);
+        } catch (error) {
+            console.error("❌ Error sending message:", error);
+        }
     });
 
     socket.on("chatroomMessage", async ({ courseId, user_id, message }) => {
@@ -93,7 +134,7 @@ io.on("connection", (socket) => {
                 console.log("New message saved:", newMessage);
 
                 const sender = await User.findById(user_id);
-                const course = await Course.findById(courseId); 
+                const course = await Course.findById(courseId);
 
                 const courseName = course ? course.course_name : "Unknown Course";
 

@@ -4,48 +4,75 @@ import { MdEmojiEmotions } from "react-icons/md";
 import { FaImage, FaMicrophone } from "react-icons/fa";
 import EmojiPicker from "emoji-picker-react";
 import { useEffect, useState, useRef } from "react";
-import { getChat } from "../../../api/personalChatService";
+import { getChat, sendMessage, getMessages } from "../../../api/personalChatService";
 import { useSocket } from "../../../context/SocketContext";
 
-
 const PersonalChat = ({ chatId }) => {
-    const [chat, setChat] = useState()
+    const [messages, setMessages] = useState([])
     const [member, setMember] = useState([])
     const [open, setOpen] = useState(false)
     const [text, setText] = useState("")
-    const { user_id } = useSocket()
+    const { user_id, socket } = useSocket()
     const endRef = useRef(null)
 
     useEffect(() => {
         endRef.current?.scrollIntoView({ behavior: "smooth" })
-    }, [])
+    }, [messages])
 
     useEffect(() => {
         const fetchChat = async () => {
             try {
                 const response = await getChat(chatId);
                 const chat = response.data.chat;
+                const chatMessages = await getMessages(chatId);
+
+                setMessages(chatMessages.data.messages);
 
                 if (chat && chat.members && chat.members.length >= 2) {
                     const [member1, member2] = chat.members;
-
-                    if (member1._id === user_id) setMember(member2);
-                    else setMember(member1);
-                } else {
-                    console.error("Chat members are missing or invalid.");
+                    setMember(member1._id === user_id ? member2 : member1);
                 }
-
-                setChat(chat);
             } catch (error) {
                 console.error("Error fetching chat:", error);
             }
         };
 
-        if (chatId) {
+        if (chatId && socket) {
             fetchChat();
+            socket.emit("joinChat", { userId: user_id, chatId });
         }
-    }, [chatId, user_id]);
+    }, [chatId, user_id, socket]);
 
+    useEffect(() => {
+        if (!socket) return;
+        socket.on("newMessage", (message) => {
+            if (message.chatId === chatId) {
+                setMessages((prev) => [...prev, message]);
+            }
+        });
+
+        return () => {
+            socket.off("newMessage");
+        };
+    }, [chatId, socket]);
+
+    const handleSendMessage = async () => {
+        if (!text.trim()) return;
+
+        try {
+            const messageData = {
+                chatId,
+                sender: user_id,
+                text: text.trim(),
+                attachments: [],
+            };
+
+            socket.emit("sendMessage", messageData);
+            setText("");
+        } catch (error) {
+            console.error("Error sending message:", error);
+        }
+    };
 
     const handleEmoji = (e) => {
         setText(prev => prev + e.emoji)
@@ -67,12 +94,12 @@ const PersonalChat = ({ chatId }) => {
                 </div>
             </div>
             <div className="center">
-                {chat?.messages?.map((message) => (
+                {messages?.map((message) => (
                     <div
                         key={message._id}
-                        className={`message ${message.sender === chatId ? "own" : ""}`}
+                        className={`message ${message.sender === user_id ? "own" : ""}`}
                     >
-                        {message.sender !== chatId && (
+                        {message.sender !== user_id && (
                             <img
                                 src="https://i.pinimg.com/736x/5e/32/aa/5e32aa2c79cd463ab74e034aaace4eb1.jpg"
                                 alt="user-avatar"
@@ -93,7 +120,13 @@ const PersonalChat = ({ chatId }) => {
                     <AiOutlineVideoCamera className="icon" />
                     <FaMicrophone className="icon" />
                 </div>
-                <input type="text" placeholder="Type a message..." value={text} onChange={e => setText(e.target.value)} />
+                <input
+                    type="text"
+                    placeholder="Type a message..."
+                    value={text}
+                    onChange={e => setText(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
+                />
                 <div className="emoji">
                     <MdEmojiEmotions className="icon" onClick={() => setOpen((prev) => !prev)} />
                     <div className="picker">
@@ -101,7 +134,7 @@ const PersonalChat = ({ chatId }) => {
                     </div>
 
                 </div>
-                <button className="send-button">Send</button>
+                <button className="send-button" onClick={handleSendMessage}>Send</button>
             </div>
         </div>
     )

@@ -1,6 +1,6 @@
 const User = require('../Models/User');
 const Chat = require("../Models/Chat");
-
+const Message = require("../Models/Message")
 
 class ChatController {
     async searchUsers(req, res) {
@@ -88,16 +88,14 @@ class ChatController {
 
     async getChat(req, res) {
         try {
-            console.log("start")
             const userId = req.user.id; 
             const {chatId} = req.params;
-            console.log(userId)
-            console.log(chatId)
+
             const chat = await Chat.findOne({
                 _id: chatId,
                 members: userId
             })
-            .populate("members", "first_name last_name email") 
+            .populate("members") 
             .populate("lastMessage"); 
     
             if (!chat) {
@@ -107,6 +105,57 @@ class ChatController {
             res.json({ success: true, chat });
         } catch (error) {
             res.status(500).json({ message: "Error fetching user chats", error });
+        }
+    }
+
+    async sendMessage(req, res) {
+        try {
+            const userId = req.user.id; 
+            const {chatId, text, attachments} = req.body;
+
+            const chat = await Chat.findOne({
+                _id: chatId,
+                members: userId
+            })
+            const newMessage = new Message({
+                chatId,
+                sender: userId,
+                text,
+                attachments: attachments || [],
+                seenBy: [{ userId, timestamp: new Date() }] 
+            });
+    
+            await newMessage.save();
+    
+            chat.lastMessage = newMessage._id;
+            chat.messages.push(newMessage._id)
+            await chat.save();
+            
+            res.json({ success: true, data: {chat, newMessage} });
+        } catch (error) {
+            res.status(500).json({ message: "Error fetching user chats", error });
+        }
+    }
+
+    async getMessages(req, res) {
+        try {
+            const { chatId } = req.params;
+            const userId = req.user.id;
+            const chat = await Chat.findOne({
+                _id: chatId,
+                members: userId
+            }).populate("messages");
+            
+
+            if (!chat) {
+                return res.status(404).json({ success: false, message: "Chat not found" });
+            }
+            chat.isActiveFor = chat.members
+            chat.save()
+            return res.json({ success: true, messages: chat.messages });
+        } catch (error) {
+            console.error("Error fetching messages:", error);
+            return res.status(500).json({ message: "Error fetching messages", error });
         }
     }
 }
