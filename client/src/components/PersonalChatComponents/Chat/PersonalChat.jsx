@@ -6,6 +6,7 @@ import EmojiPicker from "emoji-picker-react";
 import { useEffect, useState, useRef } from "react";
 import { getChat, getUnreadChats, markLastMessageAsRead } from "../../../api/personalChatService";
 import { useSocket } from "../../../context/SocketContext";
+import { GoPaperclip } from "react-icons/go";
 
 const PersonalChat = ({ chatId }) => {
     const [messages, setMessages] = useState([])
@@ -127,9 +128,7 @@ const PersonalChat = ({ chatId }) => {
             </div>
             <div className="bottom">
                 <div className="icons">
-                    <FaImage className="icon" />
-                    <AiOutlineVideoCamera className="icon" />
-                    <FaMicrophone className="icon" />
+                    <GoPaperclip className="icon" />
                 </div>
                 <input
                     type="text"

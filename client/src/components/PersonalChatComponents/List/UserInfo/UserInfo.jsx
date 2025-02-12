@@ -1,5 +1,6 @@
 import "./UserInfo.css"
-import { AiOutlineMore, AiOutlineVideoCamera, AiTwotoneEdit } from "react-icons/ai";
+import { AiOutlineMore, AiTwotoneEdit } from "react-icons/ai";
+
 
 
 const UserInfo = () => {
@@ -11,7 +12,6 @@ const UserInfo = () => {
             </div>
             <div className="icons">
                 <AiOutlineMore className="icon"/>
-                <AiOutlineVideoCamera className="icon"/>
                 <AiTwotoneEdit className="icon"/>
             </div>
         </div>)

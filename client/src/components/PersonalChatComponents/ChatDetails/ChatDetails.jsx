@@ -17,12 +17,6 @@ const ChatDetails = () => {
             </div>
             <div className="option">
                 <div className="title">
-                    <span>Privicy & help</span>
-                    <AiOutlineArrowUp className="icon" />
-                </div>
-            </div>
-            <div className="option">
-                <div className="title">
                     <span>Shared photos</span>
                     <AiOutlineArrowDown className="icon" />
                 </div>

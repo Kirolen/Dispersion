@@ -35,7 +35,6 @@ const Aside = () => {
         try {
           const response = await getUnreadChats(user_id);
           setNotification(response.data);
-          console.log(response.data)
         } catch (error) {
           console.error("Error fetching unread messages:", error);
         }
@@ -79,10 +78,11 @@ const Aside = () => {
           >
             <span className="nav-icon">{link.icon}</span>
             <span className="nav-label">{link.label}</span>
-            {((link.label === "Dashboard" && notification?.unreadCourses?.length > 0) ||
-              (link.label === "Messages" && notification?.unreadChats?.length > 0)) && (
+            {/* Fixed check for unread course */}
+            {(link.label === "Dashboard" && notification?.unreadCourses?.length > 0) ||
+            (link.label === "Messages" && notification?.unreadChats?.length > 0) ? (
               <span>🔴</span>
-            )}
+            ) : null}
           </Link>
         ))}
       </nav>

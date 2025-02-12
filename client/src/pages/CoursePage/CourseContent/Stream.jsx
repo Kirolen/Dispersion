@@ -7,7 +7,7 @@ const Stream = () => {
   const { courseId, chatId } = useParams();
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState('');
-  const { socket, user_id, setNotification } = useSocket()
+  const { socket, user_id, setNotification, notification } = useSocket()
   const endRef = useRef(null)
 
   useEffect(() => {
@@ -25,11 +25,6 @@ const Stream = () => {
       socket.on("getMessages", (loadedMessages) => {
         const reverseMessage = [...loadedMessages].reverse()
         setMessages(reverseMessage);
-        const checkNotification = async () => {
-          const response = await getUnreadChats()
-          setNotification(response.data)
-        };
-        checkNotification();
       });
 
       socket.on("newMessage", (newMessage) => {
@@ -51,6 +46,12 @@ const Stream = () => {
   useEffect(() => {
     const markMessagesAsRead = async () => {
       await markLastMessageAsRead(chatId, user_id, courseId)
+      const updatedNotifications = notification.unreadCourses?.filter(id => id !== chatId);
+      setNotification(prev => ({
+        ...prev,
+        unreadCourses: updatedNotifications
+    }));
+    console.log(updatedNotifications)
     };
 
     markMessagesAsRead();
