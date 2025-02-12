@@ -7,7 +7,7 @@ const Stream = () => {
   const { courseId, chatId } = useParams();
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState('');
-  const { socket, user_id, setCourseNotification } = useSocket()
+  const { socket, user_id, setNotification } = useSocket()
   const endRef = useRef(null)
 
   useEffect(() => {
@@ -23,19 +23,18 @@ const Stream = () => {
       socket.emit("joinChat", { chatId, user_id, course_id: courseId });
 
       socket.on("getMessages", (loadedMessages) => {
-        setMessages(loadedMessages);
-        const checkNotification = async () =>{
+        const reverseMessage = [...loadedMessages].reverse()
+        setMessages(reverseMessage);
+        const checkNotification = async () => {
           const response = await getUnreadChats()
-        setCourseNotification(response.data.unreadCourses)
+          setNotification(response.data)
         };
         checkNotification();
       });
 
       socket.on("newMessage", (newMessage) => {
         console.log("new message:", newMessage);
-        markLastMessageAsRead(chatId, user_id, courseId)
-
-        setMessages((prevMessages) => [...prevMessages, newMessage]);
+        setMessages((prevMessages) => [newMessage, ...prevMessages]);
       });
     };
 
@@ -51,10 +50,7 @@ const Stream = () => {
 
   useEffect(() => {
     const markMessagesAsRead = async () => {
-     // await markLastCourseMessageAsRead(user_id, courseId);
-     // const notification = await findCoursesWithUnreadMessages(user_id);
-     //
-     //  setCourseNotification(notification.unreadCourses);
+      await markLastMessageAsRead(chatId, user_id, courseId)
     };
 
     markMessagesAsRead();
@@ -68,7 +64,9 @@ const Stream = () => {
   };
 
   return (
+
     <div className="stream-section">
+      <div ref={endRef}></div>
       <div className="announcement-box">
         <input
           type="text"
@@ -80,7 +78,6 @@ const Stream = () => {
         <button className="post-button" onClick={sendMessage}>Post</button>
 
       </div>
-      <div ref={endRef}></div>
       <div className="stream-feed">
         {messages?.length > 0 ? (
           messages.map((announcement, index) => (

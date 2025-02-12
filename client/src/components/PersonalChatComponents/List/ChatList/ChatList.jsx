@@ -8,15 +8,14 @@ import AddChat from "./addChat/addChat";
 const ChatList = ({setChatId}) => {
     const [addMode, setAddMode] = useState(false);
     const [chats, setChats] = useState([]);
-    const { user_id } = useSocket(); 
-    
+    const { user_id, notification } = useSocket(); 
     useEffect(() => {
         const fetchChats = async () => {
             try {
                 if (!user_id) return
                 const response = await getUserChats();
                 setChats(response.data.chats);
-                setChatId(response.data.chats[0]._id)
+                
             } catch (error) {
                 console.error("Error fetching chats:", error);
             }
@@ -25,7 +24,7 @@ const ChatList = ({setChatId}) => {
         if (user_id) {
             fetchChats();
         }
-    }, [user_id]);
+    }, [user_id, notification]);
 
     return (
         <div className="chat-list">

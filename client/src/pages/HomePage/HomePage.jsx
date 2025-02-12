@@ -12,7 +12,7 @@ const HomePage = () => {
   const [courseDesc, setCourseDesc] = useState('');
   const [courseCode, setCourseCode] = useState('');
   const [courses, setCourses] = useState([]);
-  const { user_id, role, courseNotification} = useSocket()
+  const { user_id, role, notification} = useSocket()
 
   useEffect(() => {
     handleMyCourse();
@@ -97,7 +97,7 @@ const HomePage = () => {
           >
             <div className="course-card-content">
               <h3>{course.course_name}
-                {courseNotification.includes(course.chatId) && (
+                {notification?.unreadCourses?.includes(course.chatId) && (
                   <span className="notification-dot">🔴</span>
                 )}
 

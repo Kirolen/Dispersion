@@ -113,16 +113,13 @@ class ChatController {
     //add last message if course
     async addMessage(chatId, sender, text, attachments) {
         try {
-            const chat = await Chat.findOne({
-                _id: chatId,
-                members: sender
-            });
-    
+            const chat = await Chat.findById(chatId)
+
             if (!chat) {
                 console.log("Chat not found or sender not a member");
                 return null;
             }
-    
+
             const newMessage = new Message({
                 chatId: chat._id,
                 sender: sender,
@@ -130,19 +127,20 @@ class ChatController {
                 attachments: attachments || [],
                 seenBy: [{ userId: sender, timestamp: new Date() }]
             });
-    
+
             await newMessage.save();
-    
+
             chat.lastMessage = newMessage._id;
             chat.messages.push(newMessage._id);
+            chat.isActiveFor = chat.members;
             await chat.save();
-    
+
             const populatedMessage = await Message.findById(newMessage._id)
                 .populate({
                     path: "sender",
                     select: "_id first_name last_name"
                 });
-    
+
             const createdAt = new Date(populatedMessage.createdAt);
             const formattedDate = createdAt
                 .toLocaleString('en-GB', {
@@ -156,7 +154,7 @@ class ChatController {
                 })
                 .split('/')
                 .join('.');
-    
+
             const formattedMessage = {
                 chatId: chatId,
                 id: populatedMessage._id,
@@ -166,7 +164,7 @@ class ChatController {
                 sender: populatedMessage.sender,
                 attachments: populatedMessage.attachments
             };
-    
+
             return formattedMessage;
         } catch (error) {
             console.error("Error adding message:", error);
@@ -177,7 +175,7 @@ class ChatController {
     async getMessages(chatId, user_id, course_id) {
         try {
             const user = await User.findById(user_id);
-    
+
             const chat = await Chat.findById(chatId)
                 .populate({
                     path: "messages",
@@ -186,33 +184,30 @@ class ChatController {
                         select: "_id first_name last_name"
                     }
                 });
-    
+
             if (!chat) {
                 console.log("Chat not found");
                 return [];
             }
-    
-            chat.isActiveFor = chat.members;
-            await chat.save();
-    
+
             const messagesToUpdate = chat.messages.filter(message => {
                 return !message.seenBy.some(userSeen => userSeen.userId.toString() === user_id.toString());
             });
-    
+
             if (messagesToUpdate.length > 0) {
                 await Message.updateMany(
-                    { _id: { $in: messagesToUpdate.map(m => m._id) } }, 
+                    { _id: { $in: messagesToUpdate.map(m => m._id) } },
                     { $push: { seenBy: { userId: user_id, timestamp: new Date() } } }
                 );
             }
-    
+
             if (chat.isCourseChat && course_id) {
                 const lastMessage = await Message.findOne({ chatId: chat._id })
                     .sort({ createdAt: -1 })
                     .select('_id createdAt');
-    
+
                 console.log("Last message: ", lastMessage);
-    
+
                 if (user.role === "Student") {
                     const studentCourse = await CourseAccess.findOne({ course_id, student_id: user_id });
                     if (studentCourse) {
@@ -220,7 +215,7 @@ class ChatController {
                         await studentCourse.save();
                     }
                 }
-    
+
                 if (user.role === "Teacher") {
                     const teacherCourse = await CourseOwner.findOne({ course_id, teacher_id: user_id });
                     if (teacherCourse) {
@@ -229,7 +224,7 @@ class ChatController {
                     }
                 }
             }
-    
+
             const transformedMessages = chat.messages.map(message => {
                 const createdAt = new Date(message.createdAt);
                 const formattedDate = createdAt
@@ -244,7 +239,7 @@ class ChatController {
                     })
                     .split('/')
                     .join('.');
-    
+
                 return {
                     id: message._id,
                     text: message.text,
@@ -253,16 +248,16 @@ class ChatController {
                     sender: message.sender
                 };
             });
-    
+
             return transformedMessages;
-    
+
         } catch (error) {
             console.error("Error fetching messages:", error);
             return [];
         }
     }
-    
-    async findUnreadChats(req, res){
+
+    async findUnreadChats(req, res) {
         const user = req.user
         const userExists = await User.findById(user.id);
         if (!userExists) {
@@ -270,7 +265,7 @@ class ChatController {
         }
 
         let coursesWithUnreadMessages = [];
-        
+
         if (userExists.role === "Student") {
             const studentCourses = await CourseAccess.find({ student_id: user.id }).select('course_id last_read_message');
 
@@ -289,7 +284,6 @@ class ChatController {
             }
 
         } else if (userExists.role === "Teacher") {
-
             const teacherCourses = await CourseOwner.find({ teacher_id: user.id }).select('course_id last_read_message');
             for (const courseOwner of teacherCourses) {
                 const { course_id, last_read_message } = courseOwner;
@@ -300,31 +294,51 @@ class ChatController {
                 const lastMessage = await Message.findOne({ chatId: chat._id })
                     .sort({ createdAt: -1 })
                     .select('_id createdAt');
-       
+
 
                 if (lastMessage && lastMessage._id.toString() !== (last_read_message ? last_read_message.toString() : null)) {
                     coursesWithUnreadMessages.push(chat._id);
                 }
             }
 
-            let unreredChat = [] 
-            return res.status(200).json({
-                success: true,
-                data: {
-                    unreadCourses: coursesWithUnreadMessages,
-                    unreredChatS: unreredChat
-                }
-            });
+
+
         } else {
             return res.status(400).json({ success: false, message: 'Invalid user role' });
         }
+        let unreadChats = [];
+
+        const allChats = await Chat.find({ members: user.id, isCourseChat: null }).select('_id');
+        for (const chat of allChats) {
+            const lastMessage = await Message.findOne({ chatId: chat._id })
+                .sort({ createdAt: -1 })
+                .select('_id seenBy');
+
+            let seenMessage = false
+            lastMessage?.seenBy.forEach(user => {
+                console.log(user.userId + "   ===   " + userExists._id)
+                if (user.userId.toString() === userExists._id.toString()) seenMessage = true
+            })
+            if (!seenMessage && lastMessage) {
+                console.log("push")
+                unreadChats.push(chat._id);
+            }
+        }
+
+        return res.status(200).json({
+            success: true,
+            data: {
+                unreadCourses: coursesWithUnreadMessages,
+                unreadChats
+            }
+        });
     }
 
 
-    
+
     async markLastCourseMessageAsRead(req, res) {
         try {
-            const {chat_id, user_id, course_id } = req.body;
+            const { chat_id, user_id, course_id } = req.body;
             console.log("START MARK")
             const userExists = await User.findById(user_id);
             if (!userExists) {
@@ -381,6 +395,22 @@ class ChatController {
                     lastMessage,
                     updatedLastReadMessage
                 });
+
+            }
+            else if (chat_id) {
+
+                const lastMessage = await Message.findOne({ chatId: chat_id })
+                    .sort({ createdAt: -1 })
+                    .select('_id seenBy createdAt text');
+
+                let isMarked = false
+                lastMessage?.seenBy.forEach(user => {
+                    if (user.userId.toString() === user_id.toString()) isMarked = true;
+                })
+                if (!isMarked && lastMessage) {
+                    lastMessage.seenBy.push({ userId: user_id, timestamp: new Date() })
+                    lastMessage.save()
+                }
 
             }
         } catch (error) {

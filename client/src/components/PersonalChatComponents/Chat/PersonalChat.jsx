@@ -4,7 +4,7 @@ import { MdEmojiEmotions } from "react-icons/md";
 import { FaImage, FaMicrophone } from "react-icons/fa";
 import EmojiPicker from "emoji-picker-react";
 import { useEffect, useState, useRef } from "react";
-import { getChat } from "../../../api/personalChatService";
+import { getChat, getUnreadChats, markLastMessageAsRead } from "../../../api/personalChatService";
 import { useSocket } from "../../../context/SocketContext";
 
 const PersonalChat = ({ chatId }) => {
@@ -12,7 +12,7 @@ const PersonalChat = ({ chatId }) => {
     const [member, setMember] = useState([])
     const [open, setOpen] = useState(false)
     const [text, setText] = useState("")
-    const { user_id, socket } = useSocket()
+    const { user_id, socket, setNotification } = useSocket()
     const endRef = useRef(null)
 
     useEffect(() => {
@@ -28,6 +28,11 @@ const PersonalChat = ({ chatId }) => {
                 socket.emit("joinChat", { chatId, user_id, course_id: null });
                 socket.on("getMessages", (loadedMessages) => {
                     setMessages(loadedMessages);
+                    const checkNotification = async () => {
+                        const response = await getUnreadChats()
+                        setNotification(response.data)
+                    };
+                    checkNotification();
                 });
 
                 socket.on("newMessage", (newMessage) => {
@@ -51,17 +56,18 @@ const PersonalChat = ({ chatId }) => {
 
         fetchMessages();
 
-    return () => {
-      if (socket?.emit) {
-        socket.emit("leaveChat", { chatId });
-      }
-    };
-  }, [socket, chatId]);
+        return () => {
+            if (socket?.emit) {
+                socket.emit("leaveChat", { chatId });
+            }
+        };
+    }, [socket, chatId]);
 
 
     const handleSendMessage = async () => {
         try {
-            if (socket && text.trim()) {
+            console.log("Send privacy, chatID: " + chatId)
+            if (socket && text.trim() && chatId.trim()) {
                 socket.emit("sendMessage", { chatId, sender: user_id, text, attachments: [] });
                 setText("");
             }
@@ -74,6 +80,15 @@ const PersonalChat = ({ chatId }) => {
         setText(prev => prev + e.emoji)
         setOpen(false)
     }
+
+      useEffect(() => {
+        if (!chatId || !user_id) return;
+        const markMessagesAsRead = async () => {
+          await markLastMessageAsRead(chatId, user_id, null)
+        };
+    
+        markMessagesAsRead();
+      }, [messages]);
 
     return (
         <div className="personal-chat">

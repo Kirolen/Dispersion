@@ -3,41 +3,51 @@ import { Link, useLocation } from 'react-router-dom';
 import { useSocket } from '../../context/SocketContext';
 import "./Aside.css";
 import { getUnreadChats } from '../../api/personalChatService';
-
 import makeToast from '../../Toaster/Toaster';
 
 const Aside = () => {
   const location = useLocation();
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const { socket, user_id, courseNotification, setCourseNotification } = useSocket();
+  const { socket, user_id, notification, setNotification } = useSocket();
 
   useEffect(() => {
     if (socket && user_id) {
       const handleNewGlobalNotification = async (data) => {
-        console.log("NOTIFIICATION")
+        console.log("New Global Notification Received");
         await new Promise(resolve => setTimeout(resolve, 1000));
-        const notification = await getUnreadChats();
-        console.log(notification.data.unreadCourses)
-        setCourseNotification(notification.data.unreadCourses);
-        if (notification.data.unreadCourses.length > 0) makeToast("info", `${data.sender}: ${data.message}`);
+
+        try {
+          const response = await getUnreadChats(user_id);
+          setNotification(response.data);
+
+          if (response.data.unreadCourses.length > 0 || response.data.unreadChats.length > 0) {
+            makeToast("info", `${data.sender}: ${data.message}`);
+          }
+        } catch (error) {
+          console.error("Error fetching unread notifications:", error);
+        }
       };
 
       socket.on("newGlobalNotification", handleNewGlobalNotification);
 
       const fetchUnreadMessages = async () => {
-        console.log("aside")
-        const notification = await getUnreadChats(user_id);
-        setCourseNotification(notification.data.unreadCourses);
+        console.log("Fetching unread messages...");
+        try {
+          const response = await getUnreadChats(user_id);
+          setNotification(response.data);
+          console.log(response.data)
+        } catch (error) {
+          console.error("Error fetching unread messages:", error);
+        }
       };
+
       fetchUnreadMessages();
 
       return () => {
-        if (socket) {
-          socket.off("newGlobalNotification", handleNewGlobalNotification);
-        }
+        socket.off("newGlobalNotification", handleNewGlobalNotification);
       };
     }
-  }, [socket, user_id]);  
+  }, [socket, user_id]);
 
   const links = [
     { href: "/home", label: "Dashboard", icon: "📊" },
@@ -69,7 +79,8 @@ const Aside = () => {
           >
             <span className="nav-icon">{link.icon}</span>
             <span className="nav-label">{link.label}</span>
-            {link.label === "Dashboard" && courseNotification.length > 0 && (
+            {((link.label === "Dashboard" && notification?.unreadCourses?.length > 0) ||
+              (link.label === "Messages" && notification?.unreadChats?.length > 0)) && (
               <span>🔴</span>
             )}
           </Link>
