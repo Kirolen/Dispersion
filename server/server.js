@@ -105,11 +105,11 @@ io.on("connection", (socket) => {
             console.log(newMessage)
             io.to(chatId).emit("newMessage", newMessage);
 
-            // socket.broadcast.emit("newGlobalNotification", {
-            //     message: `New message in ${courseName}: ${newMessage.text}`,
-            //     courseId: courseId,
-            //     sender: sender ? `${sender.first_name} ${sender.last_name}` : "Unknown"
-            // });
+            socket.broadcast.emit("newGlobalNotification", {
+                message: `New message in: ${newMessage.text}`,
+                chatId: chatId,
+                sender: sender ? `${sender.first_name} ${sender.last_name}` : "Unknown"
+            });
         } catch (error) {
             console.error("❌ Error sending message:", error);
         }

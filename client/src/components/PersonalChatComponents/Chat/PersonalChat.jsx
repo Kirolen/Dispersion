@@ -4,7 +4,7 @@ import { MdEmojiEmotions } from "react-icons/md";
 import { FaImage, FaMicrophone } from "react-icons/fa";
 import EmojiPicker from "emoji-picker-react";
 import { useEffect, useState, useRef } from "react";
-import { getChat, sendMessage, getMessages } from "../../../api/personalChatService";
+import { getChat } from "../../../api/personalChatService";
 import { useSocket } from "../../../context/SocketContext";
 
 const PersonalChat = ({ chatId }) => {

@@ -55,20 +55,18 @@ export const getMessages = async (chatId) => {
     }
 };
 
-export const findCoursesWithUnreadMessages = async (user_id) => {
+export const getUnreadChats = async () => {
     try {
-        console.log(user_id)
-        const response = await api.get(`/chat/get-courses-with-unread-messages/${user_id}`);
+        const response = await api.get(`/chat/get-unread-chats`);
         return response.data
     } catch (error) {
         throw new Error('Error creating course: ' + error.message);
     }
 };
 
-export const markLastCourseMessageAsRead = async (user_id, course_id) => {
+export const markLastMessageAsRead = async (chat_id, user_id, course_id) => {
     try {
-        console.log(user_id, course_id)
-        const response = await api.post('/chat/mark-last-course-message', { user_id, course_id });
+        const response = await api.post('/chat/mark-last-message', {chat_id, user_id, course_id });
         console.log(response.data)
         return response.data
     } catch (error) {

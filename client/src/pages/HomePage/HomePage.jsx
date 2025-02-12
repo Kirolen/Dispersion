@@ -97,7 +97,7 @@ const HomePage = () => {
           >
             <div className="course-card-content">
               <h3>{course.course_name}
-                {courseNotification.includes(course.course_id) && (
+                {courseNotification.includes(course.chatId) && (
                   <span className="notification-dot">🔴</span>
                 )}
 

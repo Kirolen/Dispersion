@@ -10,6 +10,6 @@ router.post("/create", authMiddleware, chatController.createChat);
 router.get("/user-chats", authMiddleware, chatController.getUserChats);
 router.get('/chat/:chatId', authMiddleware, chatController.getChat);
 
-router.get('/get-courses-with-unread-messages/:user_id', chatController.findCoursesWithUnreadMessages)
-router.post('/mark-last-course-message', chatController.markLastCourseMessageAsRead )
+router.get('/get-unread-chats', authMiddleware, chatController.findUnreadChats)
+router.post('/mark-last-message', chatController.markLastCourseMessageAsRead )
 module.exports = router;

@@ -262,78 +262,77 @@ class ChatController {
         }
     }
     
+    async findUnreadChats(req, res){
+        const user = req.user
+        const userExists = await User.findById(user.id);
+        if (!userExists) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
 
+        let coursesWithUnreadMessages = [];
+        
+        if (userExists.role === "Student") {
+            const studentCourses = await CourseAccess.find({ student_id: user.id }).select('course_id last_read_message');
 
-    async findCoursesWithUnreadMessages(req, res) {
-        try {
-            const { user_id } = req.params;
-            console.log("user: " + user_id)
-            const userExists = await User.findById(user_id);
-            if (!userExists) {
-                return res.status(404).json({ success: false, message: 'User not found' });
+            for (const courseAccess of studentCourses) {
+                const { course_id, last_read_message } = courseAccess;
+                const chat = await Chat.findOne({
+                    isCourseChat: courseAccess.course_id
+                })
+                const lastMessage = await Message.findOne({ chatId: chat._id })
+                    .sort({ createdAt: -1 })
+                    .select('_id createdAt');
+
+                if (lastMessage && lastMessage._id.toString() !== (last_read_message ? last_read_message.toString() : null)) {
+                    coursesWithUnreadMessages.push(chat._id);
+                }
             }
 
-            let coursesWithUnreadMessages = [];
+        } else if (userExists.role === "Teacher") {
 
-            if (userExists.role === "Student") {
-                const studentCourses = await CourseAccess.find({ student_id: user_id }).select('course_id last_read_message');
+            const teacherCourses = await CourseOwner.find({ teacher_id: user.id }).select('course_id last_read_message');
+            for (const courseOwner of teacherCourses) {
+                const { course_id, last_read_message } = courseOwner;
+                const chat = await Chat.findOne({
+                    isCourseChat: courseOwner.course_id
+                })
 
-                for (const courseAccess of studentCourses) {
-                    const { course_id, last_read_message } = courseAccess;
-                    const chat = await Chat.findOne({
-                        isCourseChat: courseAccess.course_id
-                    })
-                    const lastMessage = await Message.findOne({ chatId: chat._id })
-                        .sort({ createdAt: -1 })
-                        .select('_id createdAt');
+                const lastMessage = await Message.findOne({ chatId: chat._id })
+                    .sort({ createdAt: -1 })
+                    .select('_id createdAt');
+       
 
-                    if (lastMessage && lastMessage._id.toString() !== (last_read_message ? last_read_message.toString() : null)) {
-                        coursesWithUnreadMessages.push(course_id);
-                    }
+                if (lastMessage && lastMessage._id.toString() !== (last_read_message ? last_read_message.toString() : null)) {
+                    coursesWithUnreadMessages.push(chat._id);
                 }
-
-            } else if (userExists.role === "Teacher") {
-
-                const teacherCourses = await CourseOwner.find({ teacher_id: user_id }).select('course_id last_read_message');
-                for (const courseOwner of teacherCourses) {
-                    const { course_id, last_read_message } = courseOwner;
-                    const chat = await Chat.findOne({
-                        isCourseChat: courseOwner.course_id
-                    })
-
-                    const lastMessage = await Message.findOne({ chatId: chat._id })
-                        .sort({ createdAt: -1 })
-                        .select('_id createdAt');
-           
-
-                    if (lastMessage && lastMessage._id.toString() !== (last_read_message ? last_read_message.toString() : null)) {
-                        coursesWithUnreadMessages.push(course_id);
-                    }
-                }
-            } else {
-                return res.status(400).json({ success: false, message: 'Invalid user role' });
             }
 
+            let unreredChat = [] 
             return res.status(200).json({
                 success: true,
-                unreadCourses: coursesWithUnreadMessages
+                data: {
+                    unreadCourses: coursesWithUnreadMessages,
+                    unreredChatS: unreredChat
+                }
             });
-
-        } catch (error) {
-            console.error(error);
-            return res.status(500).json({ success: false, message: 'Server error', error });
+        } else {
+            return res.status(400).json({ success: false, message: 'Invalid user role' });
         }
     }
 
+
+    
     async markLastCourseMessageAsRead(req, res) {
         try {
-            const { user_id, course_id, chat_id } = req.body;
+            const {chat_id, user_id, course_id } = req.body;
+            console.log("START MARK")
             const userExists = await User.findById(user_id);
             if (!userExists) {
                 return res.status(404).json({ success: false, message: 'User not found' });
             }
 
             if (course_id) {
+                console.log("course_id: " + course_id)
                 const courseExists = await Course.findById(course_id);
                 if (!courseExists) {
                     return res.status(404).json({ success: false, message: 'Course not found' });
@@ -350,7 +349,7 @@ class ChatController {
                 if (!lastMessage) {
                     return res.status(200).json({ success: true, message: 'No messages found in the course' });
                 }
-
+                console.log(userExists.role)
                 let updatedLastReadMessage;
                 if (userExists.role === "Student") {
                     const updatedCourseAccess = await CourseAccess.findOneAndUpdate(
@@ -362,11 +361,12 @@ class ChatController {
                     updatedLastReadMessage = updatedCourseAccess.last_read_message;
 
                 } else if (userExists.role === "Teacher") {
+                    console.log("teacher")
                     const updatedCourseOwner = await CourseOwner.findOneAndUpdate(
                         { course_id, teacher_id: user_id },
                         { last_read_message: lastMessage._id },
                         { new: true, upsert: true }
-                    ).select('last_read_message');
+                    )
 
                     console.log("last message: ")
                     console.log(updatedCourseOwner.last_read_message._id)

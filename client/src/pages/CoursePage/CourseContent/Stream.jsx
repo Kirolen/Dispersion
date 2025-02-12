@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
-import { findCoursesWithUnreadMessages, markLastCourseMessageAsRead } from '../../../api/personalChatService'
+import { getUnreadChats, markLastMessageAsRead } from '../../../api/personalChatService'
 import { useSocket } from '../../../context/SocketContext';
 
 const Stream = () => {
@@ -24,10 +24,17 @@ const Stream = () => {
 
       socket.on("getMessages", (loadedMessages) => {
         setMessages(loadedMessages);
+        const checkNotification = async () =>{
+          const response = await getUnreadChats()
+        setCourseNotification(response.data.unreadCourses)
+        };
+        checkNotification();
       });
 
       socket.on("newMessage", (newMessage) => {
         console.log("new message:", newMessage);
+        markLastMessageAsRead(chatId, user_id, courseId)
+
         setMessages((prevMessages) => [...prevMessages, newMessage]);
       });
     };
@@ -71,8 +78,9 @@ const Stream = () => {
           onChange={(e) => setMessage(e.target.value)}
         />
         <button className="post-button" onClick={sendMessage}>Post</button>
-      </div>
 
+      </div>
+      <div ref={endRef}></div>
       <div className="stream-feed">
         {messages?.length > 0 ? (
           messages.map((announcement, index) => (
@@ -88,7 +96,7 @@ const Stream = () => {
           <div>No announcements yet.</div>
         )}
 
-        <div ref={endRef}></div>
+
       </div>
     </div>
   );
