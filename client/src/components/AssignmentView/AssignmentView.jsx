@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { getStudentTaskInfo, submitSubmission, gradeTask, returnSubmission, updateStundetTask } from "../../api/materialService";
-import { uploadFile, deleteFile } from "../../api/fileService";
+import { uploadFiles, deleteFile } from "../../api/fileService";
 import "./AssignmentView.css";
 
 const AssignmentView = ({ user_id, role }) => {
@@ -38,11 +38,11 @@ const AssignmentView = ({ user_id, role }) => {
 
   const handleFileChange = async (e) => {
     const newFile = Array.from(e.target.files);
-    const response = await uploadFile(newFile)
+    const response = await uploadFiles(newFile, "assignments")
     const file = {
-      filename: response.filename,
-      url: response.url,
-      type: response.type
+      filename: response[0]?.filename,
+      url: response[0]?.url,
+      type: response[0]?.type
     }
 
     const newAttachments = [...attachments, file]
@@ -138,7 +138,7 @@ const AssignmentView = ({ user_id, role }) => {
                <h2>Прикріплені файли</h2>
                 {assignment.attachments.map((file, index) => (
                   <div key={index} className="attachment-item">
-                    <a href={"http://localhost:5000" + file.url} target="_blank" rel="noopener noreferrer">
+                    <a href={file.url} target="_blank" rel="noopener noreferrer">
                       {file.filename}
                     </a>
                   </div>
@@ -159,7 +159,7 @@ const AssignmentView = ({ user_id, role }) => {
               <div className="attachments-preview">
                 {attachments.map((file, index) => (
                   <div key={index} className="attachment-item">
-                    <a href={"http://localhost:5000" + file.url} target="_blank" rel="noopener noreferrer">
+                    <a href={file.url} target="_blank" rel="noopener noreferrer">
                       {file.filename}
                     </a>
                     {status === "not_passed" && (
@@ -200,7 +200,7 @@ const AssignmentView = ({ user_id, role }) => {
               <div className="attachments-preview">
                 {attachments.map((file, index) => (
                   <div key={index} className="attachment-item">
-                    <a href={"http://localhost:5000" + file.url} target="_blank" rel="noopener noreferrer">
+                    <a href={file.url} target="_blank" rel="noopener noreferrer">
                       {file.filename}
                     </a>
                   </div>

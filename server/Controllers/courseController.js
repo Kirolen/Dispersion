@@ -194,8 +194,11 @@ class courseController {
                 return res.status(404).json({ success: false, message: 'Курс не знайдено' });
             }
 
+            const chat = await Chat.findOne({isCourseChat: courseId}).select("_id")
+
             const response = {
-                course_name: course.course_name
+                course_name: course.course_name,
+                chatId: chat._id
             };
 
             return res.json({ success: true, data: response });

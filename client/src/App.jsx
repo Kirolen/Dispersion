@@ -22,6 +22,7 @@ import Classwork from './pages/CoursePage/CourseContent/Classwork';
 import IndexPage from './pages/IndexPage/IndexPage';
 import People from './pages/CoursePage/CourseContent/People';
 import Grades from './pages/CoursePage/CourseContent/Grades';
+import "./styles/main.css"
 
 const App = () => {
   const { user_id, role } = useSocket(); 

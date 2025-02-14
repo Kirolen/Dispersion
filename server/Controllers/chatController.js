@@ -221,7 +221,8 @@ class ChatController {
                     hour12: false
                 }).replace(/\//g, '.'),
                 author: `${message.sender.first_name} ${message.sender.last_name}`,
-                sender: message.sender
+                sender: message.sender,
+                attachments: message.attachments
             }));
 
         } catch (error) {

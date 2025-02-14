@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { getCoursePeople } from '../../../api/courseService';
 import { useNavigate } from 'react-router-dom';
 import { addTask, getAllCourseMaterials, getCourseMaterialsForStudent } from '../../../api/materialService'
-import { uploadFile, deleteFile } from "../../../api/fileService";
+import { uploadFiles, deleteFile } from "../../../api/fileService";
 
 const Classwork = ({ role, user_id }) => {
 
@@ -99,11 +99,11 @@ const Classwork = ({ role, user_id }) => {
 
   const handleFileChange = async (e) => {
     const newFile = Array.from(e.target.files);
-    const response = await uploadFile(newFile)
+    const response = await uploadFiles(newFile, "assignments")
     const file = {
-      filename: response.filename,
-      url: response.url,
-      type: response.type
+      filename: response[0]?.filename,
+      url: response[0]?.url,
+      type: response[0]?.type
     }
 
     const newAttachments = [...workForm.attachments, file]
@@ -242,7 +242,7 @@ const Classwork = ({ role, user_id }) => {
                   <div className="attachments-preview">
                     {workForm.attachments.map((file, index) => (
                       <div key={index} className="attachment-item">
-                        <a href={"http://localhost:5000" + file.url} target="_blank" rel="noopener noreferrer">
+                        <a href={file.url} target="_blank" rel="noopener noreferrer">
                       {file.filename}
                     </a>
                         <button type="button" onClick={() => removeAttachment(index)}>×</button>

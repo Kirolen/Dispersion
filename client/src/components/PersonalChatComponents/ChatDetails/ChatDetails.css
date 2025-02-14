@@ -1,72 +1,129 @@
 .chat-details {
     flex: 1;
+    min-width: 100px;
+    max-width: 300px;
+    background-color: rgba(31, 46, 135, 0.4);
+    border-left: 1px solid #dddddd35;
+
+
     .user {
-        padding: 15px 10px;
+        padding: 10px 5px;
         display: flex;
         flex-direction: column;
-        align-items: center;
         gap: 10px;
         border-bottom: 1px solid #dddddd35;
+        align-items: center;
 
         .user-chat-avatar {
-            width: 100px;
-            height: 100px;
+            width: 80px;
+            height: 80px;
             border-radius: 50%;
             object-fit: cover;
+        }
+
+        h2,
+        p {
+            text-align: center;
+            margin: 10px 0;
         }
     }
 
     .info {
-        padding: 10px;
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
-
         .option {
+            margin: 25px 10px;
+
             .title {
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
 
-                .icon {
-                    font-size: 20px;
-                    background-color: rgba(57, 83, 131, 0.3);
-                    padding: 2px;
-                    border-radius: 50%;
-                    cursor: pointer;
+                span {
+                    font-size: 15px;
                 }
 
             }
-        }
 
-        .photos {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-
-            .photo-item {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                .photo-detail {
-                    display: flex;
-                    align-items: center;
-                    gap: 5px;
-                    img {
-                        width: 50px;
-                        height: 50px;
-                        border-radius: 5px;
-                        object-fit: cover;;
-                    }
-                }
-                .download-icon {
-                    font-size: 20px;
-                    background-color: rgba(57, 83, 131, 0.3);
-                    padding: 2px;
-                    border-radius: 50%;
-                    cursor: pointer;
-                }
+            .icon {
+                font-size: 20px;
+                background-color: rgba(57, 83, 131, 0.3);
+                padding: 2px;
+                border-radius: 50%;
+                cursor: pointer;
             }
         }
     }
+
+}
+
+
+.photos {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+
+    .photo-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .photo-detail {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+
+        img {
+            width: 40px;
+            height: 40px;
+            border-radius: 5px;
+            object-fit: cover;
+            margin-top: 15px;
+        }
+
+        span {
+            font-size: 15px;
+        }
+    }
+
+}
+
+@media (max-width: 1350px) {
+    .chat-details.not-collapsed {
+        position: absolute;
+        top: 0;
+        right: -100%;
+        opacity: 0;
+        visibility: hidden;
+        transition: right 0.3s ease-in-out, opacity 0.3s ease-in-out, visibility 0.3s;
+        background-color: rgba(31, 46, 135, 1);
+    }
+
+    .chat-details.active {
+        right: 0;
+        opacity: 1;
+        visibility: visible;
+    }
+}
+
+@media (max-width: 1150px) {
+    .chat-details {
+        position: absolute;
+        top: 0;
+        right: -100%;
+        opacity: 0;
+        visibility: hidden;
+        transition: right 0.3s ease-in-out, opacity 0.3s ease-in-out, visibility 0.3s;
+        background-color: rgba(31, 46, 135, 1);
+    }
+
+    .chat-details.active {
+        right: 0;
+        opacity: 1;
+        visibility: visible;
+    }
+}
+
+
+@media (max-width: 1100px) {
+
 }

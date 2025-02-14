@@ -23,7 +23,7 @@
   font-size: 2rem;
 }
 
-.back-button {
+.assignment-view .back-button {
   background: transparent;
   color: #8e44ad;
   border: 2px solid #8e44ad;
@@ -33,7 +33,7 @@
   transition: 0.3s;
 }
 
-.back-button:hover {
+.assignment-view .back-button:hover {
   background: #8e44ad;
   color: white;
 }

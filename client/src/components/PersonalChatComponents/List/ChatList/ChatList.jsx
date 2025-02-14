@@ -9,6 +9,7 @@ const ChatList = ({setChatId}) => {
     const [addMode, setAddMode] = useState(false);
     const [chats, setChats] = useState([]);
     const { user_id, notification } = useSocket(); 
+
     useEffect(() => {
         const fetchChats = async () => {
             try {
@@ -61,7 +62,7 @@ const ChatList = ({setChatId}) => {
                 <p>No chats available</p>
             )}
 
-            {addMode && <AddChat setChats={setChats} chats={chats} currentUserId={user_id} />}
+            {addMode && <AddChat setChats={setChats} chats={chats} onClose={() => setAddMode(false)} />}
         </div>
     );
 };

@@ -1,24 +1,126 @@
 .messages-container {
-    padding: 20px;
-    color: #fff;
-  }
-  
+  padding: 20px;
+  padding-bottom: 0;
+  color: #fff;
+  height: calc(100vh - 160px);
+  display: flex;
+  flex-direction: column;
+
   .messages-header {
     margin-bottom: 30px;
     padding-bottom: 20px;
     border-bottom: 2px solid #8560be;
+    h1 {
+      color: #8560be;
+      margin: 0;
+    }
   }
-  
-  .messages-header h1 {
-    color: #8560be;
-    margin: 0;
-  }
-  
-  .messages-content {
+
+  .messages-content{
     display: flex;
-    gap: 20px;
-    height: calc(100vh - 200px);
+    flex: 1;
+    height: 95%;
+    overflow-x: hidden;
     background-color: rgba(31, 46, 135, 0.4);
+    position: relative;
   }
-  
-  
+}
+
+@media (max-width: 1100px) {
+  .messages-content {
+    .main-chat-list {
+      display: none;
+    }
+
+    .main-chat-list.active {
+      display: block;
+     
+      max-width: 100%;
+    }
+
+    .personal-chat{
+      display: none;
+    }
+    .personal-chat.active{
+      display: flex;
+      overflow: hidden;
+      height: 100%;
+      .top {
+        justify-content: space-between;
+        .back-button{
+          display: block;
+        }
+      }
+    }
+
+
+  }
+
+  .messages-content.collapsed {
+    display: block;
+    .main-chat-list {
+      height: 100%;
+      max-width: 300px;
+    }
+
+    .personal-chat{
+      .top {
+        justify-content: center;
+        .back-button{
+          display: none;
+        }
+      }
+    }
+  }
+}
+
+
+@media (max-width: 768px) {
+  .messages-container {
+    padding: 10px;
+    height: calc(100vh - 160px);
+  }
+
+  .messages-content {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .main-chat-list {
+    display: block;
+    width: 100%;
+  }
+
+  .personal-chat {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background-color: rgba(31, 46, 135, 1);
+    z-index: 1000;
+
+  }
+
+
+
+  .chat-details {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .messages-container {
+    padding: 5px;
+  }
+
+  .messages-header {
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+  }
+
+  .messages-header h1 {
+    font-size: 24px;
+  }
+}

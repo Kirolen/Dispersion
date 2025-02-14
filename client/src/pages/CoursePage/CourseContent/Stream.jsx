@@ -50,8 +50,8 @@ const Stream = () => {
       setNotification(prev => ({
         ...prev,
         unreadCourses: updatedNotifications
-    }));
-    console.log(updatedNotifications)
+      }));
+      console.log(updatedNotifications)
     };
 
     markMessagesAsRead();

@@ -2,25 +2,27 @@
 const path = require('path'); 
 const fs = require('fs');
 
-const AssignedUsers = require('../Models/AssignedUsers');
-
 class fileController {
-    async uploadFile(req, res) {
+    async uploadFiles(req, res) {
         try {
-            const file = req.file;
+            const files = req.files;
             const user = req.user
-            const role = req.user.role
-            const folder = role === "Student" ? "students" : "teachers"
-            const filePath = {
-                filename: file.originalname,
-                url: `/storage/assignments/${folder}/${user.id}/${file.filename}`,
-                type: file.mimetype,
-            };
+            const folder = req.body.folder
 
+            if (!files || files.length === 0) {
+                return res.status(400).json({ success: false, message: "❌ Файли не передано" });
+            }
+
+            const filePaths = files.map(file => ({
+                filename: file.originalname,
+                url: `http://localhost:5000/storage/${folder}/${user.id}/${file.filename}`,
+                type: file.mimetype,
+            }));
+    
             return res.status(200).json({
                 success: true,
-                message: "✅ Файл успішно загружено!",
-                data: filePath,
+                message: "✅ Файли успішно загружено!",
+                data: filePaths,
             });
         } catch (error) {
             console.error("❌ Помилка при загрузці файла:", error);

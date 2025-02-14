@@ -1,24 +1,38 @@
-import "./PersonalChat.css"
-import { AiFillInfoCircle, AiOutlineVideoCamera } from "react-icons/ai";
+import React, { useEffect, useState, useRef } from "react";
+import "./PersonalChat.css";
+import { AiFillInfoCircle, AiOutlineDownload } from "react-icons/ai";
 import { MdEmojiEmotions } from "react-icons/md";
-import { FaImage, FaMicrophone } from "react-icons/fa";
-import EmojiPicker from "emoji-picker-react";
-import { useEffect, useState, useRef } from "react";
-import { getChat, getUnreadChats, markLastMessageAsRead } from "../../../api/personalChatService";
-import { useSocket } from "../../../context/SocketContext";
 import { GoPaperclip } from "react-icons/go";
+import { FaImage, FaFile, FaVideo, FaMusic, FaArrowLeft } from "react-icons/fa";
+import EmojiPicker from "emoji-picker-react";
+import { getChat, markLastMessageAsRead } from "../../../api/personalChatService";
+import { useSocket } from "../../../context/SocketContext";
+import { uploadFiles } from "../../../api/fileService";
 
-const PersonalChat = ({ chatId }) => {
-    const [messages, setMessages] = useState([])
-    const [member, setMember] = useState([])
-    const [open, setOpen] = useState(false)
-    const [text, setText] = useState("")
-    const { user_id, socket, setNotification } = useSocket()
-    const endRef = useRef(null)
+import { renderMessage, renderAttachmentsPrewiev } from "./chatRenders/chatRenders"
 
-    useEffect(() => {
-        endRef.current?.scrollIntoView({ behavior: "smooth" })
-    }, [messages])
+const PersonalChat = ({ chatId, toggleDetails, onBack }) => {
+    const [messages, setMessages] = useState([]);
+    const [member, setMember] = useState([]);
+    const [open, setOpen] = useState(false);
+    const [showAttachMenu, setShowAttachMenu] = useState(false);
+    const [text, setText] = useState("");
+    const [attachments, setAttachments] = useState([]);
+    const { user_id, socket, notification, setNotification, isCollapsed } = useSocket();
+    const endRef = useRef(null);
+    const fileInputRef = useRef(null);
+    const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+    const [currentImage, setCurrentImage] = useState(null);
+
+    const openImageModal = (imageUrl) => {
+        setCurrentImage(imageUrl);
+        setIsImageModalOpen(true);
+    };
+
+    const closeImageModal = () => {
+        setIsImageModalOpen(false);
+        setCurrentImage(null);
+    };
 
     useEffect(() => {
         const fetchMessages = async () => {
@@ -29,15 +43,15 @@ const PersonalChat = ({ chatId }) => {
                 socket.emit("joinChat", { chatId, user_id, course_id: null });
                 socket.on("getMessages", (loadedMessages) => {
                     setMessages(loadedMessages);
-                    const checkNotification = async () => {
-                        const response = await getUnreadChats()
-                        setNotification(response.data)
-                    };
-                    checkNotification();
+                    console.log(loadedMessages)
+                    const updatedNotifications = notification.unreadChats?.filter(id => id !== chatId);
+                    setNotification(prev => ({
+                        ...prev,
+                        unreadChats: updatedNotifications
+                    }));
                 });
 
                 socket.on("newMessage", (newMessage) => {
-                    console.log(newMessage)
                     if (newMessage.chatId === chatId) {
                         setMessages((prev) => [...prev, newMessage]);
                     }
@@ -64,13 +78,74 @@ const PersonalChat = ({ chatId }) => {
         };
     }, [socket, chatId]);
 
+    useEffect(() => {
+        endRef.current?.scrollIntoView({ behavior: "smooth" });
+        if (!chatId || !user_id) return;
+        const markMessagesAsRead = async () => {
+            await markLastMessageAsRead(chatId, user_id, null);
+        };
+
+        markMessagesAsRead();
+    }, [messages]);
+
+    const handleAttachmentClick = (type) => {
+        if (attachments.length >= 5) {
+            alert("Maximum 5 files allowed per message");
+            return;
+        }
+
+        const acceptedTypes = {
+            image: "image/*",
+            video: "video/*",
+            audio: "audio/*",
+            file: "*/*"
+        };
+
+        fileInputRef.current.accept = acceptedTypes[type];
+        fileInputRef.current.click();
+        setShowAttachMenu(false);
+    };
+
+    const handleFileChange = (e) => {
+        const files = Array.from(e.target.files);
+
+        if (attachments.length + files.length > 5) {
+            alert("Maximum 5 files allowed per message");
+            return;
+        }
+
+        const newAttachments = files.map(file => {
+            const preview = file.type.startsWith('image/') ? URL.createObjectURL(file) : null;
+            const type = file.type;
+
+            return {
+                file,
+                preview,
+                type,
+                name: file.name,
+                url: preview || URL.createObjectURL(file)
+            };
+        });
+
+        setAttachments(prev => [...prev, ...newAttachments]);
+        e.target.value = '';
+    };
 
     const handleSendMessage = async () => {
         try {
-            console.log("Send privacy, chatID: " + chatId)
-            if (socket && text.trim() && chatId.trim()) {
-                socket.emit("sendMessage", { chatId, sender: user_id, text, attachments: [] });
+            if (socket && (text.trim() || attachments.length > 0) && chatId.trim()) {
+                const files = attachments.map(att => att.file);
+
+                const uploadedFiles = await uploadFiles(files, "chats");
+
+                socket.emit("sendMessage", {
+                    chatId,
+                    sender: user_id,
+                    text,
+                    attachments: uploadedFiles
+                });
                 setText("");
+                setAttachments([]);
             }
         } catch (error) {
             console.error("Error sending message:", error);
@@ -78,57 +153,110 @@ const PersonalChat = ({ chatId }) => {
     };
 
     const handleEmoji = (e) => {
-        setText(prev => prev + e.emoji)
-        setOpen(false)
-    }
+        setText(prev => prev + e.emoji);
+        setOpen(false);
+    };
 
-      useEffect(() => {
-        if (!chatId || !user_id) return;
-        const markMessagesAsRead = async () => {
-          await markLastMessageAsRead(chatId, user_id, null)
-        };
-    
-        markMessagesAsRead();
-      }, [messages]);
+    const getAttachments = () => {
+        let files = [];
+        let media = [];
+
+        messages.forEach(message => {
+            if (message.attachments && message.attachments.length > 0) {
+
+                message.attachments.forEach(att => {
+                    files.push(att);
+
+                    if (att.type && att.type.startsWith('image')) {
+                        media.push(att);
+                    }
+                });
+            }
+        });
+
+        return { files, media };
+    };
 
     return (
-        <div className="personal-chat">
+        <div className={`personal-chat ${isCollapsed ? "" : "not-collapsed"} ${chatId.trim() ? "active" : ""}`}>
             <div className="top">
+                {onBack && (
+                    <button className="back-button" onClick={onBack}>
+                        <FaArrowLeft />
+                    </button>
+                )}
                 <div className="user">
-                    <img src="https://i.pinimg.com/736x/5e/32/aa/5e32aa2c79cd463ab74e034aaace4eb1.jpg" alt="ayase" className="user-chat-avatar" />
+                    <img
+                        src="https://i.pinimg.com/736x/5e/32/aa/5e32aa2c79cd463ab74e034aaace4eb1.jpg"
+                        alt="avatar"
+                        className="user-chat-avatar"
+                    />
                     <div className="texts">
                         <span>{member.first_name} {member.last_name}</span>
-                        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit.</p>
+                        <p>Online</p>
                     </div>
                 </div>
                 <div className="icons">
-                    <AiFillInfoCircle className="icon" />
+                    <AiFillInfoCircle className="icon" onClick={toggleDetails} />
                 </div>
             </div>
             <div className="center">
                 {messages?.map((message) => (
-                    <div
-                        key={message.id}
-                        className={`message ${message.sender._id === user_id ? "own" : ""}`}
-                    >
-                        {message.sender._id !== user_id && (
-                            <img
-                                src="https://i.pinimg.com/736x/5e/32/aa/5e32aa2c79cd463ab74e034aaace4eb1.jpg"
-                                alt="user-avatar"
-                                className="user-chat-avatar"
-                            />
-                        )}
-                        <div className="texts">
-                            <p>{message.text}</p>
-                            <span>{new Date(message.created_at).toLocaleTimeString()}</span>
-                        </div>
-                    </div>
+                    renderMessage(message, openImageModal, user_id)
                 ))}
                 <div ref={endRef}></div>
+                {isImageModalOpen && (
+                    <div className="image-modal">
+                        <div className="image-modal-container">
+                            <div className="image-modal-control">
+
+                                <a href={currentImage} download className="icon"><AiOutlineDownload /></a>
+                                <span className="close" onClick={closeImageModal}>×</span>
+                            </div>
+                            <div className="image-modal-content">
+                                <img src={currentImage} alt="Expanded view" className="expanded-image" />
+
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
+            {attachments.length > 0 && renderAttachmentsPrewiev(attachments, setAttachments)}
             <div className="bottom">
                 <div className="icons">
-                    <GoPaperclip className="icon" />
+                    <div className="attachment-icon">
+                        <GoPaperclip
+                            className="icon"
+                            onClick={() => setShowAttachMenu(!showAttachMenu)}
+                        />
+                        {showAttachMenu && (
+                            <div className="attachment-menu">
+                                <div className="attachment-option" onClick={() => handleAttachmentClick('image')}>
+                                    <FaImage />
+                                    <span>Image</span>
+                                </div>
+                                <div className="attachment-option" onClick={() => handleAttachmentClick('video')}>
+                                    <FaVideo />
+                                    <span>Video</span>
+                                </div>
+                                <div className="attachment-option" onClick={() => handleAttachmentClick('audio')}>
+                                    <FaMusic />
+                                    <span>Audio</span>
+                                </div>
+                                <div className="attachment-option" onClick={() => handleAttachmentClick('file')}>
+                                    <FaFile />
+                                    <span>File</span>
+                                </div>
+                            </div>
+                        )}
+                        <input
+                            type="file"
+                            ref={fileInputRef}
+                            style={{ display: 'none' }}
+                            onChange={handleFileChange}
+                            multiple
+                        />
+                    </div>
                 </div>
                 <input
                     type="text"
@@ -138,16 +266,18 @@ const PersonalChat = ({ chatId }) => {
                     onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
                 />
                 <div className="emoji">
-                    <MdEmojiEmotions className="icon" onClick={() => setOpen((prev) => !prev)} />
-                    <div className="picker">
-                        <EmojiPicker open={open} onEmojiClick={handleEmoji} />
-                    </div>
-
+                    <MdEmojiEmotions className="icon" onClick={() => setOpen(!open)} />
+                    {open && (
+                        <div className="picker">
+                            <EmojiPicker onEmojiClick={handleEmoji} />
+                        </div>
+                    )}
                 </div>
+
                 <button className="send-button" onClick={handleSendMessage}>Send</button>
             </div>
         </div>
-    )
-}
+    );
+};
 
 export default PersonalChat;

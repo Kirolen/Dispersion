@@ -7,9 +7,7 @@ import makeToast from '../../Toaster/Toaster';
 
 const Aside = () => {
   const location = useLocation();
-  const [isCollapsed, setIsCollapsed] = useState(false);
-  const { socket, user_id, notification, setNotification } = useSocket();
-
+  const { socket, user_id, notification, setNotification, isCollapsed, setIsCollapsed } = useSocket();
   useEffect(() => {
     if (socket && user_id) {
       const handleNewGlobalNotification = async (data) => {
@@ -46,7 +44,7 @@ const Aside = () => {
         socket.off("newGlobalNotification", handleNewGlobalNotification);
       };
     }
-  }, [socket, user_id]);
+  }, [socket, user_id, setNotification]);
 
   const links = [
     { href: "/home", label: "Dashboard", icon: "📊" },
@@ -59,34 +57,31 @@ const Aside = () => {
   ];
 
   return (
-    <aside className={`aside-bar ${isCollapsed ? 'collapsed' : ''}`}>
-      <button
-        className="toggle-button"
-        onClick={() => setIsCollapsed(!isCollapsed)}
-      >
-        {isCollapsed ? '→' : '←'}
-      </button>
-      <div className="aside-header">
-        <h2>Navigation</h2>
-      </div>
-      <nav className="aside-nav">
-        {links.map((link, index) => (
-          <Link
-            key={index}
-            to={link.href}
-            className={`nav-link ${location.pathname === link.href ? 'active' : ''}`}
-          >
-            <span className="nav-icon">{link.icon}</span>
-            <span className="nav-label">{link.label}</span>
-            {/* Fixed check for unread course */}
-            {(link.label === "Dashboard" && notification?.unreadCourses?.length > 0) ||
-            (link.label === "Messages" && notification?.unreadChats?.length > 0) ? (
-              <span>🔴</span>
-            ) : null}
-          </Link>
-        ))}
-      </nav>
-    </aside>
+      <aside className={`aside-bar ${isCollapsed ? 'collapsed' : ''}`}>
+        <button
+          className="toggle-button"
+          onClick={() => setIsCollapsed(!isCollapsed)}
+        >             {isCollapsed ? '→' : '←'} </button>
+        <div className={`aside-header ${isCollapsed ? 'collapsed' : ''}`}>
+          <h2>Navigation</h2>
+        </div>
+        <nav className={`aside-nav ${isCollapsed ? 'collapsed' : ''}`}>
+          {links.map((link, index) => (
+            <Link
+              key={index}
+              to={link.href}
+              className={`nav-link ${location.pathname === link.href ? 'active' : ''}`}
+            >
+              <span className="nav-icon">{link.icon}</span>
+              <span className="nav-label">{link.label}</span>
+              {(link.label === "Dashboard" && notification?.unreadCourses?.length > 0) ||
+                (link.label === "Messages" && notification?.unreadChats?.length > 0) ? (
+                <span>🔴</span>
+              ) : null}
+            </Link>
+          ))}
+        </nav>
+      </aside>
   );
 };
 

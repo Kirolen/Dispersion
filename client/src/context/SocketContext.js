@@ -13,6 +13,7 @@ export const SocketProvider = ({ children }) => {
   const [user_id, setID] = useState('');
   const [role, setRole] = useState('');
   const [notification, setNotification] = useState([]);
+  const [isCollapsed, setIsCollapsed] = useState(false)
 
   const setupSocket = () => {
     const authToken = localStorage.getItem('authToken');
@@ -65,7 +66,9 @@ export const SocketProvider = ({ children }) => {
   }, [socket]);
 
   return (
-    <SocketContext.Provider value={{ socket, user_id, role, notification, setNotification }}>
+    <SocketContext.Provider value={{ socket, user_id, role, notification, setNotification,
+      isCollapsed, setIsCollapsed
+     }}>
       {children}
     </SocketContext.Provider>
   );

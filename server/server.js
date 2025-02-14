@@ -100,7 +100,9 @@ io.on("connection", (socket) => {
 
     socket.on("sendMessage", async ({ chatId, sender, text, attachments }) => {
         try {
+            console.log("send message")
             const newMessage = await addMessage(chatId, sender, text, attachments)
+            console.log(newMessage)
             io.to(chatId).emit("newMessage", newMessage);
 
             socket.broadcast.emit("newGlobalNotification", {

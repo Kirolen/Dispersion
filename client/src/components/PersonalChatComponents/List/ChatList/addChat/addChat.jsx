@@ -2,8 +2,9 @@ import "./addChat.css";
 import { searchUser, createChat } from "../../../../../api/personalChatService";
 import { useState } from "react";
 import { useSocket } from "../../../../../context/SocketContext";
+import { AiOutlineClose } from "react-icons/ai";
 
-const AddChat = ({ setChats, chats }) => {
+const AddChat = ({ setChats, chats, onClose }) => {
     const [keyWord, setKeyWord] = useState("");
     const [users, setUsers] = useState([]);
     const { user_id } = useSocket();
@@ -25,11 +26,7 @@ const AddChat = ({ setChats, chats }) => {
             const response = await createChat({ user1: user_id, user2: userId });
             if (response.data.success) {
                 const newChat = response.data.chat;
-                console.log(response)
-                // Додаємо новий чат у список
                 setChats([...chats, newChat]);
-
-                // Оновлюємо список чатових юзерів
                 setUsers(users.map(user =>
                     user._id === userId ? { ...user, hasChat: true } : user
                 ));
@@ -41,31 +38,41 @@ const AddChat = ({ setChats, chats }) => {
 
     return (
         <div className="add-chat">
+            <div className="add-chat-header">
+                <h3>Add New Chat</h3>
+                <button className="close-button" onClick={onClose}>
+                    <AiOutlineClose />
+                </button>
+            </div>
             <form onSubmit={handleSearch}>
                 <input
                     type="text"
-                    placeholder="Key word (email, name, surname)"
+                    placeholder="Search by email, name, or surname"
                     name="keyWord"
                     value={keyWord}
                     onChange={(e) => setKeyWord(e.target.value)}
                 />
                 <button type="submit">Search</button>
             </form>
-            {users.length > 0 ? (
-                users.map((user) => (
-                    <div key={user._id} className="user">
-                        <div className="detail">
-                            <img src="https://c.wallhere.com/photos/38/1d/anime_anime_girls_Oshi_no_Ko_Kurokawa_Akane-2247722.jpg!d" alt="user" />
-                            <span>{user.first_name} {user.last_name}</span>
+            <div className="users-list">
+                {users.length > 0 ? (
+                    users.map((user) => (
+                        <div key={user._id} className="user">
+                            <div className="detail">
+                                <img src="https://c.wallhere.com/photos/38/1d/anime_anime_girls_Oshi_no_Ko_Kurokawa_Akane-2247722.jpg!d" alt="user" />
+                                <span>{user.first_name} {user.last_name}</span>
+                            </div>
+                            {user.hasChat ? (
+                                <button disabled>Already in chat</button>
+                            ) : (
+                                <button onClick={() => handleAddChat(user._id)}>Add User</button>
+                            )}
                         </div>
-                        {user.hasChat ? (
-                            <button disabled>Already in chat</button>
-                        ) : (
-                            <button onClick={() => handleAddChat(user._id)}>Add User</button>
-                        )}
-                    </div>
-                ))
-            ) : (<p>No users found</p>)}
+                    ))
+                ) : (
+                    <p className="no-results">No users found</p>
+                )}
+            </div>
         </div>
     );
 };

@@ -6,6 +6,7 @@ import { getCourseInfo } from '../../api//courseService'
 const CoursePage = ({ children }) => {
   const { courseId } = useParams();
   const navigate = useNavigate();
+  const [chatId, setchatId] = useState(null);
   const [courseName, setCourseName] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('stream');
@@ -15,6 +16,8 @@ const CoursePage = ({ children }) => {
       try {
         const res = await getCourseInfo(courseId);
         setCourseName(res)
+        console.log("Info")
+        setchatId(res.chatId)
         setLoading(false);
       } catch (error) {
         console.error('Error fetching course details:', error);
@@ -47,7 +50,7 @@ const CoursePage = ({ children }) => {
           className={`tab ${activeTab === 'stream' ? 'active' : ''}`}
           onClick={() => {
             setActiveTab('stream');
-            navigate(`/course/${courseId}/stream`);
+            navigate(`/course/${courseId}/stream/${chatId}`);
           }}
         >
           Stream

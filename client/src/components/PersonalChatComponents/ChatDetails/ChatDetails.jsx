@@ -1,8 +1,17 @@
 import "./ChatDetails.css"
 import { AiOutlineArrowUp, AiOutlineArrowDown, AiOutlineDownload } from "react-icons/ai";
 
-const ChatDetails = () => {
-    return <div className="chat-details">
+import {FaArrowLeft } from "react-icons/fa";
+import { useSocket } from "../../../context/SocketContext";
+const ChatDetails = ({setShowDetails, showDetails}) => {
+      const {isCollapsed} = useSocket()
+
+    return (<div className={`chat-details ${isCollapsed ? '' : 'not-collapsed'} ${showDetails ? "active" : ""}`}>
+        {(
+            <button className="back-button" onClick={() => setShowDetails(false)}>
+                <FaArrowLeft />
+            </button>
+        )}
         <div className="user">
             <img src="https://i.pinimg.com/736x/5e/32/aa/5e32aa2c79cd463ab74e034aaace4eb1.jpg" alt="ayase" className="user-chat-avatar" />
             <h2>Ayase Momo</h2>
@@ -26,7 +35,7 @@ const ChatDetails = () => {
                             <img src="https://c.wallhere.com/photos/38/1d/anime_anime_girls_Oshi_no_Ko_Kurokawa_Akane-2247722.jpg!d" alt="akane" />
                             <span>photo.2022</span>
                         </div>
-                        <AiOutlineDownload className="download-icon" />
+                        <AiOutlineDownload className="icon" />
                     </div>
                 </div>
 
@@ -39,7 +48,7 @@ const ChatDetails = () => {
                 </div>
             </div>
         </div>
-    </div>
+    </div>)
 }
 
 export default ChatDetails;
