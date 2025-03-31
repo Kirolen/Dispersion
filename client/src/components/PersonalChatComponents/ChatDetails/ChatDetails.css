@@ -32,6 +32,9 @@
         .option {
             margin: 25px 10px;
 
+            max-height: 90px;
+            overflow: scroll;
+            overflow-x: hidden;
             .title {
                 display: flex;
                 align-items: center;

@@ -14,11 +14,6 @@ const { secret } = require('./Config/config')
 const {getMessages, addMessage} = require('./Controllers/chatController')
 const app = express()
 const server = http.createServer(app);
-const User = require("./Models/User");
-const Course = require('./Models/Course')
-const Message = require('./Models/Message')
-
-const Chat = require('./Models/Chat')
 const path = require('path');
 
 const logSocket = false;

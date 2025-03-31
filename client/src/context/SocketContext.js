@@ -66,7 +66,7 @@ export const SocketProvider = ({ children }) => {
   }, [socket]);
 
   return (
-    <SocketContext.Provider value={{ socket, user_id, role, notification, setNotification,
+    <SocketContext.Provider value={{ socket, setupSocket, user_id, role, notification, setNotification,
       isCollapsed, setIsCollapsed
      }}>
       {children}

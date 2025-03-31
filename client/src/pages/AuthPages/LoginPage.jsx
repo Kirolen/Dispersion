@@ -2,8 +2,11 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './AuthPages.css'; 
 import {login} from '../../api/authService'
+import { useSocket } from '../../context/SocketContext';
 
 export const LoginPage = () => {
+  
+  const {setupSocket} = useSocket();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: '',
@@ -27,6 +30,7 @@ export const LoginPage = () => {
       const token = await login(formData.email,formData.password);
       localStorage.setItem('authToken', token);
       navigate('/home');
+      setupSocket();
     } catch (err) {
       setError(err.response?.data?.message || 'An error occurred during login.'); 
     }

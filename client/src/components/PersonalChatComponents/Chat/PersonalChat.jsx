@@ -11,8 +11,7 @@ import { uploadFiles } from "../../../api/fileService";
 
 import { renderMessage, renderAttachmentsPrewiev } from "./chatRenders/chatRenders"
 
-const PersonalChat = ({ chatId, toggleDetails, onBack }) => {
-    const [messages, setMessages] = useState([]);
+const PersonalChat = ({ chatId, toggleDetails, onBack, messages, setMessages }) => {
     const [member, setMember] = useState([]);
     const [open, setOpen] = useState(false);
     const [showAttachMenu, setShowAttachMenu] = useState(false);
@@ -76,17 +75,22 @@ const PersonalChat = ({ chatId, toggleDetails, onBack }) => {
                 socket.emit("leaveChat", { chatId });
             }
         };
-    }, [socket, chatId]);
+    }, [socket, chatId, setNotification, user_id]);
 
     useEffect(() => {
-        endRef.current?.scrollIntoView({ behavior: "smooth" });
+        
         if (!chatId || !user_id) return;
         const markMessagesAsRead = async () => {
             await markLastMessageAsRead(chatId, user_id, null);
         };
 
         markMessagesAsRead();
-    }, [messages]);
+    }, [messages, chatId, user_id]);
+
+    useEffect(() => {
+        endRef.current?.scrollIntoView({ behavior: "smooth" });
+        console.log("messages")
+    }, [messages])
 
     const handleAttachmentClick = (type) => {
         if (attachments.length >= 5) {
@@ -136,7 +140,8 @@ const PersonalChat = ({ chatId, toggleDetails, onBack }) => {
             if (socket && (text.trim() || attachments.length > 0) && chatId.trim()) {
                 const files = attachments.map(att => att.file);
 
-                const uploadedFiles = await uploadFiles(files, "chats");
+                let uploadedFiles = null;
+                if (files.length > 0)  uploadedFiles = await uploadFiles(files, "chats");
 
                 socket.emit("sendMessage", {
                     chatId,
@@ -157,25 +162,7 @@ const PersonalChat = ({ chatId, toggleDetails, onBack }) => {
         setOpen(false);
     };
 
-    const getAttachments = () => {
-        let files = [];
-        let media = [];
 
-        messages.forEach(message => {
-            if (message.attachments && message.attachments.length > 0) {
-
-                message.attachments.forEach(att => {
-                    files.push(att);
-
-                    if (att.type && att.type.startsWith('image')) {
-                        media.push(att);
-                    }
-                });
-            }
-        });
-
-        return { files, media };
-    };
 
     return (
         <div className={`personal-chat ${isCollapsed ? "" : "not-collapsed"} ${chatId.trim() ? "active" : ""}`}>

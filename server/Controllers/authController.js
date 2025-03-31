@@ -16,15 +16,19 @@ class authController {
     async registration(req, res) {
         try {
             const errors = validationResult(req);
+            console.log(errors)
             if (!errors.isEmpty()){
                 return res.status(500).json({ message: 'Registration error', errors });
             }
             const {first_name, last_name, email, password, role} = req.body;
+
             const candidate = await User.findOne({email});
+
             if (candidate) {
-                return res.status(500).json({ message: 'User with this email is registered', error });
+                return res.status(500).json({ message: 'User with this email is registered', errors });
             }
             const hashPassword = bcrypt.hashSync(password, 7)
+            
             const user = new User({first_name, last_name, email, password: hashPassword, role})
             user.save()
             return res.json({ message: 'Registration successful' });

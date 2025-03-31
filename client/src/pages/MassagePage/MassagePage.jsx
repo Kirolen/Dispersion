@@ -8,8 +8,7 @@ import { useSocket } from '../../context/SocketContext';
 const MessagesPage = () => {
   const [chatId, setChatId] = useState("");
   const [showDetails, setShowDetails] = useState(false);
-  const [isMobileChat, setIsMobileChat] = useState(false);
-  const [isTableChat, setIsTableChat] = useState(false);
+  const [messages, setMessages] = useState([]);
   const {isCollapsed} = useSocket()
   const toggleDetails = () => {
     setShowDetails(!showDetails);
@@ -17,18 +16,7 @@ const MessagesPage = () => {
 
   const handleChatSelect = (id) => {
     setChatId(id);
-    if (window.innerWidth <= 768){
-      setIsTableChat(true)
-      setIsMobileChat(false);
-    }
-    else if (window.innerWidth <= 768) {
-      setIsTableChat(false)
-      setIsMobileChat(true);
-    }
-    else {
-      setIsTableChat(false)
-      setIsMobileChat(false);
-    }
+
   };
 
   const handleBackToList = () => {
@@ -50,10 +38,12 @@ const MessagesPage = () => {
               chatId={chatId} 
               toggleDetails={toggleDetails} 
               onBack={handleBackToList}
+              messages={messages}
+              setMessages={setMessages}
             />
           
         )}
-        {showDetails && <ChatDetails setShowDetails={setShowDetails} showDetails={showDetails}/>}
+        {showDetails && <ChatDetails setShowDetails={setShowDetails} showDetails={showDetails} messages={messages}/>}
       </div>
     </div>
   );
