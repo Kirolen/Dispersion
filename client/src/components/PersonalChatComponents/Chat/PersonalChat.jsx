@@ -1,23 +1,23 @@
 import React, { useEffect, useState, useRef } from "react";
-import "./PersonalChat.css";
-import { AiFillInfoCircle, AiOutlineDownload } from "react-icons/ai";
+import styles from "./PersonalChat.module.css";
+import { AiOutlineArrowLeft, AiOutlineDownload } from "react-icons/ai";
 import { MdEmojiEmotions } from "react-icons/md";
 import { GoPaperclip } from "react-icons/go";
 import { FaImage, FaFile, FaVideo, FaMusic, FaArrowLeft } from "react-icons/fa";
 import EmojiPicker from "emoji-picker-react";
-import { getChat, markLastMessageAsRead } from "../../../api/personalChatService";
+import { getChat, markLastMessageAsRead, sendMessage } from "../../../api/personalChatService";
 import { useSocket } from "../../../context/SocketContext";
 import { uploadFiles } from "../../../api/fileService";
 
 import { renderMessage, renderAttachmentsPrewiev } from "./chatRenders/chatRenders"
 
-const PersonalChat = ({ chatId, toggleDetails, onBack, messages, setMessages }) => {
+const PersonalChat = ({ chatId, setChatId, messages, setMessages }) => {
     const [member, setMember] = useState([]);
     const [open, setOpen] = useState(false);
     const [showAttachMenu, setShowAttachMenu] = useState(false);
     const [text, setText] = useState("");
     const [attachments, setAttachments] = useState([]);
-    const { user_id, socket, notification, setNotification, isCollapsed } = useSocket();
+    const { user_id, socket, notification, setNotification, setChatDetailsActive, isMenuOpen } = useSocket();
     const endRef = useRef(null);
     const fileInputRef = useRef(null);
     const [isImageModalOpen, setIsImageModalOpen] = useState(false);
@@ -78,7 +78,7 @@ const PersonalChat = ({ chatId, toggleDetails, onBack, messages, setMessages }) 
     }, [socket, chatId, setNotification, user_id]);
 
     useEffect(() => {
-        
+
         if (!chatId || !user_id) return;
         const markMessagesAsRead = async () => {
             await markLastMessageAsRead(chatId, user_id, null);
@@ -141,7 +141,7 @@ const PersonalChat = ({ chatId, toggleDetails, onBack, messages, setMessages }) 
                 const files = attachments.map(att => att.file);
 
                 let uploadedFiles = null;
-                if (files.length > 0)  uploadedFiles = await uploadFiles(files, "chats");
+                if (files.length > 0) uploadedFiles = await uploadFiles(files, "chats");
 
                 socket.emit("sendMessage", {
                     chatId,
@@ -162,88 +162,63 @@ const PersonalChat = ({ chatId, toggleDetails, onBack, messages, setMessages }) 
         setOpen(false);
     };
 
-
-
     return (
-        <div className={`personal-chat ${isCollapsed ? "" : "not-collapsed"} ${chatId.trim() ? "active" : ""}`}>
-            <div className="top">
-                {onBack && (
-                    <button className="back-button" onClick={onBack}>
-                        <FaArrowLeft />
-                    </button>
-                )}
-                <div className="user">
+        <div className={`${styles.chat} ${isMenuOpen ? styles.withOpenMenu : ""} ${chatId.trim() ? styles.active : ''}`}>
+            <div className={styles.chatTop} onClick={() => setChatDetailsActive(prev => !prev)}>
+                <AiOutlineArrowLeft className={styles.backButton} onClick={(event) => {
+                    event.stopPropagation(); 
+                    setChatId("");
+                    setChatDetailsActive(false)
+                }} />
+
+                <div className={styles.anotherUserInfo}>
                     <img
                         src="https://i.pinimg.com/736x/5e/32/aa/5e32aa2c79cd463ab74e034aaace4eb1.jpg"
                         alt="avatar"
-                        className="user-chat-avatar"
                     />
-                    <div className="texts">
-                        <span>{member.first_name} {member.last_name}</span>
-                        <p>Online</p>
-                    </div>
-                </div>
-                <div className="icons">
-                    <AiFillInfoCircle className="icon" onClick={toggleDetails} />
+                    <span>{member.first_name} {member.last_name}</span>
                 </div>
             </div>
-            <div className="center">
+            <div className={styles.chatCenter}>
                 {messages?.map((message) => (
                     renderMessage(message, openImageModal, user_id)
                 ))}
                 <div ref={endRef}></div>
-                {isImageModalOpen && (
-                    <div className="image-modal">
-                        <div className="image-modal-container">
-                            <div className="image-modal-control">
-
-                                <a href={currentImage} download className="icon"><AiOutlineDownload /></a>
-                                <span className="close" onClick={closeImageModal}>×</span>
-                            </div>
-                            <div className="image-modal-content">
-                                <img src={currentImage} alt="Expanded view" className="expanded-image" />
-
-                            </div>
-                        </div>
-                    </div>
-                )}
             </div>
             {attachments.length > 0 && renderAttachmentsPrewiev(attachments, setAttachments)}
-            <div className="bottom">
-                <div className="icons">
-                    <div className="attachment-icon">
-                        <GoPaperclip
-                            className="icon"
-                            onClick={() => setShowAttachMenu(!showAttachMenu)}
-                        />
-                        {showAttachMenu && (
-                            <div className="attachment-menu">
-                                <div className="attachment-option" onClick={() => handleAttachmentClick('image')}>
-                                    <FaImage />
-                                    <span>Image</span>
-                                </div>
-                                <div className="attachment-option" onClick={() => handleAttachmentClick('video')}>
-                                    <FaVideo />
-                                    <span>Video</span>
-                                </div>
-                                <div className="attachment-option" onClick={() => handleAttachmentClick('audio')}>
-                                    <FaMusic />
-                                    <span>Audio</span>
-                                </div>
-                                <div className="attachment-option" onClick={() => handleAttachmentClick('file')}>
-                                    <FaFile />
-                                    <span>File</span>
-                                </div>
+            <div className={styles.chatBottom}>
+                <div className={styles.attachmentsControl}>
+                    <GoPaperclip
+                        className="icon"
+                        onClick={() => setShowAttachMenu(!showAttachMenu)}
+                    />
+                    {showAttachMenu && (
+                        <div className={styles.attachmentsMenu}>
+                            <div className={styles.attachmentOption} onClick={() => handleAttachmentClick('image')}>
+                                <FaImage />
+                                <span>Image</span>
                             </div>
-                        )}
-                        <input
-                            type="file"
-                            ref={fileInputRef}
-                            style={{ display: 'none' }}
-                            onChange={handleFileChange}
-                            multiple
-                        />
-                    </div>
+                            <div className={styles.attachmentOption} onClick={() => handleAttachmentClick('video')}>
+                                <FaVideo />
+                                <span>Video</span>
+                            </div>
+                            <div className={styles.attachmentOption} onClick={() => handleAttachmentClick('audio')}>
+                                <FaMusic />
+                                <span>Audio</span>
+                            </div>
+                            <div className={styles.attachmentOption} onClick={() => handleAttachmentClick('file')}>
+                                <FaFile />
+                                <span>File</span>
+                            </div>
+                        </div>
+                    )}
+                    <input
+                        type="file"
+                        ref={fileInputRef}
+                        style={{ display: 'none' }}
+                        onChange={handleFileChange}
+                        multiple
+                    />
                 </div>
                 <input
                     type="text"
@@ -252,18 +227,30 @@ const PersonalChat = ({ chatId, toggleDetails, onBack, messages, setMessages }) 
                     onChange={e => setText(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
                 />
-                <div className="emoji">
-                    <MdEmojiEmotions className="icon" onClick={() => setOpen(!open)} />
+                <div className={styles.emojiContainer}>
+                    <MdEmojiEmotions className={styles.icon} onClick={() => setOpen(!open)} />
                     {open && (
-                        <div className="picker">
-                            <EmojiPicker onEmojiClick={handleEmoji} />
-                        </div>
+                        <EmojiPicker onEmojiClick={handleEmoji} className={styles.emojiPicker} />
                     )}
                 </div>
 
-                <button className="send-button" onClick={handleSendMessage}>Send</button>
+                <button className={styles.sendMessageButton} onClick={handleSendMessage}>Send</button>
             </div>
+            {isImageModalOpen && (
+                <div className={styles.openedImage}>
+                    <div className={styles.openedImageContainer}>
+                        <div className={styles.openedImageControl}>
+                            <a href={currentImage} download className={styles.icon}><AiOutlineDownload /></a>
+                            <span className={styles.closeButton} onClick={closeImageModal}>×</span>
+                        </div>
+                        <div className={styles.openedImageContent}>
+                            <img src={currentImage} alt="Expanded view" />
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
+
     );
 };
 

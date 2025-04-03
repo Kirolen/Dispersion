@@ -1,0 +1,37 @@
+.mainChatList {
+    display: flex;
+    flex-direction: column;
+    max-width: 300px;
+    background-color: rgba(31, 46, 135, 0.4);
+}
+
+@media (max-width: 1140px) {
+    .mainChatList {
+        transition: opacity 0.3s ease, 
+                    visibility 0.3s ease, 
+                    max-width 0.3s ease, 
+                    width 0.3s ease;
+        
+        &.withOpenMenu {
+            max-width: 100%;
+            width: 100%;
+            &.hide {
+                opacity: 0;
+                visibility: hidden;
+                max-width: 0;
+                width: 0;
+            }
+        }
+    }
+}
+
+@media (max-width: 940px) {
+    .mainChatList {
+        max-width: 100%;
+        width: 100%;
+
+        &.hide {
+            display: none;
+        }
+    }
+}

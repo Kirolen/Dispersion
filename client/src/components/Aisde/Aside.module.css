@@ -1,0 +1,66 @@
+.asideBar {
+    min-width: 250px;
+    width: 250px;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid #8560be;
+    background-color: #200055;
+    transition: opacity 0.5s ease, visibility 0.5s ease, min-width 0.5s ease, width 0.5s ease;
+
+    &.collapsed {
+        width: 0;
+        min-width: 0;
+        opacity: 0;
+        visibility: hidden;
+        overflow: hidden;
+    }
+
+    .asideHeader {
+        border-bottom: 1px solid #8560be;
+
+        h2 {
+            color: #8560be;
+        }
+    }
+
+    .assideNav {
+        display: flex;
+        flex-direction: column;
+
+        .navLink {
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            color: #819198;
+            text-decoration: none;
+
+            &:hover {
+                background-color: #2a0066;
+                color: #fff;
+            }
+
+            &.active {
+                background-color: #8560be;
+                color: #fff;
+            }
+
+            .navIcon {
+                margin-right: 12px;
+                font-size: 1.2em;
+            }
+
+            .navLabel {
+                font-size: 0.95em;
+                white-space: nowrap;
+                opacity: 1;
+            }
+        }
+    }
+}
+
+@media (max-width: 768px) {
+    .asideBar {
+        position: fixed;
+        height: 100%;
+        z-index: 3;
+    }
+}

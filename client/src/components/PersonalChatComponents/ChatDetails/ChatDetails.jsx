@@ -1,82 +1,67 @@
-import "./ChatDetails.css";
+import styles from "./ChatDetails.module.css";
 import { AiOutlineArrowUp, AiOutlineArrowDown, AiOutlineDownload } from "react-icons/ai";
-import { FaArrowLeft } from "react-icons/fa";
-import { useSocket } from "../../../context/SocketContext";
 import { useState, useEffect } from "react";
+import { useSocket } from "../../../context/SocketContext";
 
-const ChatDetails = ({ setShowDetails, showDetails, messages }) => {
-    const { isCollapsed } = useSocket();
+const ChatDetails = ({ messages }) => {
     const [attachments, setAttachments] = useState({ files: [], media: [] });
-
+    const { chatDetailsActive, isMenuOpen } = useSocket();
+    
     useEffect(() => {
-        const getAttachments = () => {
-            let files = [];
-            let media = [];
+        const files = [];
+        const media = [];
 
-            messages.forEach((message) => {
-                if (message.attachments && message.attachments.length > 0) {
-                    message.attachments.forEach((att) => {
-                        if (att.type.startsWith("image")) {
-                            media.push(att);
-                        } else {
-                            files.push(att);
-                        }
-                    });
-                }
+        messages.forEach(({ attachments }) => {
+            attachments?.forEach((att) => {
+                att.type.startsWith("image") ? media.push(att) : files.push(att);
             });
+        });
 
-            return { files, media };
-        };
-
-        setAttachments(getAttachments());
+        setAttachments({ files, media });
     }, [messages]);
 
     return (
-        <div className={`chat-details ${isCollapsed ? '' : 'not-collapsed'} ${showDetails ? "active" : ""}`}>
-            <button className="back-button" onClick={() => setShowDetails(false)}>
-                <FaArrowLeft />
-            </button>
-            <div className="user">
-                <img src="https://i.pinimg.com/736x/5e/32/aa/5e32aa2c79cd463ab74e034aaace4eb1.jpg" alt="ayase" className="user-chat-avatar" />
+        <div className={`${styles.chatDetails} ${chatDetailsActive ? styles.active : ""} ${isMenuOpen ? styles.withOpenMenu : ""}`}>
+            <div className={styles.anotherUserInfo}>
+                <img src="https://i.pinimg.com/736x/5e/32/aa/5e32aa2c79cd463ab74e034aaace4eb1.jpg" alt="ayase"/>
                 <h2>Ayase Momo</h2>
                 <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
             </div>
-            <div className="info">
-                {/* Shared Photos */}
-                <div className="option">
-                    <div className="title">
+
+            <div className={styles.shared}>
+                <div className={styles.option}>
+                    <div className={styles.title}>
                         <span>Shared Photos</span>
-                        <AiOutlineArrowDown className="icon" />
+                        <AiOutlineArrowDown className={styles.icon} />
                     </div>
-                    <div className="photos">
-                        {attachments.media.map((photo, index) => (
-                            <div className="photo-item" key={index}>
-                                <div className="photo-detail">
-                                    <img src={photo.url || photo.preview} alt={`photo-${index}`} />
-                                    <span>{photo.filename || "Photo"}</span>
+                    <div className={styles.media}>
+                        {attachments.media.map(({ url, preview, filename }, index) => (
+                            <div className={styles.mediaItem} key={index}>
+                                <div className={styles.mediaDetail}>
+                                    <img src={url || preview} alt={`photo-${index}`} />
+                                    <span>{filename || "Photo"}</span>
                                 </div>
-                                <a href={photo.url} download>
-                                    <AiOutlineDownload className="icon" />
+                                <a href={url} download>
+                                    <AiOutlineDownload className={styles.icon} />
                                 </a>
                             </div>
                         ))}
                     </div>
                 </div>
 
-                {/* Shared Files */}
-                <div className="option">
-                    <div className="title">
+                <div className={styles.option}>
+                    <div className={styles.title}>
                         <span>Shared Files</span>
-                        <AiOutlineArrowUp className="icon" />
+                        <AiOutlineArrowUp className={styles.icon} />
                     </div>
-                    <div className="files">
-                        {attachments.files.map((file, index) => (
-                            <div className="file-item" key={index}>
-                                <div className="file-detail">
-                                    <span>{file.filename || "File"}</span>
+                    <div className={styles.files}>
+                        {attachments.files.map(({ url, filename }, index) => (
+                            <div className={styles.fileItem} key={index}>
+                                <div className={styles.fileDetail}>
+                                    <span>{filename || "File"}</span>
                                 </div>
-                                <a href={file.url} download>
-                                    <AiOutlineDownload className="icon" />
+                                <a href={url} download>
+                                    <AiOutlineDownload className={styles.icon} />
                                 </a>
                             </div>
                         ))}

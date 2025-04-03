@@ -1,0 +1,32 @@
+.messagesContainer {
+    padding: 20px;
+    padding-bottom: 0;
+    color: #fff;
+    height: 80vh;
+    display: flex;
+    flex-direction: column;
+
+    .messagesHeader {
+      margin-bottom: 30px;
+      padding-bottom: 20px;
+      border-bottom: 2px solid #8560be;
+      h1 {
+        color: #8560be;
+        margin: 0;
+      }
+    }
+  
+    .messagesContent{
+      display: flex;
+      height: 100%;
+      overflow-x: hidden;
+      background-color: rgba(31, 46, 135, 0.4);
+      position: relative;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .messagesContainer {
+        height: 100vh;
+    }
+}

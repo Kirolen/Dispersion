@@ -2,24 +2,22 @@ import React from 'react'
 import Header from '../Header/Header'
 import Footer from '../Footer/Footer'
 import Aside from '../Aisde/Aside'
-import './Layout.css'
-import { useSocket } from '../../context/SocketContext'
+import styles from './Layout.module.css'
 
 const Layout = ({ children }) => {
-  const {isCollapsed} = useSocket
-
   return (
-    <div className="layout">
+    <div className={styles.layout}>
       <Header />
-      <div className={`layout-container`}>
-        <Aside /> 
-        <main className={`main-content ${isCollapsed ? 'collapsed' : ''}`}>
-        {children} 
-      </main>
+      <div className={styles.layoutContainer}>
+        <Aside />
+        <div className={styles.mainContainer}>
+          <main className={`main-content`}>
+            {children}
+          </main>
+          <Footer />
+        </div>
+
       </div>
-     
-     
-      <Footer />
     </div>
   );
 };

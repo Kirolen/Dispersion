@@ -13,7 +13,10 @@ export const SocketProvider = ({ children }) => {
   const [user_id, setID] = useState('');
   const [role, setRole] = useState('');
   const [notification, setNotification] = useState([]);
-  const [isCollapsed, setIsCollapsed] = useState(false)
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [chatDetailsActive, setChatDetailsActive] = useState(false);
+  const [chatListIsActive, setChatListIsActive] = useState(false);
+
 
   const setupSocket = () => {
     const authToken = localStorage.getItem('authToken');
@@ -67,7 +70,7 @@ export const SocketProvider = ({ children }) => {
 
   return (
     <SocketContext.Provider value={{ socket, setupSocket, user_id, role, notification, setNotification,
-      isCollapsed, setIsCollapsed
+      isMenuOpen, setIsMenuOpen, chatDetailsActive, setChatDetailsActive, chatListIsActive, setChatListIsActive
      }}>
       {children}
     </SocketContext.Provider>

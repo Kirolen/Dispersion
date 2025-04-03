@@ -3,7 +3,7 @@ const { Schema, model } = require('mongoose');
 const MessageSchema = new Schema({
     chatId: { type: Schema.Types.ObjectId, ref: 'Chat', required: true }, 
     sender: { type: Schema.Types.ObjectId, ref: 'User', required: true }, 
-    text: { type: String, required: true }, 
+    text: { type: String}, 
     attachments: [{
         filename: { type: String, required: true },
         url: { type: String, required: true },

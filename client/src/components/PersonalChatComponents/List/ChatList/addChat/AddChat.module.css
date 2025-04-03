@@ -1,0 +1,130 @@
+.addChatContainer {
+    width: 400px;
+    max-height: 40vh;
+    padding: 20px;
+    background-color: rgba(57, 83, 131, 0.6);
+    border-radius: 10px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    overflow-y: auto;
+
+    Button {
+        cursor: pointer;
+        color: white;
+        transition: background-color 0.2s;
+        border: none;
+        display: flex;
+        align-items: center;
+    }
+
+    .addChatHeader {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 20px;
+
+        h3 {
+            color: white;
+            margin: 0;
+        }
+
+        .closeButton {
+            background: none;
+            padding: 5px;
+            border-radius: 50%;
+
+            &:hover {
+                background-color: rgba(255, 56, 56, 0.297);
+            }
+        }
+    }
+
+    .searchForm {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+
+        input {
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+            outline: none;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            &::placeholder {
+                color: rgba(255, 255, 255, 0.6);
+            }
+        }
+
+        button {
+            border-radius: 5px;
+            background-color: #5183fe;
+            &:hover {
+                background-color: #4169e1;
+            }
+        }
+        
+        
+        
+    }
+
+    .usersList {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+       
+        .anotherUserDetails {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+
+            .userChatInfo {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+
+                img {
+                    width: 40px;
+                    height: 40px;
+                    border-radius: 50%;
+                    object-fit: cover;
+                }
+                
+                &.span {
+                    color: white;
+                    font-size: 14px;
+                }
+            }
+
+            button {
+                padding: 8px 16px;
+                border-radius: 5px;
+                border: none;
+                background-color: #5183fe;
+                color: white;
+                cursor: pointer;
+                transition: background-color 0.2s;
+
+                &:hover:not(:disabled) {
+                    background-color: #4169e1;
+                }
+
+                &:disabled {
+                    background-color: rgba(0, 255, 60, 0.447);
+                    cursor: not-allowed;
+                }
+            }
+        }
+        
+        .notFound {
+            color: rgb(255, 255, 255);
+            text-align: center;
+            padding: 20px;
+        }
+    }
+}

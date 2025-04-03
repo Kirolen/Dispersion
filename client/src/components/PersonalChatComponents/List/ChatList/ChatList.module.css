@@ -1,38 +1,28 @@
-.chat-list * {
-    margin: 0;
-    padding: 0;
-    text-align: left;
-}
-
-.chat-list {
-    flex: 1;
+.chatList {
+    display: flex;
+    flex-direction: column;
     overflow: scroll;
     overflow-x: hidden;
     scrollbar-width: thin; 
     scrollbar-color: rgba(57, 83, 131, 0.5) transparent; 
+    scrollbar-gutter: stable;
 
-    &::-webkit-scrollbar {
-        width: 8px; 
+    &::-webkit-scrollbar-button {
+        display: none;
+        width: 0;
+        height: 0;
     }
 
-    &::-webkit-scrollbar-thumb {
-        background-color: rgba(57, 83, 131, 0.7); 
-        border-radius: 4px; 
-    }
-
-    &::-webkit-scrollbar-track {
-        background: transparent; 
-    }
-    .search {
+    .searchContainer {
         display: flex;
         align-items: center;
         gap: 10px;
         padding: 10px;
-        .search-bar{
-            flex: 1;
-            background-color: rgba(57, 83, 131, 0.5);
+
+        .searchBar{
             display: flex;
-            align-items: center;
+            width: 100%;
+            background-color: rgba(57, 83, 131, 0.5);
             gap: 5px;
             border-radius: 10px;
             padding: 5px;
@@ -42,14 +32,13 @@
                 border: none;
                 outline: none;
                 color: white;
-                flex: 1;
             }
 
-            .icon {
+            .searchIcon {
                 font-size: 20px;
             }
         }
-        .icon-add {
+        .addUserIcon {
             font-size: 25px;
             background-color: rgba(57, 83, 131, 0.5);
             padding: 2px;
@@ -58,15 +47,15 @@
         }
     }
 
-    .item{
+    .chatItem{
         display: flex;
         align-items: center;
         gap: 20px;
-        padding: 20px;
+        padding: 5px;
         cursor: pointer;
         border-bottom: 1px solid #dddddd35;
 
-        .user-chat-avatar{
+        .anotherUserAvatar {
             width: 50px;
             height: 50px;
             border-radius: 50%;
@@ -74,19 +63,18 @@
         }
     }
 
-    .texts {
+    .chatItemText {
         display: flex;
         flex-direction: column;
         gap: 10px;
-
-        span {
-            font-weight: 500;
-        }
-
+    
         p {
             font-size: 14px;
-            font-weight: 300;
+        }
 
+        span, p {
+            margin: 0;
+            font-weight: 500;
         }
     }
 }

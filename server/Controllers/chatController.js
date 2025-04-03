@@ -163,7 +163,6 @@ class ChatController {
         }
     }
 
-
     async getMessages(chatId, user_id, course_id) {
         try {
             const user = await User.findById(user_id);

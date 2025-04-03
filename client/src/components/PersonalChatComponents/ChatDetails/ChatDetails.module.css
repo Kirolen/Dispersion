@@ -1,0 +1,140 @@
+.chatDetails {
+    display: none;
+    flex: 1;
+    width: 300px;
+    background-color: rgba(31, 46, 135, 0.4);
+    border-left: 1px solid #dddddd35;
+    overflow-y: hidden;
+
+    &.active {
+        display: block;
+    }
+
+    .anotherUserInfo {
+        padding: 10px 5px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        border-bottom: 1px solid #dddddd35;
+        align-items: center;
+
+        img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        h2,
+        p {
+            text-align: center;
+            margin: 10px 0;
+        }
+    }
+
+    .shared {
+        .option {
+            margin: 25px 10px;
+            background-color: rgba(139, 154, 239, 0.4);
+            max-height: 90px;
+            overflow: scroll;
+            overflow-x: hidden;
+            scrollbar-width: thin;
+            scrollbar-color: rgb(0, 0, 0) transparent;
+
+
+            .title {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+
+                span {
+                    font-size: 15px;
+                }
+
+            }
+
+            .icon {
+                font-size: 20px;
+                background-color: rgba(57, 83, 131, 0.3);
+                padding: 2px;
+                border-radius: 50%;
+                cursor: pointer;
+            }
+
+            .media,
+            .files {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                height: 40%;
+
+                .mediaItem,
+                .fileItem {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    background-color: rgba(31, 46, 135, 0.4);
+                    padding: 2px 10px;
+
+                    .mediaDetail,
+                    .fileDetail {
+                        display: flex;
+                        align-items: center;
+                        gap: 10px;
+                        width: 60%;
+
+                        span {
+                            font-size: 15px;
+                            word-break: break-word;
+                        }
+                    }
+
+                    .mediaDetail img {
+                        width: 40px;
+                        height: 40px;
+                        border-radius: 5px;
+                        object-fit: cover;
+                        margin-top: 15px;
+                    }
+                }
+            }
+        }
+    }
+}
+
+@media (max-width: 1450px) {
+    .chatDetails {
+        &.withOpenMenu {
+            position: absolute;
+            right: 0;
+            background-color: rgba(31, 46, 135);
+            z-index: 5;
+            height: 100%;
+        }
+    }
+}
+
+@media (max-width: 1250px) {
+    .chatDetails {
+        position: absolute;
+        right: 0;
+        background-color: rgba(31, 46, 135);
+        z-index: 5;
+        height: 100%;
+    }
+}
+
+
+@media (max-width: 768px) {
+    .chatDetails {
+
+
+        .shared {
+            .option {
+
+                max-height: 180px;
+            }
+        }
+    }
+}

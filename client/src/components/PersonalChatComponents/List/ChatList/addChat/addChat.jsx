@@ -1,4 +1,4 @@
-import "./addChat.css";
+import styles from "./AddChat.module.css";
 import { searchUser, createChat } from "../../../../../api/personalChatService";
 import { useState } from "react";
 import { useSocket } from "../../../../../context/SocketContext";
@@ -37,14 +37,14 @@ const AddChat = ({ setChats, chats, onClose }) => {
     };
 
     return (
-        <div className="add-chat">
-            <div className="add-chat-header">
+        <div className={styles.addChatContainer}>
+            <div className={styles.addChatHeader}>
                 <h3>Add New Chat</h3>
-                <button className="close-button" onClick={onClose}>
+                <button className={styles.closeButton} onClick={onClose}>
                     <AiOutlineClose />
                 </button>
             </div>
-            <form onSubmit={handleSearch}>
+            <form className={styles.searchForm} onSubmit={handleSearch}>
                 <input
                     type="text"
                     placeholder="Search by email, name, or surname"
@@ -54,11 +54,11 @@ const AddChat = ({ setChats, chats, onClose }) => {
                 />
                 <button type="submit">Search</button>
             </form>
-            <div className="users-list">
+            <div className={styles.usersList}>
                 {users.length > 0 ? (
                     users.map((user) => (
-                        <div key={user._id} className="user">
-                            <div className="detail">
+                        <div key={user._id} className={styles.anotherUserDetails}>
+                            <div className={styles.userChatInfo}>
                                 <img src="https://c.wallhere.com/photos/38/1d/anime_anime_girls_Oshi_no_Ko_Kurokawa_Akane-2247722.jpg!d" alt="user" />
                                 <span>{user.first_name} {user.last_name}</span>
                             </div>
@@ -70,7 +70,7 @@ const AddChat = ({ setChats, chats, onClose }) => {
                         </div>
                     ))
                 ) : (
-                    <p className="no-results">No users found</p>
+                    <p className={styles.notFound}>No users found</p>
                 )}
             </div>
         </div>

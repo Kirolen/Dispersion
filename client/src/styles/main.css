@@ -6,13 +6,15 @@ body {
   display: flex;
   flex-direction: column;
   min-width: 600px;
+  overflow-x: hidden;
   .main-content {
     padding: 20px;
   }
 }
+
 @media (max-width: 768px) {
   .main-content {
-    height: 100vh;
+    height: 110vh;
   }
 }
 

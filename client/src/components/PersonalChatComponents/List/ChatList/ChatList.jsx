@@ -1,57 +1,52 @@
 import { useEffect, useState } from "react";
-import "./ChatList.css";
+import styles from "./ChatList.module.css";
 import { AiOutlineSearch, AiOutlinePlus, AiOutlineMinus } from "react-icons/ai";
 import { useSocket } from "../../../../context/SocketContext";
 import { getUserChats } from "../../../../api/personalChatService";
 import AddChat from "./addChat/addChat";
+
+
 
 const ChatList = ({setChatId}) => {
     const [addMode, setAddMode] = useState(false);
     const [chats, setChats] = useState([]);
     const { user_id, notification } = useSocket(); 
 
-    useEffect(() => {
-        const fetchChats = async () => {
-            try {
-                if (!user_id) return
-                const response = await getUserChats();
-                setChats(response.data.chats);
-                
-            } catch (error) {
-                console.error("Error fetching chats:", error);
-            }
-        };
+    const IconComponent = addMode ? AiOutlineMinus : AiOutlinePlus;
 
+    useEffect(() => {
         if (user_id) {
-            fetchChats();
+            getUserChats()
+                .then(response => {
+                    setChats(response.data.chats);
+                })
+                .catch(error => console.error("Error fetching chats:", error));
         }
-    }, [user_id, notification]);
+    }, [user_id, notification]); 
+    
+    
 
     return (
-        <div className="chat-list">
-            <div className="search">
-                <div className="search-bar">
-                    <AiOutlineSearch className="icon" />
+        <div className={styles.chatList}>
+            <div className={styles.searchContainer}>
+                <div className={styles.searchBar}>
+                    <AiOutlineSearch className={styles.searchIcon} />
                     <input type="text" placeholder="Search" />
                 </div>
-                {addMode ? (
-                    <AiOutlineMinus className="icon-add" onClick={() => setAddMode(false)} />
-                ) : (
-                    <AiOutlinePlus className="icon-add" onClick={() => setAddMode(true)} />
-                )}
+                <IconComponent className={styles.addUserIcon} onClick={() => setAddMode(!addMode)} />
             </div>
 
             {chats.length > 0 ? (
                 chats.map((chat) => {
                     const otherUser = chat.members.find((member) => member._id !== user_id); 
                     return (
-                        <div className="item" key={chat._id} onClick={() => setChatId(chat._id)}>
+                        <div className={styles.chatItem} key={chat._id} onClick={() => setChatId(chat._id)}>
                             <img
                                 src="https://i.pinimg.com/736x/5e/32/aa/5e32aa2c79cd463ab74e034aaace4eb1.jpg"
                                 alt="user"
-                                className="user-chat-avatar"
+                                className={styles.anotherUserAvatar}
                             />
-                            <div className="texts">
+                            <div className={styles.chatItemText}>
                                 <span>{otherUser?.first_name} {otherUser?.last_name}</span>
                                 <p>{chat.lastMessage ? chat.lastMessage.text : "No messages yet"}</p>
                             </div>
