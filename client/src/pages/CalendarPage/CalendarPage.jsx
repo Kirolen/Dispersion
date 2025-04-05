@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import './CalendarPage.css';
 import { addCalendarEvent, getCalendarEvents } from '../../api/calendarEventService';
+import { useSelector } from 'react-redux';
 
-const CalendarPage = ({ user_id }) => {
+const CalendarPage = () => {
+  const { user_id } = useSelector((state) => state.user);
   const [events, setEvents] = useState([]);
   const [showEventForm, setShowEventForm] = useState(false);
   const [newEvent, setNewEvent] = useState({ title: '', start: '', end: '', type: 'Meeting' });

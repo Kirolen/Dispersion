@@ -4,11 +4,16 @@ import { useSocket } from '../../context/SocketContext';
 import styles from "./Aside.module.css";
 import { getUnreadChats } from '../../api/personalChatService';
 import makeToast from '../../Toaster/Toaster';
+import { useSelector, useDispatch } from 'react-redux';
+import { setNotification } from '../../store/reducers/userSlice';
 
 const Aside = () => {
   const location = useLocation();
-  const { socket, user_id, notification, setNotification, isMenuOpen } = useSocket();
+  const { socket } = useSocket();
+  const isMenuOpen = useSelector((state) => state.menu.isMenuOpen);
+  const { user_id, notification } = useSelector((state) => state.user);
 
+  const dispatch = useDispatch();
   useEffect(() => {
     if (socket && user_id) {
       const handleNewGlobalNotification = async (data) => {
@@ -16,7 +21,7 @@ const Aside = () => {
   
         try {
           const response = await getUnreadChats(user_id);
-          setNotification(response.data);
+          dispatch(setNotification(response.data));
   
           if (response.data.unreadCourses.length > 0 || response.data.unreadChats.length > 0) {
             makeToast("info", `${data.sender}: ${data.message}`);
@@ -29,7 +34,7 @@ const Aside = () => {
       socket.on("newGlobalNotification", handleNewGlobalNotification);
   
       getUnreadChats(user_id)
-        .then(response => setNotification(response.data))
+        .then(response => dispatch(setNotification(response.data)))
         .catch(error => console.error("Error fetching unread messages:", error));
   
       return () => {

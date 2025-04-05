@@ -7,20 +7,19 @@ import ChatDetails from "../../components/PersonalChatComponents/ChatDetails/Cha
 const MessagesPage = () => {
   const [chatId, setChatId] = useState("");
   const [messages, setMessages] = useState([]);
-  const containerRef = useRef(null);
 
   const handleChatSelect = (id) => {
     setChatId(id);
   };
 
   return (
-    <div className={styles.messagesContainer} ref={containerRef}>
+    <div className={styles.messagesContainer}>
       <div className={styles.messagesHeader}>
         <h1>{`Messages`}</h1>
       </div>
 
       <div className={styles.messagesContent}>
-        <MainChatList chatId={chatId} setChatId={handleChatSelect} />
+        <MainChatList />
 
         <PersonalChat chatId={chatId} setChatId={handleChatSelect} messages={messages} setMessages={setMessages} />
 

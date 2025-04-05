@@ -4,15 +4,17 @@ import { getCoursePeople } from '../../../api/courseService';
 import { useNavigate } from 'react-router-dom';
 import { addTask, getAllCourseMaterials, getCourseMaterialsForStudent } from '../../../api/materialService'
 import { uploadFiles, deleteFile } from "../../../api/fileService";
+import { useSelector } from 'react-redux';
 
-const Classwork = ({ role, user_id }) => {
-
+const Classwork = () => {
   const navigate = useNavigate();
   const { courseId } = useParams();
   const [materialType, setMaterialType] = useState("")
   const [showWorkForm, setShowWorkForm] = useState(false);
   const [publishedAssignments, setPublishedAssignments] = useState([]);
   const [users, setUsers] = useState(null);
+  const { user_id, role } = useSelector((state) => state.user);
+
   const [workForm, setWorkForm] = useState({
     title: '',
     description: '',

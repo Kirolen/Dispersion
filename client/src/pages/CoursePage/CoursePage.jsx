@@ -10,13 +10,11 @@ const CoursePage = ({ children }) => {
   const [courseName, setCourseName] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('stream');
-
   useEffect(() => {
     const fetchCourseDetails = async () => {
       try {
         const res = await getCourseInfo(courseId);
         setCourseName(res)
-        console.log("Info")
         setchatId(res.chatId)
         setLoading(false);
       } catch (error) {
@@ -27,8 +25,6 @@ const CoursePage = ({ children }) => {
 
     fetchCourseDetails();
   }, [courseId]);
-
-
 
   if (loading) {
     return <div className="loading">Loading course details...</div>;

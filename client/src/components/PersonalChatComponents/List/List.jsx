@@ -1,15 +1,16 @@
 import ChatList from "./ChatList/ChatList";
 import UserInfo from "./UserInfo/UserInfo";
 import styles from "./List.module.css"
-import { useSocket } from "../../../context/SocketContext";
+import { useSelector } from "react-redux";
 
-const MainChatList = ({chatId, setChatId}) => {
-    const {isMenuOpen} = useSocket();
+const MainChatList = () => {
+    const isMenuOpen = useSelector(state => state.menu.isMenuOpen);
+    const chatId = useSelector(state => state.chat.chatId)
 
     return (
     <div className={`${styles.mainChatList} ${isMenuOpen ? styles.withOpenMenu : ""} ${chatId.trim() ? styles.hide : ''}`}>
         <UserInfo/>
-        <ChatList setChatId={setChatId}/>
+        <ChatList/>
     </div>   )
 }
 

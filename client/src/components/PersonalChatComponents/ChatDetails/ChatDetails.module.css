@@ -1,7 +1,7 @@
 .chatDetails {
     display: none;
     flex: 1;
-    width: 300px;
+    max-width: 300px;
     background-color: rgba(31, 46, 135, 0.4);
     border-left: 1px solid #dddddd35;
     overflow-y: hidden;

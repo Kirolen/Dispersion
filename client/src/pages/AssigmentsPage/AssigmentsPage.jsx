@@ -2,8 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './AssignmentsPage.css';
 import { getAllStudentAssigments, getFilteredCourses } from '../../api/materialService';
+import { useSelector } from 'react-redux';
 
-const AssignmentsPage = ({ user_id, role }) => {
+const AssignmentsPage = () => {
   const navigate = useNavigate();
   const [assignments, setAssignments] = useState([]);
   const [filteredAssignments, setFilteredAssignments] = useState([]);
@@ -11,6 +12,9 @@ const AssignmentsPage = ({ user_id, role }) => {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null); 
+  const [openedCourse, setOpenedCourse] = useState("")
+  const [openedTask, setOpenedTasks] = useState("")
+  const { user_id, role } = useSelector((state) => state.user);
 
   useEffect(() => {
     const fetchAssignmentsDetails = async () => {
@@ -60,9 +64,6 @@ const AssignmentsPage = ({ user_id, role }) => {
 
     fetchFilteredData();
   }, [filter, assignments, user_id, role]);
-
-  const [openedCourse, setOpenedCourse] = useState("")
-  const [openedTask, setOpenedTasks] = useState("")
 
   if (loading) {
     return <div>Loading...</div>;

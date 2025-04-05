@@ -1,13 +1,18 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
-import { getUnreadChats, markLastMessageAsRead } from '../../../api/personalChatService'
+import { markLastMessageAsRead } from '../../../api/personalChatService'
 import { useSocket } from '../../../context/SocketContext';
+import { useSelector, useDispatch } from 'react-redux';
+import { setNotification } from '../../../store/reducers/userSlice';
 
 const Stream = () => {
+  const { socket } = useSocket();
+  const dispatch = useDispatch();
   const { courseId, chatId } = useParams();
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState('');
-  const { socket, user_id, setNotification, notification } = useSocket()
+  const { user_id, notification } = useSelector((state) => state.user);
+
   const endRef = useRef(null)
 
   useEffect(() => {
@@ -47,13 +52,13 @@ const Stream = () => {
     const markMessagesAsRead = async () => {
       await markLastMessageAsRead(chatId, user_id, courseId)
       const updatedNotifications = notification.unreadCourses?.filter(id => id !== chatId);
-      setNotification(prev => ({
-        ...prev,
+      dispatch(setNotification({
+        ...notification,
         unreadCourses: updatedNotifications
       }));
-      console.log(updatedNotifications)
     };
 
+    console.log(notification)
     markMessagesAsRead();
   }, [messages]);
 

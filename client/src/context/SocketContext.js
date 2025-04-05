@@ -2,6 +2,10 @@ import React, { createContext, useState, useEffect, useContext } from 'react';
 import io from 'socket.io-client';
 import makeToast from '../Toaster/Toaster';
 import { jwtDecode } from 'jwt-decode';
+import { useDispatch } from 'react-redux';
+import { setUserId, setRole } from '../store/reducers/userSlice';
+
+
 const SocketContext = createContext();
 
 export const useSocket = () => {
@@ -9,14 +13,8 @@ export const useSocket = () => {
 };
 
 export const SocketProvider = ({ children }) => {
+  const dispatch = useDispatch();
   const [socket, setSocket] = useState(null);
-  const [user_id, setID] = useState('');
-  const [role, setRole] = useState('');
-  const [notification, setNotification] = useState([]);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [chatDetailsActive, setChatDetailsActive] = useState(false);
-  const [chatListIsActive, setChatListIsActive] = useState(false);
-
 
   const setupSocket = () => {
     const authToken = localStorage.getItem('authToken');
@@ -25,8 +23,8 @@ export const SocketProvider = ({ children }) => {
       if (authToken) {
         try {
           const decodedTokenData = jwtDecode(authToken);
-          setID(decodedTokenData.id || '');
-          setRole(decodedTokenData.role || '');
+          dispatch(setUserId(decodedTokenData.id || ''));
+          dispatch(setRole(decodedTokenData.role || ''));
           console.log("UserID: " + decodedTokenData.id);
         } catch (error) {
           console.error('Error decoding authToken:', error);
@@ -69,9 +67,9 @@ export const SocketProvider = ({ children }) => {
   }, [socket]);
 
   return (
-    <SocketContext.Provider value={{ socket, setupSocket, user_id, role, notification, setNotification,
-      isMenuOpen, setIsMenuOpen, chatDetailsActive, setChatDetailsActive, chatListIsActive, setChatListIsActive
-     }}>
+    <SocketContext.Provider value={{
+      socket, setupSocket
+    }}>
       {children}
     </SocketContext.Provider>
   );

@@ -1,11 +1,12 @@
 import styles from "./ChatDetails.module.css";
 import { AiOutlineArrowUp, AiOutlineArrowDown, AiOutlineDownload } from "react-icons/ai";
 import { useState, useEffect } from "react";
-import { useSocket } from "../../../context/SocketContext";
+import { useSelector } from "react-redux";
 
-const ChatDetails = ({ messages }) => {
+const ChatDetails = () => {
     const [attachments, setAttachments] = useState({ files: [], media: [] });
-    const { chatDetailsActive, isMenuOpen } = useSocket();
+    const isMenuOpen = useSelector(state => state.menu.isMenuOpen);
+    const {messages, chatDetailsActive} = useSelector((state) => state.chat);
     
     useEffect(() => {
         const files = [];

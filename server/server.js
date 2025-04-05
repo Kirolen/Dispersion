@@ -30,6 +30,7 @@ app.use("/file", fileRoutes)
 app.use("/chat", chatRoutes)
 
 app.use('/storage', express.static(path.join(__dirname, 'storage')));
+mongoose.connect("mongodb+srv://kostik:kostik@dispersioncluster.fy1nx.mongodb.net/?retryWrites=true&w=majority&appName=DispersionCluster")
 
 const io = require("socket.io")(server, {
     cors: {

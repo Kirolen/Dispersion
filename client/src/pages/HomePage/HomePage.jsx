@@ -1,18 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createCourse, joinCourse, getMyCourses } from '../../api/courseService';
-import './HomePage.css';
-import { useSocket } from '../../context/SocketContext';
+import { useSelector } from 'react-redux';
+import './HomePage.css'
 
 const HomePage = () => {
   const navigate = useNavigate();
-  const [showModal, setShowModal] = useState(false);
-  const [courseAction, setCourseAction] = useState('');
-  const [courseName, setCourseName] = useState('');
-  const [courseDesc, setCourseDesc] = useState('');
-  const [courseCode, setCourseCode] = useState('');
+  const [modalState, setModalState] = useState({
+    showModal: false,
+    courseAction: '', 
+    courseName: '',
+    courseDesc: '',
+    courseCode: ''
+  });
   const [courses, setCourses] = useState([]);
-  const { user_id, role, notification} = useSocket()
+  const { user_id, role, notification } = useSelector((state) => state.user);
 
   useEffect(() => {
     handleMyCourse();
@@ -23,45 +25,46 @@ const HomePage = () => {
     navigate('/');
   };
 
-  const handleCreateCourse = () => {
-    setCourseAction('create');
-    setShowModal(true);
-  };
-
-  const handleJoinCourse = () => {
-    setCourseAction('join');
-    setShowModal(true);
+  const handleModalOpen = (action) => {
+    setModalState((prevState) => ({
+      ...prevState,
+      showModal: true,
+      courseAction: action,
+      courseName: '',
+      courseDesc: '',
+      courseCode: ''
+    }));
   };
 
   const handleModalClose = () => {
-    setShowModal(false);
-    setCourseName('');
-    setCourseCode('');
+    setModalState((prevState) => ({
+      ...prevState,
+      showModal: false
+    }));
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setModalState((prevState) => ({
+      ...prevState,
+      [name]: value
+    }));
   };
 
   const handleSubmit = async () => {
     try {
-      if (courseAction === 'create') {
-        await createCourse(courseName, courseDesc, user_id);
-        alert('Course created successfully!');
-      } else if (courseAction === 'join') {
-        await joinCourse(user_id, courseCode);
-        alert('Successfully joined the course!');
-      }
+      if (modalState.courseAction === 'create') await createCourse(modalState.courseName, modalState.courseDesc, user_id);
+      else if (modalState.courseAction === 'join') await joinCourse(user_id, modalState.courseCode);
       handleMyCourse();
       handleModalClose();
     } catch (error) {
-      alert(courseAction === 'create' ? 'Failed to create course.' : 'Failed to join course.');
+      console.log(modalState.courseAction === 'create' ? 'Failed to create course.' : 'Failed to join course.');
     }
   };
 
   const handleMyCourse = async () => {
     try {
       const result = await getMyCourses();
-      console.log("--------------------")
-      console.log("HomePage - load courses")
-      console.log(result)
-      console.log("--------------------")
       setCourses([...result]);
     } catch (error) {
       console.error('Error fetching courses:', error);
@@ -72,13 +75,13 @@ const HomePage = () => {
     <div className="home-container">
       <div className="dashboard-header">
         <h1>Welcome to Dispersion</h1>
-        <div className="action-buttons" >
+        <div className="action-buttons">
           {role === 'Teacher' ? (
-            <button className="create-button" onClick={handleCreateCourse}>
+            <button className="create-button" onClick={() => handleModalOpen('create')}>
               Create Course
             </button>
           ) : (
-            <button className="join-button" onClick={handleJoinCourse}>
+            <button className="join-button" onClick={() => handleModalOpen('join')}>
               Join Course
             </button>
           )}
@@ -100,7 +103,6 @@ const HomePage = () => {
                 {notification?.unreadCourses?.includes(course.chatId) && (
                   <span className="notification-dot">🔴</span>
                 )}
-
               </h3>
               <p>{course.course_desc || 'No description available'}</p>
             </div>
@@ -112,36 +114,39 @@ const HomePage = () => {
         ))}
       </div>
 
-      {showModal && (
+      {modalState.showModal && (
         <div className="modal">
           <div className="modal-content">
-            <h2>{courseAction === 'create' ? 'Create New Course' : 'Join Course'}</h2>
-            {courseAction === 'create' ?
+            <h2>{modalState.courseAction === 'create' ? 'Create New Course' : 'Join Course'}</h2>
+            {modalState.courseAction === 'create' ? (
               <div style={{ display: "flex", flexDirection: "column" }}>
                 <input
                   type="text"
+                  name="courseName"
                   placeholder="Course Name"
-                  value={courseName}
-                  onChange={(e) => setCourseName(e.target.value)}
+                  value={modalState.courseName}
+                  onChange={handleInputChange}
                 />
                 <input
                   type="text"
+                  name="courseDesc"
                   placeholder="Short description"
-                  value={courseDesc}
-                  onChange={(e) => setCourseDesc(e.target.value)}
+                  value={modalState.courseDesc}
+                  onChange={handleInputChange}
                 />
               </div>
-              : (
-                <input
-                  type="text"
-                  placeholder="Enter Course Code"
-                  value={courseCode}
-                  onChange={(e) => setCourseCode(e.target.value)}
-                />
-              )}
+            ) : (
+              <input
+                type="text"
+                name="courseCode"
+                placeholder="Enter Course Code"
+                value={modalState.courseCode}
+                onChange={handleInputChange}
+              />
+            )}
             <div className="modal-buttons">
               <button className="submit-button" onClick={handleSubmit}>
-                {courseAction === 'create' ? 'Create' : 'Join'}
+                {modalState.courseAction === 'create' ? 'Create' : 'Join'}
               </button>
               <button className="cancel-button" onClick={handleModalClose}>
                 Cancel

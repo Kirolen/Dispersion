@@ -5,14 +5,12 @@ import {login} from '../../api/authService'
 import { useSocket } from '../../context/SocketContext';
 
 export const LoginPage = () => {
-  
   const {setupSocket} = useSocket();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
-
   const [error, setError] = useState('');
 
   const handleChange = (e) => {

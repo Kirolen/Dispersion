@@ -1,16 +1,16 @@
 import { useEffect, useState } from "react";
 import styles from "./ChatList.module.css";
 import { AiOutlineSearch, AiOutlinePlus, AiOutlineMinus } from "react-icons/ai";
-import { useSocket } from "../../../../context/SocketContext";
 import { getUserChats } from "../../../../api/personalChatService";
 import AddChat from "./addChat/addChat";
+import {useDispatch, useSelector } from "react-redux";
+import { setChatId } from "../../../../store/reducers/personalChatSlice";
 
-
-
-const ChatList = ({setChatId}) => {
+const ChatList = () => {
+    const dispatch = useDispatch()
     const [addMode, setAddMode] = useState(false);
     const [chats, setChats] = useState([]);
-    const { user_id, notification } = useSocket(); 
+    const { user_id, notification } = useSelector((state) => state.user)
 
     const IconComponent = addMode ? AiOutlineMinus : AiOutlinePlus;
 
@@ -40,7 +40,7 @@ const ChatList = ({setChatId}) => {
                 chats.map((chat) => {
                     const otherUser = chat.members.find((member) => member._id !== user_id); 
                     return (
-                        <div className={styles.chatItem} key={chat._id} onClick={() => setChatId(chat._id)}>
+                        <div className={styles.chatItem} key={chat._id} onClick={() => dispatch(setChatId(chat._id))}>
                             <img
                                 src="https://i.pinimg.com/736x/5e/32/aa/5e32aa2c79cd463ab74e034aaace4eb1.jpg"
                                 alt="user"

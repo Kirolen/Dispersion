@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { getCoursePeople } from '../../../api/courseService';
+
 const People = () => {
   const { courseId } = useParams();
   const [courseInfoPeople, setCourseInfoPeople] = useState(null);

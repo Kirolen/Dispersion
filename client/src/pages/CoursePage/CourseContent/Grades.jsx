@@ -2,30 +2,25 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import "./CourseContentStyles/Grades.css"
 import { getAllCourseMaterials, getStudentsTasksResult, getStudentTasksResult } from '../../../api/materialService'
-const Grades = ({ role, user_id }) => {
+import { useSelector } from 'react-redux';
+
+const Grades = () => {
     const { courseId } = useParams();
     const navigate = useNavigate();
     const [assignments, setAssignments] = useState([]);
     const [selectedAssignment, setSelectedAssignment] = useState(null);
     const [studentSubmissions, setStudentSubmissions] = useState([]);
+    const { user_id, role } = useSelector((state) => state.user);
 
     useEffect(() => {
         const fetchCourseDetails = async () => {
             try {
                 let assignments;
-                if (role === "Teacher") {
-                    console.log("Teacher: ")
-                    assignments = await getAllCourseMaterials(courseId);
-                }
-                else {
-                    console.log("Student: ")
-                    assignments = await getStudentTasksResult(courseId, user_id);
-                }
-                console.log("assignments: ")
-                console.log(assignments)
-                if (assignments) {
-                    setAssignments(assignments)
-                }
+
+                if (role === "Teacher") assignments = await getAllCourseMaterials(courseId);
+                else if (role === "Student") assignments = await getStudentTasksResult(courseId, user_id);
+
+                if (assignments) setAssignments(assignments)
             } catch (error) {
                 console.error('Error fetching course details:', error);
             }

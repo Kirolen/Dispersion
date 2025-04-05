@@ -8,16 +8,22 @@ import EmojiPicker from "emoji-picker-react";
 import { getChat, markLastMessageAsRead, sendMessage } from "../../../api/personalChatService";
 import { useSocket } from "../../../context/SocketContext";
 import { uploadFiles } from "../../../api/fileService";
-
 import { renderMessage, renderAttachmentsPrewiev } from "./chatRenders/chatRenders"
+import { useSelector, useDispatch } from "react-redux";
+import { setNotification } from "../../../store/reducers/userSlice";
+import { addMessage, setMessages, setChatId, setChatDetailsActive } from '../../../store/reducers/personalChatSlice';
 
-const PersonalChat = ({ chatId, setChatId, messages, setMessages }) => {
+const PersonalChat = () => {
+    const dispatch = useDispatch();
     const [member, setMember] = useState([]);
     const [open, setOpen] = useState(false);
     const [showAttachMenu, setShowAttachMenu] = useState(false);
     const [text, setText] = useState("");
     const [attachments, setAttachments] = useState([]);
-    const { user_id, socket, notification, setNotification, setChatDetailsActive, isMenuOpen } = useSocket();
+    const { user_id, notification } = useSelector((state) => state.user)
+    const {chatDetailsActive, chatId, messages} = useSelector((state) => state.chat)
+    const { socket } = useSocket();
+    const isMenuOpen = useSelector(state => state.menu.isMenuOpen);
     const endRef = useRef(null);
     const fileInputRef = useRef(null);
     const [isImageModalOpen, setIsImageModalOpen] = useState(false);
@@ -41,18 +47,18 @@ const PersonalChat = ({ chatId, setChatId, messages, setMessages }) => {
                 }
                 socket.emit("joinChat", { chatId, user_id, course_id: null });
                 socket.on("getMessages", (loadedMessages) => {
-                    setMessages(loadedMessages);
-                    console.log(loadedMessages)
-                    const updatedNotifications = notification.unreadChats?.filter(id => id !== chatId);
-                    setNotification(prev => ({
-                        ...prev,
+                    dispatch(setMessages(loadedMessages));
+                    
+                    const updatedNotifications = notification.unreadChats.filter(id => id !== chatId);
+                    dispatch(setNotification({
+                        ...notification,
                         unreadChats: updatedNotifications
                     }));
                 });
 
                 socket.on("newMessage", (newMessage) => {
                     if (newMessage.chatId === chatId) {
-                        setMessages((prev) => [...prev, newMessage]);
+                        dispatch(addMessage(newMessage))
                     }
                 });
 
@@ -78,7 +84,6 @@ const PersonalChat = ({ chatId, setChatId, messages, setMessages }) => {
     }, [socket, chatId, setNotification, user_id]);
 
     useEffect(() => {
-
         if (!chatId || !user_id) return;
         const markMessagesAsRead = async () => {
             await markLastMessageAsRead(chatId, user_id, null);
@@ -164,11 +169,11 @@ const PersonalChat = ({ chatId, setChatId, messages, setMessages }) => {
 
     return (
         <div className={`${styles.chat} ${isMenuOpen ? styles.withOpenMenu : ""} ${chatId.trim() ? styles.active : ''}`}>
-            <div className={styles.chatTop} onClick={() => setChatDetailsActive(prev => !prev)}>
+            <div className={styles.chatTop} onClick={() => dispatch(setChatDetailsActive(!chatDetailsActive))}>
                 <AiOutlineArrowLeft className={styles.backButton} onClick={(event) => {
-                    event.stopPropagation(); 
-                    setChatId("");
-                    setChatDetailsActive(false)
+                    event.stopPropagation();
+                    dispatch(setChatId(""));
+                    dispatch(setChatDetailsActive(false));
                 }} />
 
                 <div className={styles.anotherUserInfo}>

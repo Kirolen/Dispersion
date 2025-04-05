@@ -3,8 +3,9 @@ import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { getStudentTaskInfo, submitSubmission, gradeTask, returnSubmission, updateStundetTask } from "../../api/materialService";
 import { uploadFiles, deleteFile } from "../../api/fileService";
 import "./AssignmentView.css";
+import { useSelector } from "react-redux";
 
-const AssignmentView = ({ user_id, role }) => {
+const AssignmentView = () => {
   const navigate = useNavigate();
   const { assignmentId } = useParams();
   const location = useLocation();
@@ -15,6 +16,8 @@ const AssignmentView = ({ user_id, role }) => {
   const [feedback, setFeedback] = useState("");
   const [grade, setGrade] = useState("");
   const [status, setStatus] = useState("not_passed");
+  const { user_id, role } = useSelector((state) => state.user);
+  
 
   useEffect(() => {
     const fetchAssignmentDetails = async () => {
