@@ -14,7 +14,7 @@ body {
 
 @media (max-width: 768px) {
   .main-content {
-    height: 110vh;
+    min-height: 110vh;
   }
 }
 

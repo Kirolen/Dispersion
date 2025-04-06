@@ -2,7 +2,6 @@
 import { FaFile } from "react-icons/fa";
 import styles from '../PersonalChat.module.css'
 
-
 import { AiOutlineDownload } from "react-icons/ai";
 const removeAttachment = (index, setAttachments) => {
     setAttachments(prev => {

@@ -5,7 +5,6 @@ import { jwtDecode } from 'jwt-decode';
 import { useDispatch } from 'react-redux';
 import { setUserId, setRole } from '../store/reducers/userSlice';
 
-
 const SocketContext = createContext();
 
 export const useSocket = () => {

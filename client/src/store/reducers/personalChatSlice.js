@@ -9,7 +9,6 @@ const chatSlice = createSlice({
   },
   reducers: {
     setChatId: (state, action) => {
-        console.log(action.payload)
       state.chatId = action.payload; 
     },
     setMessages: (state, action) => {
@@ -17,9 +16,6 @@ const chatSlice = createSlice({
     },
     addMessage: (state, action) => {
       state.messages.push(action.payload); 
-    },
-    clearMessages: (state) => {
-      state.messages = []; 
     },
     setChatDetailsActive: (state, action) => {
         state.chatDetailsActive = action.payload;

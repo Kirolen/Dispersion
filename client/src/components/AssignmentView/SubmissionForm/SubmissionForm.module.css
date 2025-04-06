@@ -1,0 +1,67 @@
+.submissionForm {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    h3 {
+        margin: 0;
+    }
+
+    .attachmentItem {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+
+        .icon,
+        a {
+            font-size: 20px;
+        }
+
+        .icon {
+            color: #8e44ad;
+        }
+
+        a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 500;
+
+            &:hover {
+                text-decoration: underline;
+            }
+        }
+        
+        .removeAttachment {
+            background-color: transparent;
+            border: none;
+            color: red;
+            cursor: pointer;
+            font-size: 20px;
+        }
+    }
+
+    .submitAssignment,
+    .returnAssignment {
+        width: 160px;
+        margin-top: 15px;
+        color: #fff;
+        padding: 5px 10px;
+        border: none;
+        border-radius: 5px;
+    }
+
+    .submitAssignment {
+        background-color: #2ad45d;
+    }
+
+    .returnAssignment {
+        background-color: #d4492a;
+    }
+
+    .feedback {
+        background-color: #8e44ad;
+        padding: 20px;
+        border-radius: 10px;
+        text-align: center;
+    }
+}

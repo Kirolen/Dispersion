@@ -1,0 +1,117 @@
+.gradeContent {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+
+    .gradeLabel {
+        align-self: center;
+    }
+
+    .label {
+        margin: 0;
+    }
+
+    .studentAttachments {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+
+        .attachmentItem {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+
+            .icon,
+            a {
+                font-size: 20px;
+            }
+
+            .icon {
+                color: #8e44ad;
+            }
+
+            a {
+                color: #fff;
+                text-decoration: none;
+                font-weight: 500;
+
+                &:hover {
+                    text-decoration: underline;
+                }
+            }
+        }
+    }
+
+    form {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+
+
+        .grade {
+            label {
+                margin-bottom: 5px;
+                font-weight: 500;
+                font-size: 16px;
+            }
+
+            input {
+                width: 40px;
+                padding: 5px;
+                border-radius: 10px;
+                max-width: 50px;
+            }
+        }
+        .feedback {
+            .feedbackText {
+                word-wrap: break-word;
+                min-height: 50px;
+                background-color: #8e44ad;
+                padding: 10px;
+                align-self: center;
+                border-radius: 20px;
+                width: 90%;
+                text-align: center;
+            }
+            textarea {
+                padding: 10px;
+                font-size: 16px;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+                outline: none;
+                width: 90%;
+
+                &:focus {
+                    border-color: #8e44ad;
+                }
+            }
+
+            textarea {
+                resize: vertical;
+                min-height: 100px;
+            }
+        }
+
+    }
+
+    button {
+        padding: 10px 20px;
+        background-color: #8e44ad;
+        color: white;
+        font-size: 16px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+
+        &:hover {
+            background-color: #732d91;
+        }
+    }
+
+    .not-found {
+        text-align: center;
+        font-size: 18px;
+        color: #888;
+    }
+}
