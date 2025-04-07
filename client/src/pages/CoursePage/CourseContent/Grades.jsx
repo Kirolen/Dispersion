@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import "./CourseContentStyles/Grades.css"
+//import "./CourseContentStyles/Grades.css"
 import { getAllCourseMaterials, getStudentsTasksResult, getStudentTasksResult } from '../../../api/materialService'
 import { useSelector } from 'react-redux';
 

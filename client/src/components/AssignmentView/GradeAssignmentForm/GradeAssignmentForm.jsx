@@ -24,7 +24,7 @@ const GradeAssignmentForm = () => {
             const response = await gradeTask(assignmentId, refId, user_id, localGrade, feedback);
             dispatch(setStatus(response.status))
             dispatch(setGrade(localGrade));
-            dispatch(setFeedback(localFeedback))
+            dispatch(setFeedback(localFeedback || ""))
         } catch (error) {
             console.error("Error grading assignment:", error);
         }
@@ -67,7 +67,7 @@ const GradeAssignmentForm = () => {
                 </div>
                 <div className={styles.feedback}>                    
                     <h2 className={styles.label}>Feedback:</h2>
-                    <p className={styles.feedbackText}>{feedback.trim().length > 0 ? feedback : "Provide feedback..."}</p>
+                    <p className={styles.feedbackText}>{feedback?.trim().length > 0 ? feedback : "Provide feedback..."}</p>
                     <textarea
                         id="feedbackInput"
                         value={localFeedback}

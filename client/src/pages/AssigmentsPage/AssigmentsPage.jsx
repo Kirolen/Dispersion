@@ -1,159 +1,33 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './AssignmentsPage.css';
-import { getAllStudentAssigments, getFilteredCourses } from '../../api/materialService';
+import styles from './AssignmentsPage.module.css';
 import { useSelector } from 'react-redux';
+import TeacherAssigmentsList from '../../components/TeacherAssignmentsList/TeacherAssigmentsList';
 
 const AssignmentsPage = () => {
   const navigate = useNavigate();
-  const [assignments, setAssignments] = useState([]);
   const [filteredAssignments, setFilteredAssignments] = useState([]);
   const [filter, setFilter] = useState('all');
-  const [courses, setCourses] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null); 
-  const [openedCourse, setOpenedCourse] = useState("")
-  const [openedTask, setOpenedTasks] = useState("")
   const { user_id, role } = useSelector((state) => state.user);
 
   useEffect(() => {
-    const fetchAssignmentsDetails = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        if (!user_id) return;
-        if (role === "Student") {
-          const data = await getAllStudentAssigments(user_id);
-          setAssignments(data);
-          setFilteredAssignments(data);
-        } else {
-          const data = await getFilteredCourses(user_id, "");
-          setCourses(data);
-          console.log(data)
-        }
-      } catch (error) {
-        setError('Error fetching data. Please try again later.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchAssignmentsDetails();
+    console.log("role: " + role)
   }, [user_id, role]);
 
-  useEffect(() => {
-    const fetchFilteredData = async () => {
-      if (role === "Student") {
-        if (filter === 'all') {
-          setFilteredAssignments(assignments);
-        } else if (filter === "passed") {
-          setFilteredAssignments(assignments.filter(assignment =>
-            assignment.userAssignment.status === 'passed_in_time' ||
-            assignment.userAssignment.status === 'passed_with_lateness'
-          ));
-        } else {
-          setFilteredAssignments(assignments.filter(assignment => assignment.userAssignment.status === filter));
-        }
-      }
-
-      if (role === "Teacher") {
-        const data = await getFilteredCourses(user_id, filter === "all" ? "" : filter);
-        setCourses(data);
-      }
-    };
-
-    fetchFilteredData();
-  }, [filter, assignments, user_id, role]);
-
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  if (error) {
-    return <div>{error}</div>;
-  }
 
   return (
-    <div className="assignments-container">
-      <h1>Assignments</h1>
-      <div className="filters">
-        <button onClick={() => setFilter('all')}>All</button>
-        <button onClick={() => setFilter('graded')}>Graded</button>
-        <button onClick={() => setFilter('passed')}>Submitted</button>
-        <button onClick={() => setFilter('not_passed')}>Not Submitted</button>
+    <div className={styles.assignmentsContainer}>
+      <div className={styles.assignmentsHeader}>
+        <h1>Assignments</h1>
+      </div>
+      <div className={styles.filters}>
+        <button className={`${styles.filterButton} ${filter === "all" ? styles.active : ""}`} onClick={() => setFilter('all')}>All</button>
+        <button className={`${styles.filterButton} ${filter === "graded" ? styles.active : ""}`} onClick={() => setFilter('graded')}>Graded</button>
+        <button className={`${styles.filterButton} ${filter === "passed" ? styles.active : ""}`} onClick={() => setFilter('passed')}>Submitted</button>
+        <button className={`${styles.filterButton} ${filter === "not_passed" ? styles.active : ""}`} onClick={() => setFilter('not_passed')}>Not Submitted</button>
       </div>
       {role === 'Teacher' ? (
-        <div className="courses-table">
-          <h3>Your Courses</h3>
-          <table>
-            <thead>
-              <tr>
-                <th>Course Name</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {courses.length === 0 ? (
-                <tr><td colSpan="2">No courses available</td></tr>
-              ) : (
-                courses.map(course => (
-                  <React.Fragment key={course.course_id}>
-                    <tr>
-                      <td>{course.course_name}</td>
-                      <td>
-                        <button onClick={() => setOpenedCourse((course.course_id === openedCourse) ? "" : course.course_id)} aria-label={(course.course_id === openedCourse) ? "Hide tasks" : "Show tasks"}>
-                          {(course.course_id === openedCourse) ? "Hide tasks" : "Show tasks"}
-                        </button>
-                      </td>
-                    </tr>
-                    {(course.course_id === openedCourse) && course.tasks.map(assignment => (
-                      <React.Fragment key={assignment._id}>
-                        <tr>
-                          <td colSpan="2">
-                            <div className="assignment-item">
-                              <span>{assignment.title}</span>
-                              <button onClick={() => setOpenedTasks((assignment._id === openedTask) ? "" : assignment._id)} aria-label={(assignment._id === openedTask) ? 'Hide Students' : 'Show Students'}>
-                                {(assignment._id === openedTask) ? 'Hide Students' : 'Show Students'}
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                        {(assignment._id === openedTask) && (
-                          <tr>
-                            <td colSpan="2">
-                              <table className="grading-table">
-                                <thead>
-                                  <tr>
-                                    <th>Student</th>
-                                    <th>Status</th>
-                                    <th>Grade</th>
-                                    <th>Actions</th>
-                                  </tr>
-                                </thead>
-                                <tbody>
-                                  {assignment.students.map(student => (
-                                    <tr key={student.user_id}>
-                                      <td>{student.user_id}</td>
-                                      <td>{student.status}</td>
-                                      <td>{student.grade || 'Not graded'}</td>
-                                      <td>
-                                        <button onClick={() => navigate(`/assignment/${assignment._id}?ref=${student.user_id}`)}>
-                                          {student.status === "graded" ? "Change grade" : "Grade"}
-                                        </button>
-                                      </td>
-                                    </tr>
-                                  ))}
-                                </tbody>
-                              </table>
-                            </td>
-                          </tr>)}
-                      </React.Fragment>))}
-                  </React.Fragment>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+        <TeacherAssigmentsList filter={filter}/>
       ) : (
         <div>
           <div className="assignments-grid">

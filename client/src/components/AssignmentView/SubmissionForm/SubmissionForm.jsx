@@ -73,7 +73,7 @@ const SubmissionForm = () => {
 
             <h3>Attachments</h3>
             {status === "not_passed" &&
-                <input type="file" multiple onChange={handleFileChange} className="file-input" />
+                <input value="" type="file" multiple onChange={handleFileChange} className="file-input" />
             }
             {attachments.length > 0 && (
                 <div className={styles.attachments}>

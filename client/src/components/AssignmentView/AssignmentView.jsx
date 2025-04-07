@@ -26,12 +26,12 @@ const AssignmentView = () => {
       try {
         const studentID = role === "Teacher" ? refId : user_id;
         const response = await getStudentTaskInfo(assignmentId, studentID);
-        console.log(response.userDetails.response.message)
-        dispacth(setFeedback(response.userDetails.response.message))
+        console.log(response.userDetails?.response.message)
+        dispacth(setFeedback(response.userDetails?.response.message ?? ""))
         dispacth(setAssignment(response))
         dispacth(setAttachments(response.userDetails.attachments))
         dispacth(setStatus(response.userDetails?.status || "not_passed"))
-        dispacth(setGrade(response.userDetails.grade))
+        dispacth(setGrade(response.userDetails?.grade ?? ""))
       } catch (error) {
         console.error("Error fetching assignment details:", error);
       }

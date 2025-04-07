@@ -387,11 +387,10 @@ class materialController {
                 const assignments = await Material.find({ course_id: course_id._id, type: "practice" }).select("title").lean();
 
                 const tasks = await Promise.all(assignments.map(async (assignment) => {
-                    const assignedUsers = await AssignedUsers.find({ material_id: assignment._id }).populate("user_id", "name").lean();
-
+                    const assignedUsers = await AssignedUsers.find({ material_id: assignment._id }).populate("user_id").lean();
                     let students = assignedUsers.map(({ user_id, grade = "Not graded", status = "Not submitted" }) => ({
                         user_id: user_id._id,
-                        name: user_id.name,
+                        name: user_id.first_name + " " + user_id.last_name,
                         grade,
                         status
                     }));

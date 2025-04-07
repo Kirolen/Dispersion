@@ -1,18 +1,4 @@
-.assignments-container {
-    padding: 20px;
-    color: #fff;
-  }
-  
-  .assignments-header {
-    margin-bottom: 30px;
-    padding-bottom: 20px;
-    border-bottom: 2px solid #8560be;
-  }
-  
-  .assignments-header h1 {
-    color: #8560be;
-    margin: 0;
-  }
+
   
   .assignments-grid {
     display: grid;
@@ -85,3 +71,63 @@
   .submitted-label {
     color: #4caf50;
   }
+
+
+  .grades-section {
+    width: 80%;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #510a8b;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+
+.assignment-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.assignment-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    background-color: #6a0dad;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.grade-button {
+    background: #007bff;
+    color: white;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.grade-button:hover {
+    background: #0056b3;
+}
+
+.grading-table, .student-grades-table {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
+}
+
+.grading-table th, .grading-table td,
+.student-grades-table th, .student-grades-table td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: center;
+}
+
+.grading-table th, .student-grades-table th {
+    background: #007bff;
+    color: white;
+}
+
