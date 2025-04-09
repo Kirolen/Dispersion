@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import './CoursePage.css';
 import { getCourseInfo } from '../../api//courseService'
 
 const CoursePage = ({ children }) => {
