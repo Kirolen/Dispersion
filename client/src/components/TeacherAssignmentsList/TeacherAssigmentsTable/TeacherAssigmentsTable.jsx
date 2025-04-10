@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import styles from '../TeacherAssigmentsList.module.css';
+import styles from '../AssigmentsList.module.css';
 import TeacherGradingTable from '../TeacherGradingTable/TeacherGradingTable'; 
 
 const TeacherAssigmentsTable = ({ assignments }) => {

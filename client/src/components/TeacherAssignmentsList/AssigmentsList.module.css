@@ -9,7 +9,9 @@
         text-align: left;
         padding: 8px 0px;
     }
-
+    tbody {
+        width: 100%;
+    }
     td {
         padding: 8px 0;
 
@@ -42,5 +44,6 @@
     .gradingTable {
         width: 100%;
         padding-left: 40px;
+        background-color: #8e5bbf;
     }
 }

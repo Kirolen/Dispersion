@@ -1,15 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import styles from './AssignmentsPage.module.css';
 import { useSelector } from 'react-redux';
-import TeacherAssigmentsList from '../../components/TeacherAssignmentsList/TeacherAssigmentsList';
-import StudentAssignmentsList from '../../components/StudentAssignmentsList/StudentAssignmentsList';
+import AssigmentsList from '../../components/TeacherAssignmentsList/AssigmentsList';
 
 const AssignmentsPage = () => {
   const [filter, setFilter] = useState('');
   const { user_id, role } = useSelector((state) => state.user);
 
   useEffect(() => {
-      if (role === "Student") setFilter('not_passed')
+      if (role === "Student" && user_id.toString() !== '-1') setFilter('not_passed')
       else if (role === "Teacher") setFilter('passed')
   }, [user_id, role]);
 
@@ -25,10 +24,7 @@ const AssignmentsPage = () => {
         <button className={`${styles.filterButton} ${filter === "passed" ? styles.active : ""}`} onClick={() => setFilter('passed')}>Submitted</button>
         <button className={`${styles.filterButton} ${filter === "not_passed" ? styles.active : ""}`} onClick={() => setFilter('not_passed')}>Not Submitted</button>
       </div>
-      {role === 'Teacher' ? (
-        <TeacherAssigmentsList filter={filter}/>
-      ) : ( <StudentAssignmentsList filter={filter}/>
-      )}
+      <AssigmentsList filter={filter}/>
     </div>
   );
 };

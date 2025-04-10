@@ -1,24 +1,31 @@
 import React, { useEffect, useState } from 'react';
-import { getFilteredCourses } from '../../../api/materialService';
+import { getFilteredAssignmentsByStudent, getFilteredCoursesAssignmentsForTeacher } from '../../../api/materialService';
 import { useSelector } from 'react-redux';
-import styles from '../TeacherAssigmentsList.module.css';
+import styles from '../AssigmentsList.module.css';
 import TeacherAssigmentsTable from '../TeacherAssigmentsTable/TeacherAssigmentsTable';
+import StudentAssigmentsTable from '../StudentAssigmentsTable/StudentAssigmentsTable';
 
-const TeacherCourseTable = ({ filter }) => {
+const CoursesTable = ({ filter }) => {
     const [courses, setCourses] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [openedCourse, setOpenedCourse] = useState("")
-    const { user_id } = useSelector((state) => state.user);
+    const {role, user_id } = useSelector((state) => state.user);
 
     useEffect(() => {
-        const fetchAssignmentsDetails = async () => {
-            setLoading(true);
-            setError(null);
+        if (user_id.toString() === "-1" || filter === "") return;
+        setLoading(true);
+        setError(null);
+        const fetchFilteredData = async () => {
             try {
-                if (!user_id) return;
-                const data = await getFilteredCourses(user_id, "");
+                let data = [];
+                if (role === "Teacher") data = await getFilteredCoursesAssignmentsForTeacher(user_id, filter === "all" ? "" : filter);
+                else if (role === "Student") data = await getFilteredAssignmentsByStudent(user_id, filter)
+                
                 setCourses(data);
+                console.log(data)
+                console.log(role)
+                console.log("filter: " + filter)
             } catch (error) {
                 setError('Error fetching data. Please try again later.');
             } finally {
@@ -26,17 +33,8 @@ const TeacherCourseTable = ({ filter }) => {
             }
         };
 
-        fetchAssignmentsDetails();
-    }, [user_id]);
-
-    useEffect(() => {
-        const fetchFilteredData = async () => {
-            const data = await getFilteredCourses(user_id, filter === "all" ? "" : filter);
-            setCourses(data);
-        };
-
         fetchFilteredData();
-    }, [filter, user_id]);
+    }, [filter, user_id, role]);
 
     if (loading) {
         return (
@@ -74,7 +72,8 @@ const TeacherCourseTable = ({ filter }) => {
                                 </button>
                             </td>
                         </tr>
-                        {course.course_id === openedCourse && <TeacherAssigmentsTable assignments={course.tasks} />}
+                        {course.course_id === openedCourse && role === "Teacher" &&  <TeacherAssigmentsTable assignments={course.tasks} />}
+                        {course.course_id === openedCourse && role === "Student" && <StudentAssigmentsTable assignments={course.tasks}/>}
                     </React.Fragment>
                 ))
             )}
@@ -82,4 +81,4 @@ const TeacherCourseTable = ({ filter }) => {
     );
 };
 
-export default TeacherCourseTable;
+export default CoursesTable;
