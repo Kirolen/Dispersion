@@ -16,16 +16,15 @@ class authController {
     async registration(req, res) {
         try {
             const errors = validationResult(req);
-            console.log(errors)
             if (!errors.isEmpty()){
-                return res.status(500).json({ message: 'Registration error', errors });
+                return res.status(400).json({ message: 'Validation error', errors: errors.array() });
             }
             const {first_name, last_name, email, password, role} = req.body;
 
             const candidate = await User.findOne({email});
 
             if (candidate) {
-                return res.status(500).json({ message: 'User with this email is registered', errors });
+                return res.status(400).json({ message: 'User with this email is already registered' });
             }
             const hashPassword = bcrypt.hashSync(password, 7)
             
@@ -42,26 +41,17 @@ class authController {
             const {email, password} = req.body
             const user = await User.findOne({email})
             if (!user){
-                return res.status(500).json({ message: `User with ${email} is undefind!`});
+                return res.status(404).json({ message: `User with ${email} is undefind!`});
             }
             const validPassword = bcrypt.compareSync(password, user.password)
             if (!validPassword) {
-                return res.status(500).json({ message: `Wrong passwrod!`});
+                return res.status(401).json({ message: `Wrong passwrod!`});
             }
             const token = generateAccessToken(user._id, user.role, (user.first_name + " " + user.last_name))
 
             return res.json({token});
         } catch (error) {
             res.status(500).json({ message: 'Login error', error });
-        }
-    }
-
-    async getUsers(req, res) {
-        try {
-            const users = await User.find()
-            res.json({users});
-        } catch (error) {
-            res.status(500).json({ message: 'Error fetching users', error });
         }
     }
 

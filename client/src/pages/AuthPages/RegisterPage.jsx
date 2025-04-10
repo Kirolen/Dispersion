@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './AuthPages.css'; 
-import {register} from '../../api/authService';
+import styles from './AuthPages.module.css'; 
+import { register } from '../../api/authService';
 
 
 export const RegisterPage = () => {
@@ -24,32 +24,32 @@ export const RegisterPage = () => {
   };
 
   const handleRegister = async (e) => {
-    e.preventDefault(); 
-    setError(''); 
+    e.preventDefault();
+    setError('');
 
     try {
-      const response = await register(formData.first_name,formData.last_name, formData.email,formData.password,  formData.role);
+      const response = await register(formData.first_name, formData.last_name, formData.email, formData.password, formData.role);
       navigate('/auth-login');
     } catch (err) {
-      setError(err.response?.data?.message || 'An error occurred during registration.'); 
+      setError(err.message || 'An error occurred during register.');
     }
   };
 
   return (
-    <div className="auth-page-container">
-      <div className="auth-page">
-        <h2 className="page-title">Dispersion</h2>
-        <h1 className="welcome-message">Create Your Account</h1>
-        <p className="intro-text">
+    <div className={styles.authPageContainer}>
+      <div className={styles.authPage}>
+        <h2 className={styles.pageTitle}>Dispersion</h2>
+        <h1 className={styles.welcomeMessage}>Create Your Account</h1>
+        <p className={styles.introText}>
           Join Dispersion to access free educational resources and start learning today!
         </p>
 
-        <div className="form-container">
-          <h2 className="form-title">Register</h2>
-          <form className="auth-form" onSubmit={handleRegister}>
+        <div className={styles.formContainer}>
+          <h2 className={styles.formTitle}>Register</h2>
+          <form className={styles.authForm} onSubmit={handleRegister}>
             <input
               type="text"
-              className="form-input"
+              className={styles.formInput}
               name="first_name"
               placeholder="First Name"
               value={formData.first_name}
@@ -58,7 +58,7 @@ export const RegisterPage = () => {
             />
             <input
               type="text"
-              className="form-input"
+              className={styles.formInput}
               name="last_name"
               placeholder="Last Name"
               value={formData.last_name}
@@ -67,7 +67,7 @@ export const RegisterPage = () => {
             />
             <input
               type="email"
-              className="form-input"
+              className={styles.formInput}
               name="email"
               placeholder="Email"
               value={formData.email}
@@ -76,19 +76,19 @@ export const RegisterPage = () => {
             />
             <input
               type="password"
-              className="form-input"
+              className={styles.formInput}
               name="password"
               placeholder="Password"
               value={formData.password}
               onChange={handleChange}
               required
             />
-            <div className="form-input">
-              <label htmlFor="role" className="role-label">Select Role:</label>
+            <div className={styles.formInput}>
+              <label htmlFor="role" className={styles.roleLabel}>Select Role:</label>
               <select
                 id="role"
                 name="role"
-                className="role-select"
+                className={styles.roleSelect}
                 value={formData.role}
                 onChange={handleChange}
                 required
@@ -97,14 +97,15 @@ export const RegisterPage = () => {
                 <option value="Teacher">Teacher</option>
               </select>
             </div>
-            <button className="auth-button" type="submit">Register</button>
+            <button className={styles.authButton} type="submit">Register</button>
           </form>
-          {error && <p className="error-message">{error}</p>} 
-          <p className="form-footer">
-            Already have an account? <a href="/auth-login" className="form-link">Login here</a>.
+          {error && <p className={styles.errorMessage}>{error}</p>}
+         <p className={styles.formfooter}>
+            Already have an account? <a href="/auth-login"  className={styles.formLink}>Login here</a>.
           </p>
+          <a href="/" className={styles.returnButton}>Return to main page</a>
         </div>
-        <a href="/" className="go-back-buttton">Return to main page</a>
+        
       </div>
     </div>
   );

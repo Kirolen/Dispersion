@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './AuthPages.css'; 
-import {login} from '../../api/authService'
+import styles from './AuthPages.module.css';
+import { login } from '../../api/authService'
 import { useSocket } from '../../context/SocketContext';
 
 export const LoginPage = () => {
-  const {setupSocket} = useSocket();
+  const { setupSocket } = useSocket();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: '',
@@ -21,34 +21,34 @@ export const LoginPage = () => {
   };
 
   const handleLogin = async (e) => {
-    e.preventDefault(); 
-    setError(''); 
+    e.preventDefault();
+    setError('');
 
     try {
-      const token = await login(formData.email,formData.password);
+      const token = await login(formData.email, formData.password);
       localStorage.setItem('authToken', token);
       navigate('/home');
       setupSocket();
     } catch (err) {
-      setError(err.response?.data?.message || 'An error occurred during login.'); 
+      setError(err.message || 'An error occurred during login.');
     }
   };
 
   return (
-    <div className="auth-page-container">
-      <div className="auth-page">
-        <h2 className="page-title">Dispersion</h2>
-        <h1 className="welcome-message">Welcome Back!</h1>
-        <p className="intro-text">
+    <div className={styles.authPageContainer}>
+      <div className={styles.authPage}>
+        <h2 className={styles.pageTitle}>Dispersion</h2>
+        <h1 className={styles.welcomeMessage}>Welcome Back!</h1>
+        <p className={styles.introText}>
           Log in to your account to access your personalized dashboard and all the educational resources.
         </p>
 
-        <div className="form-container">
-          <h2 className="form-title">Login</h2>
-          <form className="auth-form" onSubmit={handleLogin}>
-          <input
+        <div className={styles.formContainer}>
+          <h2 className={styles.formTitle}>Login</h2>
+          <form className={styles.authForm} onSubmit={handleLogin}>
+            <input
               type="email"
-              className="form-input"
+              className={styles.formInput}
               name="email"
               placeholder="Email"
               value={formData.email}
@@ -57,21 +57,21 @@ export const LoginPage = () => {
             />
             <input
               type="password"
-              className="form-input"
+              className={styles.formInput}
               name="password"
               placeholder="Password"
               value={formData.password}
               onChange={handleChange}
               required
             />
-            <button className="auth-button">Login</button>
+            <button className={styles.authButton}>Login</button>
           </form>
-          {error && <p className="error-message">{error}</p>} 
-          <p className="form-footer">
-            Don't have an account? <a href="/auth-register" className="form-link">Register here</a>.
+          {error && <p className={styles.errorMessage}>{error}</p>}
+          <p className={styles.formfooter}>
+            Don't have an account? <a href="/auth-register" className={styles.formLink}>Register here</a>.
           </p>
+          <a href="/" className={styles.returnButton}>Return to main page</a>
         </div>
-        <a href="/" className="go-back-buttton">Return to main page</a>
       </div>
     </div>
   );

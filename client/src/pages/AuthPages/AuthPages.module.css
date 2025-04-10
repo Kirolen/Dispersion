@@ -1,0 +1,137 @@
+.authPageContainer {
+    padding: 50px;
+    background: #000;
+
+    .authPage {
+        background: #000;
+        padding: 0 100px;
+        color: white;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-height: 100vh;
+        border: 3px solid #8560be;
+        border-radius: 10px;
+
+        .pageTitle {
+            color: #8560be;
+        }
+
+        .welcomeMessage {
+            color: white;
+            font-size: 24px;
+            margin-top: 20px;
+        }
+
+        .introText {
+            font-size: 16px;
+            color: #819198;
+            text-align: center;
+            margin-top: 20px;
+            max-width: 700px;
+            margin-bottom: 40px;
+        }
+
+        .formContainer {
+            background: #0d0d0d;
+            border: 1px solid #fff;
+            border-radius: 10px;
+            padding: 30px;
+            min-width: 550px;
+            text-align: center;
+            margin-bottom: 30px;
+
+            .formTitle {
+                color: #8560be;
+                font-size: 20px;
+                margin-bottom: 20px;
+            }
+
+            .authForm {
+                display: flex;
+                flex-direction: column;
+
+                .formInput {
+                    background: #1b1b1b;
+                    border: 1px solid #674f99;
+                    color: #fff;
+                    padding: 10px;
+                    margin-bottom: 15px;
+                    border-radius: 5px;
+                    font-size: 14px;
+
+                    &::placeholder {
+                        color: #819198;
+                    }
+
+                    .roleLabel {
+                        color: #8560be;
+                        font-size: 14px;
+                        margin-bottom: 5px;
+                    }
+
+                    .roleSelect {
+                        background: #1b1b1b;
+                        border: 1px solid #674f99;
+                        color: #fff;
+                        padding: 10px;
+                        border-radius: 5px;
+                        font-size: 14px;
+                        width: 100%;
+
+                        &:hover {
+                            border-color: #8560be;
+                        }
+                    }
+                }
+
+                .authButton {
+                    background: #1b005a;
+                    color: #6d3fd3;
+                    border: none;
+                    padding: 10px 20px;
+                    border-radius: 5px;
+                    cursor: pointer;
+                    font-size: 15px;
+                    margin-top: 10px;
+
+                    &:hover {
+                        background-color: #674f99;
+                    }
+                }
+            }
+
+            .errorMessage {
+                color: #ff4d4f;
+                margin-top: 10px;
+                font-size: 14px;
+            }
+
+            .formFooter {
+                color: #819198;
+                font-size: 14px;
+                margin-top: 20px;
+
+                .formLink {
+                    color: #6d3fd3;
+                    text-decoration: none;
+
+                    &:hover {
+                        text-decoration: underline;
+                    }
+                }
+            }
+        }
+    }
+}
+
+@media (max-width: 960px) {
+    .authPageContainer {
+        .authPage {
+            .formContainer {
+                min-width: 350px;
+            }
+        }
+
+    }
+}
