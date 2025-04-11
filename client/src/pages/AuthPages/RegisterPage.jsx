@@ -29,7 +29,7 @@ export const RegisterPage = () => {
 
     try {
       const response = await register(formData.first_name, formData.last_name, formData.email, formData.password, formData.role);
-      navigate('/auth-login');
+      if (response.success) navigate('/auth-login');
     } catch (err) {
       setError(err.message || 'An error occurred during register.');
     }

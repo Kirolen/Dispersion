@@ -30,7 +30,7 @@ class authController {
             
             const user = new User({first_name, last_name, email, password: hashPassword, role})
             user.save()
-            return res.json({ message: 'Registration successful' });
+            return res.json({ success: true, message: 'Registration successful' });
         } catch (e) {
             res.status(500).json({ message: 'Registration error', e });
         }

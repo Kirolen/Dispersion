@@ -7,10 +7,7 @@ class CalendarEventController {
             const { user_id, title, eventType, startDate, endDate } = req.body;
 
             const userxists = await User.findById(user_id);
-            if (!userxists) {
-                console.log("❌ User not found");
-                return null;
-            }
+            if (!userxists) return res.status(404).json({message: "User not found!"}); 
 
             const newCalendarEvent = new CalendarEvent({
                 user_id, 
@@ -47,6 +44,21 @@ class CalendarEventController {
             console.error('Error fetching calendar events:', error);
             return res.status(500).json({ message: 'Error fetching calendar events' });
         }
+    }
+
+    async deleteUserEvent(req, res) {
+        const {user_id, event_id} = req.params;
+        const user = await User.findById(user_id);
+        if (!user) return res.status(404).json({message: "User not found!"}); 
+
+        const event = await CalendarEvent.findOne({ _id: event_id, user_id });
+        if (!event) {
+            return res.status(404).json({ success: false, message: "Event not found or does not belong to the user." });
+        }
+
+        await CalendarEvent.deleteOne({ _id: event_id });
+
+        return res.status(200).json({ success: true, message: "Event successfully deleted." });
     }
 }
 

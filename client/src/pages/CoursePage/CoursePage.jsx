@@ -13,6 +13,7 @@ const CoursePage = ({ children }) => {
     const fetchCourseDetails = async () => {
       try {
         const res = await getCourseInfo(courseId);
+        console.log(res)
         setCourseName(res)
         setchatId(res.chatId)
         setLoading(false);
