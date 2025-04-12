@@ -17,7 +17,7 @@ import AssignmentsPage from './pages/AssigmentsPage/AssigmentsPage';
 import AssignmentView from './components/AssignmentView/AssignmentView';
 import CalendarPage from './pages/CalendarPage/CalendarPage';
 import MessagesPage from "./pages/MassagePage/MassagePage";
-import Stream from "./pages/CoursePage/CourseContent/Stream";
+import Stream from "./components/CourseChat/Stream"
 import Classwork from './pages/CoursePage/CourseContent/Classwork';
 import IndexPage from './pages/IndexPage/IndexPage';
 import People from './pages/CoursePage/CourseContent/People';

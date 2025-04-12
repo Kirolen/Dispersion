@@ -7,11 +7,8 @@ export const uploadFiles = async (files, folder) => {
             formData.append("files", file);  
         });
 
-
         console.log("File data: ")
         console.log(formData)
-        console.log()
-        console.log("File data:", formData);
 
         const response = await api.post("/file/upload", formData, {
             headers: { "Content-Type": "multipart/form-data" },

@@ -1,0 +1,52 @@
+.openedImage {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    z-index: 10;
+
+    .openedImageContainer {
+        max-width: 80%;
+        max-height: 80%;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+
+        .openedImageControl {
+            display: flex;
+            width: 100%;
+            gap: 10px;
+            justify-content: end;
+            align-items: center;
+
+            a {
+                text-align: end;
+                color: white
+            }
+
+            .closeButton {
+                font-size: 35px;
+                color: red;
+                cursor: pointer;
+                margin-right: 10px;
+            }
+        }
+
+        .openedImageContent {
+            position: relative;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+
+            img {
+                max-width: 600px;
+                max-height: 600px;
+                border-radius: 10px;
+            }
+        }
+    }
+}

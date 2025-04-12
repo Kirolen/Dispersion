@@ -1,0 +1,54 @@
+.courseMessageAttachments {
+    display: grid;
+    position: relative;
+    align-items: center;
+    gap: 10px;
+
+    &.one {
+        grid-template-columns: 150px;
+    }
+
+    &.two {
+        grid-template-columns: repeat(2, 150px);
+    }
+
+    &.three {
+        grid-template-columns: repeat(3, 150px);
+    }
+
+    &.four {
+        grid-template-columns: 150px 150px;
+        grid-template-rows: 150px 150px;
+    }
+
+    &.five {
+        grid-template-columns: repeat(6, 70px);
+    }
+}
+
+@media (max-width: 800px) {
+    .courseMessageAttachments {
+        gap: 5px;
+    
+        &.one {
+            grid-template-columns: 100px;
+        }
+    
+        &.two {
+            grid-template-columns: repeat(2, 100px);
+        }
+    
+        &.three {
+            grid-template-columns: repeat(3, 100px);
+        }
+    
+        &.four {
+            grid-template-columns: 100px 100px;
+            grid-template-rows: 100px 100px;
+        }
+    
+        &.five {
+            grid-template-columns: repeat(6, 47px);
+        }
+    }
+}

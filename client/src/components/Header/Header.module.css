@@ -5,7 +5,7 @@
   padding: 15px 20px;
   border-bottom: 3px solid #8560be; 
   position: relative;
-  z-index: 1000;
+  z-index: 5;
   .title {
     font-size: 36px;
     font-weight: bold;

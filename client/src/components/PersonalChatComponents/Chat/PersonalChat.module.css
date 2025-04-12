@@ -72,31 +72,12 @@
                     display: flex;
                     flex-direction: column;
                     gap: 5px;
-
-                    .messageFile {
-                        display: flex;
-                        align-items: center;
-                        gap: 5px;
-                        background-color: rgba(57, 83, 131, 0.3);
-                        padding: 8px;
-                        border-radius: 8px;
-                        span {
-                            word-wrap: break-word;
-                        }
-                    }
                 }
 
 
                 .mediaAttachmentContainer {
                     display: flex;
                     gap: 5px;
-
-                    .messageMedia {
-                        max-width: 100px;
-                        max-height: 200px;
-                        border-radius: 8px;
-                        object-fit: cover;
-                    }
                 }
 
                 p {
@@ -201,119 +182,6 @@
 
             &:hover {
                 background-color: #4169e1;
-            }
-        }
-    }
-
-    .openedImage {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: rgba(0, 0, 0, 0.7);
-        display: flex;
-        justify-content: center;
-        z-index: 10;
-
-        .openedImageContainer {
-            max-width: 80%;
-            max-height: 80%;
-            padding: 20px;
-
-            .openedImageControl {
-                display: flex;
-                width: 100%;
-                gap: 10px;
-                justify-content: end;
-                align-items: center;
-
-                a {
-                    text-align: end;
-                    color: white
-                }
-
-                .closeButton {
-                    font-size: 35px;
-                    color: red;
-                    cursor: pointer;
-                    margin-right: 10px;
-                }
-            }
-
-            .openedImageContent {
-                position: relative;
-                border-radius: 10px;
-                box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-
-                img {
-                    max-width: 600px;
-                    max-height: 600px;
-                    border-radius: 10px;
-                }
-            }
-        }
-    }
-
-    .attachmentsPrewiev {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-        padding: 10px;
-        background-color: rgba(57, 83, 131, 0.2);
-        border-radius: 8px;
-    
-        .attachmentPrewievItem {
-            position: relative;
-            width: 100px;
-            height: 100px;
-            border-radius: 8px;
-            overflow: hidden;
-    
-            img {
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
-            }
-    
-            .fileItem {
-                width: 100%;
-                height: 100%;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                background-color: rgba(57, 83, 131, 0.3);
-                padding: 10px;
-    
-                span {
-                    font-size: 12px;
-                    margin-top: 5px;
-                    text-align: center;
-                    word-break: break-word;
-                }
-            }
-    
-            .removeAttachment {
-                position: absolute;
-                top: 4px;
-                right: 4px;
-                background: rgba(0, 0, 0, 0.5);
-                color: white;
-                border: none;
-                border-radius: 50%;
-                width: 20px;
-                height: 20px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                cursor: pointer;
-                font-size: 14px;
-                transition: background-color 0.2s;
-            }
-    
-            .removeAttachment:hover {
-                background: rgba(0, 0, 0, 0.7);
             }
         }
     }

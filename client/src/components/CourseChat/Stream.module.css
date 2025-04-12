@@ -1,0 +1,128 @@
+.streamContainer {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    gap: 10px;
+    width: 100%;
+
+    .sendMessageContent {
+        display: flex;
+        flex-direction: column;
+        position: sticky;
+        z-index: 5;
+        top: 0;
+        left: 0;
+        width: 100%;
+
+        .inputMessage {
+            display: flex;
+            gap: 10px;
+            padding: 10px 0;
+            background-color: #200055;
+
+            .messageInput {
+                width: 100%;
+                padding: 15px;
+                border: 1px solid #8560be;
+                border-radius: 5px;
+                background: #1b005a;
+                color: white;
+            }
+
+            .fileInputLabel {
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+
+                .fileInput {
+                    display: none;
+                }
+
+                .paperclipIcon {
+                    font-size: 20px;
+                    color: #8560be;
+                    transition: color 0.2s;
+
+                    &:hover {
+                        color: #8540ad;
+                    }
+                }
+            }
+
+            .postButton {
+                padding: 0 20px;
+                width: 100px;
+                background-color: #8560be;
+                border: none;
+                border-radius: 5px;
+                color: white;
+                cursor: pointer;
+
+                &:hover {
+                    background-color: #674f99;
+                }
+            }
+        }
+    }
+
+    .streamContent {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+
+        .messageContent {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+
+            &.own {
+                flex-direction: row-reverse; 
+              }
+
+            .anotherUserChatAvatar {
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                object-fit: cover;
+            }
+
+            .message {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                max-width: 90%;
+                background-color: rgba(57, 83, 131, 0.3);
+                border: 1px solid #8560be;
+                border-radius: 5px;
+                padding: 10px;
+                
+                &.own {
+                    .messageText {
+                        text-align: end;
+                    }
+                }
+
+                .author {
+                    color: #8560be;
+                    font-weight: bold;
+                }
+    
+                .date {
+                    color: #819198;
+                    text-align: end;
+                }
+    
+                .messageText {
+                    margin: 0;
+                    padding: 8px 12px;
+                    border-radius: 10px;
+                    background-color: rgba(57, 83, 131, 0.3);
+                }
+            }
+            
+
+        }
+       
+    }
+
+}

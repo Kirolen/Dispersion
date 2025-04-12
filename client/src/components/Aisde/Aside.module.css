@@ -61,6 +61,6 @@
     .asideBar {
         position: fixed;
         height: 100%;
-        z-index: 3;
+        z-index: 7;
     }
 }

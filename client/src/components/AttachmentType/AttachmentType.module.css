@@ -1,0 +1,58 @@
+.firstRowItem {
+    grid-column: span 3;
+  }
+  
+  .secondRowItem {
+    grid-column: span 2;
+  }
+
+.messageMedia {
+    border-radius: 8px;
+    object-fit: cover;
+    cursor: pointer;
+
+    &.defaultSize {
+        width: 150px;
+        height: 150px;
+    }
+    
+    &.biggerSize {
+        width: 225px;
+        height: 225px;
+    }
+}
+
+.file {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: rgba(57, 83, 131, 0.3);
+    padding: 8px;
+    border-radius: 8px;
+    overflow-wrap: break-word;
+
+    span {
+        word-break: break-word;
+        overflow-wrap: break-word;
+        flex: 1 1 auto; 
+    }
+}
+
+@media (max-width: 800px) {
+    .messageMedia {
+        border-radius: 8px;
+        object-fit: cover;
+        cursor: pointer;
+    
+        &.defaultSize {
+            width: 100px;
+            height: 100px;
+        }
+        
+        &.biggerSize {
+            width: 150px;
+            height: 150px;
+        }
+    }
+    
+}

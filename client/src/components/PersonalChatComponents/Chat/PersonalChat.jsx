@@ -1,17 +1,18 @@
 import React, { useEffect, useState, useRef } from "react";
 import styles from "./PersonalChat.module.css";
-import { AiOutlineArrowLeft, AiOutlineDownload } from "react-icons/ai";
+import { AiOutlineArrowLeft } from "react-icons/ai";
 import { MdEmojiEmotions } from "react-icons/md";
 import { GoPaperclip } from "react-icons/go";
-import { FaImage, FaFile, FaVideo, FaMusic, FaArrowLeft } from "react-icons/fa";
+import { FaImage, FaFile, FaVideo, FaMusic } from "react-icons/fa";
 import EmojiPicker from "emoji-picker-react";
-import { getChat, markLastMessageAsRead, sendMessage } from "../../../api/personalChatService";
+import { getChat, markLastMessageAsRead } from "../../../api/personalChatService";
 import { useSocket } from "../../../context/SocketContext";
 import { uploadFiles } from "../../../api/fileService";
-import { renderMessage, renderAttachmentsPrewiev } from "./chatRenders/chatRenders"
 import { useSelector, useDispatch } from "react-redux";
 import { setNotification } from "../../../store/reducers/userSlice";
 import { addMessage, setMessages, setChatId, setChatDetailsActive } from '../../../store/reducers/personalChatSlice';
+import MessageAttachmentsPrewiev from "../../MessageAttachmentsPrewiev/MessageAttachmentsPrewiev"
+import MessageAttachments from "../../MessageAttachments/MessageAttachments";
 
 const PersonalChat = () => {
     const dispatch = useDispatch();
@@ -21,34 +22,25 @@ const PersonalChat = () => {
     const [text, setText] = useState("");
     const [attachments, setAttachments] = useState([]);
     const { user_id, notification } = useSelector((state) => state.user)
-    const {chatDetailsActive, chatId, messages} = useSelector((state) => state.chat)
+    const { chatDetailsActive, chatId, messages } = useSelector((state) => state.chat)
     const { socket } = useSocket();
     const isMenuOpen = useSelector(state => state.menu.isMenuOpen);
     const endRef = useRef(null);
     const fileInputRef = useRef(null);
-    const [isImageModalOpen, setIsImageModalOpen] = useState(false);
-    const [currentImage, setCurrentImage] = useState(null);
-
-    const openImageModal = (imageUrl) => {
-        setCurrentImage(imageUrl);
-        setIsImageModalOpen(true);
-    };
-
-    const closeImageModal = () => {
-        setIsImageModalOpen(false);
-        setCurrentImage(null);
-    };
 
     useEffect(() => {
         const fetchMessages = async () => {
             try {
-                if (!socket || !chatId.trim()) {
+                if (!socket || !chatId.trim() || chatId === "-1") {
                     return;
                 }
                 socket.emit("joinChat", { chatId, user_id, course_id: null });
+                socket.off("getMessages");
+                socket.off("newMessage");
+
                 socket.on("getMessages", (loadedMessages) => {
                     dispatch(setMessages(loadedMessages));
-                    
+
                     const updatedNotifications = notification.unreadChats.filter(id => id !== chatId);
                     dispatch(setNotification({
                         ...notification,
@@ -80,11 +72,15 @@ const PersonalChat = () => {
             if (socket?.emit) {
                 socket.emit("leaveChat", { chatId });
             }
+
+            socket?.off("getMessages");
+            socket?.off("newMessage");
         };
+        //eslint-disable-next-line
     }, [socket, chatId, setNotification, user_id]);
 
     useEffect(() => {
-        if (!chatId || !user_id) return;
+        if (chatId === "-1" || !chatId.trim() || user_id.toString() === "-1" || messages.length === 0) return;
         const markMessagesAsRead = async () => {
             await markLastMessageAsRead(chatId, user_id, null);
         };
@@ -186,11 +182,24 @@ const PersonalChat = () => {
             </div>
             <div className={styles.chatCenter}>
                 {messages?.map((message) => (
-                    renderMessage(message, openImageModal, user_id)
+                    <div key={message.id} className={`${styles.message} ${message.sender._id === user_id ? styles.own : ""}`}>
+                        {message.sender._id !== user_id && (
+                            <img
+                                src="https://i.pinimg.com/736x/5e/32/aa/5e32aa2c79cd463ab74e034aaace4eb1.jpg"
+                                alt="avatar"
+                                className={styles.anotherUserChatAvatar}
+                            />
+                        )}
+                        <div className={styles.messageText}>
+                            <MessageAttachments attachments={message.attachments} />
+                            {message.text && <p>{message.text}</p>}
+                            <span>{message.created_at}</span>
+                        </div>
+                    </div>
                 ))}
                 <div ref={endRef}></div>
             </div>
-            {attachments.length > 0 && renderAttachmentsPrewiev(attachments, setAttachments)}
+            {attachments.length > 0 && <MessageAttachmentsPrewiev attachments={attachments} setAttachments={setAttachments} />}
             <div className={styles.chatBottom}>
                 <div className={styles.attachmentsControl}>
                     <GoPaperclip
@@ -241,19 +250,6 @@ const PersonalChat = () => {
 
                 <button className={styles.sendMessageButton} onClick={handleSendMessage}>Send</button>
             </div>
-            {isImageModalOpen && (
-                <div className={styles.openedImage}>
-                    <div className={styles.openedImageContainer}>
-                        <div className={styles.openedImageControl}>
-                            <a href={currentImage} download className={styles.icon}><AiOutlineDownload /></a>
-                            <span className={styles.closeButton} onClick={closeImageModal}>×</span>
-                        </div>
-                        <div className={styles.openedImageContent}>
-                            <img src={currentImage} alt="Expanded view" />
-                        </div>
-                    </div>
-                </div>
-            )}
         </div>
 
     );

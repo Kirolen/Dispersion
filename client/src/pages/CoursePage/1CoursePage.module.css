@@ -1,0 +1,300 @@
+  .announcement-card {
+    background: #1b005a;
+    border: 1px solid #8560be;
+    border-radius: 5px;
+    padding: 20px;
+    margin-bottom: 15px;
+  }
+  
+
+  
+  /* Classwork Section */
+  .add-work {
+    margin-bottom: 20px;
+  }
+  
+  .add-work-button {
+    background: #8560be;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .work-form-overlay, .test-form-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  
+  .work-form {
+    background: #200055;
+    padding: 30px;
+    border-radius: 10px;
+    width: 80%;
+    max-width: 800px;
+    max-height: 90vh;
+    overflow-y: auto;
+    border: 2px solid #8560be;
+  }
+  
+  .work-form h2 {
+    color: #8560be;
+    margin-bottom: 20px;
+  }
+  
+  .form-group {
+    margin-bottom: 20px;
+  }
+  
+  .form-group label {
+    display: block;
+    color: #8560be;
+    margin-bottom: 5px;
+  }
+  
+  .form-group input,
+  .form-group textarea {
+    width: 100%;
+    padding: 10px;
+    background: #1b005a;
+    border: 1px solid #8560be;
+    border-radius: 5px;
+    color: white;
+  }
+  
+  .form-group textarea {
+    min-height: 100px;
+    resize: vertical;
+  }
+  
+  .form-row {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+  
+  .form-row .form-group {
+    flex: 1;
+  }
+  
+  .file-input {
+    margin-top: 10px;
+  }
+  
+  .attachments-preview {
+    margin-top: 10px;
+  }
+  
+  .attachment-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 10px;
+    background: #1b005a;
+    border-radius: 5px;
+    margin-bottom: 5px;
+  }
+  
+  .attachment-item button {
+    background: none;
+    border: none;
+    color: #ff4d4f;
+    cursor: pointer;
+    font-size: 18px;
+  }
+  
+  .add-test-button {
+    background: #8560be;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .test-preview {
+    margin-top: 10px;
+    padding: 10px;
+    background: #1b005a;
+    border-radius: 5px;
+  }
+  
+  .assignment-card {
+    background: #1b005a;
+    border: 1px solid #8560be;
+    border-radius: 5px;
+    padding: 20px;
+    margin-bottom: 15px;
+  }
+  
+  .assignment-card h3 {
+    color: #8560be;
+    margin: 0 0 10px 0;
+  }
+  
+  .assignment-test,
+  .assignment-attachments {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+    color: #819198;
+  }
+  
+  .assignment-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 15px;
+    color: #819198;
+  }
+  
+  .view-button {
+    background: #8560be;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  /* People Section */
+  .teachers-list,
+  .students-list {
+    margin-bottom: 30px;
+  }
+  
+  .teachers-list h2,
+  .students-list h2 {
+    color: #8560be;
+    margin-bottom: 15px;
+  }
+  
+  .person-card {
+    display: flex;
+    justify-content: space-between;
+    padding: 15px;
+    background: #1b005a;
+    border: 1px solid #8560be;
+    border-radius: 5px;
+    margin-bottom: 10px;
+  }
+  
+  .person-name {
+    color: #fff;
+  }
+  
+  .person-email {
+    color: #819198;
+  }
+  
+  /* Grades Section */
+  .grades-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .grades-header h2 {
+    color: #8560be;
+    margin: 0;
+  }
+  
+  .export-button {
+    background: #8560be;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .grades-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .grades-table th,
+  .grades-table td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #8560be;
+  }
+  
+  .grades-table th {
+    color: #8560be;
+    font-weight: bold;
+  }
+  
+  .grades-table td {
+    color: #819198;
+  }
+  
+  .no-content {
+    text-align: center;
+    color: #819198;
+    padding: 30px;
+  }
+  
+  .loading,
+  .error {
+    text-align: center;
+    color: #819198;
+    padding: 50px;
+  }
+  
+  .material-type-selection {
+    position: fixed; /* Фіксує блок по центру екрану */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #200055;
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    z-index: 1000;
+  }
+  
+  .material-type-selection h2 {
+    margin-bottom: 15px;
+  }
+  
+  .material-button {
+    background-color: #6a0dad;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    margin: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background 0.3s ease;
+  }
+  
+  .material-button:hover {
+    background-color: #510a8b;
+  }
+  
+  /* Фон для затемнення решти сторінки */
+  .material-type-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+  }
+  
