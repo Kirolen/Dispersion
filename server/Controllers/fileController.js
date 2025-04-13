@@ -37,8 +37,8 @@ class fileController {
                 return res.status(404).json({ success: false, message: "❌ Ви на маєте права видаляти чужий файл" });
             }
 
-            const filePath = path.join(__dirname, "..", url);
-
+            const filePath = path.join(__dirname, "..", url).replace('\http:\\localhost:5000', '');
+            console.log(filePath)
             if (!fs.existsSync(filePath)) {
                 return res.status(404).json({ success: false, message: "❌ Файл не знайдено" });
             }

@@ -1,23 +1,40 @@
 import api from './api';
 
-export const addTask = async (title, description, type, dueDate, points, course_id, assignedUsers, attachments) => {
+export const addTask = async (assignmentData) => {
     try {
-        const response = await api.post('/material/add-material',
-            {
-                title,
-                description,
-                type,
-                dueDate,
-                points,
-                course_id,
-                assignedUsers,
-                attachments
-            });
+        const response = await api.post('/material/add-material', assignmentData);
         return response.data;
     } catch (error) {
-        throw new Error('Error creating course: ' + error.message);
+        throw new Error('Error adding assignment: ' + error.message);
     }
 };
+
+export const getMaterialInfo = async (assignmentID) => {
+    try {
+        const response = await api.get(`/material/get-material-info/${assignmentID}`);
+        return response.data;
+    } catch (error) {
+        throw new Error('Error getting assignment info: ' + error.message);
+    }
+}
+
+export const deleteMaterial = async (assignmentID) => {
+    try {
+        const response = await api.delete(`/material/delete-material/${assignmentID}`);
+        return response.data;
+    } catch (error) {
+        throw new Error('Error getting assignment info: ' + error.message);
+    }
+}
+
+export const updateMaterialInfo = async (assignmentID, assignmentData) => {
+    try {
+        const response = await api.post(`/material/update-material-info/${assignmentID}`, assignmentData);
+        return response.data;
+    } catch (error) {
+        throw new Error('Error getting assignment info: ' + error.message);
+    }
+}
 
 export const getCourseMaterialsForStudent = async (course_id, user_id) => {
     try {

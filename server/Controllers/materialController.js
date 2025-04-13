@@ -4,25 +4,26 @@ const User = require("../Models/User");
 const CourseOwner = require("../Models/CourseOwner")
 const mongoose = require('mongoose');
 const CourseAccess = require('../Models/CourseAccess');
-const { json } = require('express');
 
 
 class materialController {
     async addTask(req, res) {
         try {
-            const { title, description, type, dueDate, points, course_id, assignedUsers, attachments } = req.body;
-            console.log(title, description, type, dueDate, points, course_id, assignedUsers, attachments)
+            const { title, description, type, dueDate, points, course_id, assignedUsers, attachments, availableFrom, isAvailableToAll } = req.body;
+
             const newMaterial = await Material.create({
                 title,
                 description,
                 type,
-                dueDate: type === 'practice' ? dueDate : null,
-                points: type === 'practice' ? points : null,
+                dueDate,
+                points,
                 course_id,
-                attachments
+                attachments,
+                availableFrom,
+                isAvailableToAll
             });
 
-            if (type === 'practice' && assignedUsers?.length > 0) {
+            if (type !== 'material') {
                 for (const userId of assignedUsers) {
                     const existingAssignment = await AssignedUsers.findOne({ user_id: userId, material_id: newMaterial._id });
 
@@ -40,7 +41,83 @@ class materialController {
         }
     }
 
+    async deleteAssignment(req, res) {
+        try {
+            const assignmentID = req.params.assignmentId;
 
+            const material = await Material.findById(assignmentID);
+            if (!material) {
+                return res.status(404).json({ success: false, message: "❌ Material not found" });
+            }
+    
+            if (material.type !== 'material') await AssignedUsers.deleteMany({ material_id: assignmentID });
+    
+            await Material.findByIdAndDelete(assignmentID);
+
+            return res.status(201).json({ success: true, message: "✅ Material delete successfully" });
+
+        } catch (error) {
+            console.error("❌ Error delete material:", error);
+            return res.status(500).json({ success: false, message: "❌ Error delete material", error });
+        }
+    }
+
+    async getMaterialInfo(req, res) {
+        try {
+            const assignmentID = req.params.assignmentId;
+            const material = await Material.findById(assignmentID);
+            if (!material) return res.status(404).json({ success: false, message: "❌ Material not found", error });
+
+            const assignedUsers = await AssignedUsers.find({material_id: assignmentID})
+            const assignedStudents = assignedUsers.map(student => {
+                return student.user_id.toString();
+            })
+            return res.status(200).json({ success: true, data: {...material.toObject(), assignedStudents} })
+        } catch (error) {
+            return res.status(500).json({ success: false, message: "❌ Error getting material info", error });
+        }
+    }
+
+    async updateMaterialInfo(req, res) {
+        try {
+            const { title, description, type, dueDate, points, course_id, assignedUsers, attachments, availableFrom, isAvailableToAll } = req.body;
+    
+            const assignmentID = req.params.assignmentId;
+    
+            const material = await Material.findById(assignmentID);
+            if (!material) return res.status(404).json({ success: false, message: "❌ Material not found" });
+    
+            const updatedMaterial = await Material.findByIdAndUpdate(
+                assignmentID,
+                { title, description, type, dueDate, points, course_id, attachments, availableFrom, isAvailableToAll },
+                { new: true }
+            );
+    
+            const pastAssignedUsers = await AssignedUsers.find({ material_id: assignmentID });
+            const assignedStudents = pastAssignedUsers.map(student => student.user_id.toString());
+
+    
+            const studentsToRemove = assignedStudents.filter(student => !assignedUsers.includes(student));
+            const studentsToAdd = assignedUsers.filter(student => !assignedStudents.includes(student));
+
+            for (const studentId of studentsToRemove) {
+                await AssignedUsers.deleteOne({ user_id: studentId, material_id: assignmentID });
+            }
+    
+            for (const studentId of studentsToAdd) {
+                const existingAssignment = await AssignedUsers.findOne({ user_id: studentId, material_id: assignmentID });
+                if (!existingAssignment) {
+                    await AssignedUsers.create({ user_id: studentId, material_id: assignmentID });
+                }
+            }
+
+            return res.status(200).json({ success: true, message: "✅ Material updated successfully", data: updatedMaterial });
+        } catch (error) {
+            console.error("❌ Error updating material:", error);
+            return res.status(500).json({ success: false, message: "❌ Error updating material", error });
+        }
+    }
+    
     //return all published materials for one student
     async getCourseMaterialsForStudent(req, res) {
         try {
@@ -52,10 +129,15 @@ class materialController {
 
             const materials = await Material.find({
                 course_id: courseId,
-                $or: [{ _id: { $in: materialIds } }, { type: 'lecture' }]
+                $or: [
+                    { _id: { $in: materialIds } }, 
+                    { type: 'material' }  
+                ]
             }).sort({ createdAt: -1 });
 
-            return res.status(200).json({ success: true, data: materials });
+            const available = materials.filter(material => materialIds.availableFrom === null || material.availableFrom <= Date.now())
+
+            return res.status(200).json({ success: true, data: available });
 
         } catch (error) {
             console.error("❌ Error fetching assignments:", error);
@@ -68,17 +150,13 @@ class materialController {
         try {
             let { courseId } = req.params;
 
-            console.log(`Course ID: ${courseId}`);
-
-            courseId = courseId.trim();
-
             if (!mongoose.Types.ObjectId.isValid(courseId)) {
                 return res.status(400).json({ success: false, message: "❌ Invalid course ID" });
             }
 
             const assignments = await Material.find({ course_id: courseId });
 
-            return res.status(200).json({ success: true, data: assignments });
+            return res.status(200).json({ success: true, data: assignments.reverse() });
 
         } catch (error) {
             console.error("❌ Error fetching all assignments:", error);
@@ -422,7 +500,7 @@ class materialController {
                 let submission = await AssignedUsers.findOne({
                     material_id: assignment._id,
                     user_id: userId,
-                    status: { $in: filter }  
+                    status: { $in: filter }
                 }).lean();
 
                 if (!submission) return null;

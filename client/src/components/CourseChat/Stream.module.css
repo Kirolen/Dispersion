@@ -76,8 +76,8 @@
             gap: 10px;
 
             &.own {
-                flex-direction: row-reverse; 
-              }
+                flex-direction: row-reverse;
+            }
 
             .anotherUserChatAvatar {
                 width: 40px;
@@ -95,7 +95,7 @@
                 border: 1px solid #8560be;
                 border-radius: 5px;
                 padding: 10px;
-                
+
                 &.own {
                     .messageText {
                         text-align: end;
@@ -106,12 +106,12 @@
                     color: #8560be;
                     font-weight: bold;
                 }
-    
+
                 .date {
                     color: #819198;
                     text-align: end;
                 }
-    
+
                 .messageText {
                     margin: 0;
                     padding: 8px 12px;
@@ -119,10 +119,10 @@
                     background-color: rgba(57, 83, 131, 0.3);
                 }
             }
-            
+
 
         }
-       
+
     }
 
 }

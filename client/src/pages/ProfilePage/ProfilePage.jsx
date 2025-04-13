@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './ProfilePage.css';
+import './ProfilePage.module.css';
 
 const ProfilePage = () => {
   const [user] = useState([]);

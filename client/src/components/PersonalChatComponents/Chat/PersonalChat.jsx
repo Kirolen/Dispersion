@@ -25,7 +25,6 @@ const PersonalChat = () => {
     const { chatDetailsActive, chatId, messages } = useSelector((state) => state.chat)
     const { socket } = useSocket();
     const isMenuOpen = useSelector(state => state.menu.isMenuOpen);
-    const endRef = useRef(null);
     const fileInputRef = useRef(null);
 
     useEffect(() => {
@@ -87,11 +86,6 @@ const PersonalChat = () => {
 
         markMessagesAsRead();
     }, [messages, chatId, user_id]);
-
-    useEffect(() => {
-        endRef.current?.scrollIntoView({ behavior: "smooth" });
-        console.log("messages")
-    }, [messages])
 
     const handleAttachmentClick = (type) => {
         if (attachments.length >= 5) {
@@ -197,7 +191,6 @@ const PersonalChat = () => {
                         </div>
                     </div>
                 ))}
-                <div ref={endRef}></div>
             </div>
             {attachments.length > 0 && <MessageAttachmentsPrewiev attachments={attachments} setAttachments={setAttachments} />}
             <div className={styles.chatBottom}>

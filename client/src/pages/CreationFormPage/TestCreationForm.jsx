@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './TestCreationForm.css';
+import './TestCreationForm.module.css';
 
 const TestCreationForm = ({ onSubmit, onCancel }) => {
   const [test, setTest] = useState({

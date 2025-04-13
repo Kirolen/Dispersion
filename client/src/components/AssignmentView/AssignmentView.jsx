@@ -59,7 +59,7 @@ const AssignmentView = () => {
               <span className={styles.label}>Description: </span>
               {assignment.description}
             </p>
-            <p className={styles.dueDate}>
+            {assignment.type !== "material" && <p className={styles.dueDate}>
               <span className={styles.label}>Due Date: </span>
               {new Date(assignment.dueDate).toLocaleString("en-GB", {
                 weekday: "long",
@@ -71,15 +71,15 @@ const AssignmentView = () => {
                 second: "2-digit",
                 timeZone: "UTC",
               })}
-            </p>
-            <p className={styles.points}>
+            </p>}
+            {assignment.type !== "material" && <p className={styles.points}>
               <span className={styles.label}>Points: </span>
               {grade} / {assignment.points}
-            </p>
-            <p className={styles.status}>
+            </p> }
+            {assignment.type !== "material" && <p className={styles.status}>
               <span className={styles.label}>Status: </span>
               {status}
-            </p>
+            </p>}
           </div>
           {assignment.attachments.length > 0 && <div className={styles.assignmentAttachmentsContent}>
             <h2>Прикріплені файли</h2>
@@ -96,7 +96,7 @@ const AssignmentView = () => {
           </div>}
         </div>
 
-        {role === "Student" && <SubmissionForm/>}
+        {role === "Student" && assignment.type !== "material" && <SubmissionForm/>}
 
         {role === "Teacher" && (<GradeAssignmentForm/>)}
       </div>

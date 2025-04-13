@@ -2,10 +2,10 @@ const { Schema, model } = require('mongoose');
 
 const MaterialSchema = new Schema({
     title: { type: String, required: true },
-    description: { type: String, required: true },
-    type: { type: String, enum: ['lecture', 'practice'], required: true }, 
+    description: { type: String },
+    type: { type: String, enum: ['material', 'practice', 'practice_with_test'], required: true }, 
     dueDate: { type: Date }, 
-    points: { type: Number, min: 0, max: 100 }, 
+    points: { type: Number }, 
     course_id: { type: Schema.Types.ObjectId, ref: 'Course', required: true },
     attachments: [
         {
@@ -14,7 +14,9 @@ const MaterialSchema = new Schema({
             type: { type: String } 
         }
     ],
-    createdAt: { type: Date, default: Date.now }
+    availableFrom: { type: Date },
+    isAvailableToAll: { type: Boolean, default: false },
+    createdAt: { type: Date, default: Date.now },
 });
 
 module.exports = model('Material', MaterialSchema);
