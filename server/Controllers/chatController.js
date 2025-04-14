@@ -45,6 +45,8 @@ class ChatController {
         try {
             const { user1, user2 } = req.body;
 
+            console.log(user1)
+            console.log(user2)
             let existingChat = await Chat.findOne({
                 members: { $all: [user1, user2] },
                 isGroup: false

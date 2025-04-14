@@ -203,48 +203,6 @@ class materialController {
         }
     }
 
-    //return for teacher all task result 
-    async getStudentsTaskResult(req, res) {
-        try {
-            let { materialId } = req.params;
-
-            console.log(`Material ID: ${materialId}`);
-
-            if (!mongoose.Types.ObjectId.isValid(materialId)) {
-                return res.status(400).json({ success: false, message: "❌ Invalid material ID" });
-            }
-
-            const material = await Material.findById(materialId).lean();
-            if (!material) {
-                return res.status(404).json({ success: false, message: "❌ Material not found" });
-            }
-
-            const assignedUsers = await AssignedUsers.find({ material_id: materialId })
-                .populate('user_id', 'first_name last_name')
-                .lean();
-
-            if (!assignedUsers.length) {
-                return res.status(200).json({ success: true, data: [], message: "⚠️ No students assigned to this task" });
-            }
-
-            const taskStatus = assignedUsers.map(student => ({
-                student_id: student.user_id._id,
-                name: `${student.user_id.first_name} ${student.user_id.last_name}`,
-                grade: student.grade || 'Not graded',
-                status: student.status || 'Not submitted'
-            }));
-
-            return res.status(200).json({
-                success: true,
-                data: taskStatus
-            });
-
-        } catch (error) {
-            console.error("❌ Error fetching material info:", error);
-            return res.status(500).json({ success: false, message: "❌ Error fetching material info", error });
-        }
-    }
-
     async getStudentTasksResult(req, res) {
         try {
             const { courseId } = req.params;
@@ -466,14 +424,62 @@ class materialController {
         }
     }
 
+    async getAllAssignmentsForOneCourseByTeacher(req, res) {
+        try {
+            const { userId, courseId } = req.params;
+    
+            if (!mongoose.Types.ObjectId.isValid(userId) || !mongoose.Types.ObjectId.isValid(courseId)) {
+                return res.status(400).json({ success: false, message: "❌ Invalid user or course ID" });
+            }
+    
+            const teacher = await User.findById(userId);
+            if (!teacher) {
+                return res.status(404).json({ success: false, message: "❌ Teacher not found" });
+            }
+    
+            const assignments = await Material.find({ course_id: courseId, type: "practice" })
+                .select("title points")
+                .lean();
+    
+            const tasks = await Promise.all(assignments.map(async (assignment) => {
+                const assignedUsers = await AssignedUsers.find({ material_id: assignment._id })
+                    .populate("user_id", "first_name last_name") 
+                    .lean();
+    
+                const students = assignedUsers.map(({ user_id, grade = "Not graded", status = "Not submitted" }) => ({
+                    user_id: user_id._id,
+                    name: `${user_id.first_name} ${user_id.last_name}`,
+                    grade,
+                    status
+                }));
+    
+                return {
+                    _id: assignment._id,
+                    title: assignment.title,
+                    points: assignment.points || 0,
+                    students
+                };
+            }));
+    
+            return res.status(200).json({ success: true, data: tasks });
+    
+        } catch (error) {
+            console.error("❌ Error getting teacher assignments:", error);
+            return res.status(500).json({
+                success: false,
+                message: "❌ Error retrieving assignments",
+                error: error.message
+            });
+        }
+    }
+    
+
 
     async getFilteredAssignmentsByStudent(req, res) {
         const { userId } = req.params;
         let { filterValue } = req.query;
 
         if (filterValue === "all") filterValue = "";
-
-        console.log("User ID:", userId);
 
         const student = await User.findById(userId);
         if (!student) {

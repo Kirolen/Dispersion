@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import styles from "../AssigmentsList.module.css"
+import styles from "./TeacherGradingTable.module.css"
 
 const AssignmentsPage = ({students, assignmentId}) => {
     const navigate = useNavigate();

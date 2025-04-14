@@ -20,8 +20,8 @@ import MessagesPage from "./pages/MassagePage/MassagePage";
 import Stream from "./components/CourseChat/Stream"
 import Classwork from './components/Classwork/Classwork';
 import IndexPage from './pages/IndexPage/IndexPage';
-import People from './pages/CoursePage/CourseContent/People';
-import Grades from './pages/CoursePage/CourseContent/Grades';
+import People from './components/CoursePeople/People';
+import Grades from './components/CourseGrades/Grades'
 import "./styles/main.css"
 
 const App = () => {

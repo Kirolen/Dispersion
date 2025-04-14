@@ -13,7 +13,7 @@ export const createChat = async ({ user1, user2 }) => {
     try {
 
         const response = await api.post(`/chat/create`, { user1, user2 });
-        return response
+        return response.data
     } catch (error) {
         throw new Error('Error creating course: ' + error.message);
     }

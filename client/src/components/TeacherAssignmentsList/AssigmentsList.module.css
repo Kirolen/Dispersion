@@ -33,17 +33,4 @@
             }
         }
     }
-
-    .assignmentsTable {
-        width: 100%;
-        padding-left: 20px;
-        background-color: #3e0943;
-        border-radius: 3px;
-    }
-
-    .gradingTable {
-        width: 100%;
-        padding-left: 40px;
-        background-color: #8e5bbf;
-    }
 }

@@ -21,11 +21,9 @@ const CoursesTable = ({ filter }) => {
                 let data = [];
                 if (role === "Teacher") data = await getFilteredCoursesAssignmentsForTeacher(user_id, filter === "all" ? "" : filter);
                 else if (role === "Student") data = await getFilteredAssignmentsByStudent(user_id, filter)
-                
-                setCourses(data);
+                console.log("Filtered: ")
                 console.log(data)
-                console.log(role)
-                console.log("filter: " + filter)
+                setCourses(data);
             } catch (error) {
                 setError('Error fetching data. Please try again later.');
             } finally {

@@ -1,0 +1,42 @@
+.peopleContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    .teachersList,
+    .studentsList {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+
+        h2 {
+            color: #8560be;
+            margin: 0;
+            padding-top: 5px;
+        }
+
+        .personCard {
+            display: grid;
+            grid-template-columns: repeat(3, 33.33%);
+            padding: 10px 0;
+            background: #1b005a;
+            border: 1px solid #8560be;
+            border-radius: 5px;
+            justify-items: center;
+            align-items: center;
+
+            .icon {
+                font-size: 25px;
+                cursor: pointer;
+            }
+
+            .personName {
+                color: #fff;
+            }
+
+            .icon, .personEmail {
+                color: #819198;
+            }
+        }
+    }
+}

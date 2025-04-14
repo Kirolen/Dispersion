@@ -49,6 +49,7 @@
         gap: 20px;
         overflow-x: hidden;
         scrollbar-color: rgba(57, 83, 131, 0.5) transparent;
+        height: 100%;
 
         .message {
             max-width: 90%;
