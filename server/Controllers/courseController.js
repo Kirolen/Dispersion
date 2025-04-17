@@ -3,7 +3,8 @@ const Course = require('../Models/Course');
 const User = require('../Models/User');
 const Chat = require('../Models/Chat')
 const CourseAccess = require('../Models/CourseAccess')
-const CourseOwner = require('../Models/CourseOwner')
+const CourseOwner = require('../Models/CourseOwner');
+const AssignedUsers = require('../Models/AssignedUsers');
 
 
 class courseController {
@@ -136,7 +137,8 @@ class courseController {
                             });
     
                         const chat = await Chat.findOne({ isCourseChat: enrollment.course_id._id });
-    
+                        const students = await CourseAccess.find({course_id: enrollment.course_id._id})
+
                         return {
                             course_id: enrollment.course_id._id,
                             course_name: enrollment.course_id.course_name,
@@ -145,6 +147,7 @@ class courseController {
                                 ? `${courseOwner.teacher_id.first_name} ${courseOwner.teacher_id.last_name}`
                                 : "Unknown",
                             chatId: chat ? chat._id : null,
+                            students: students.length
                         };
                     })
                 );
@@ -152,7 +155,6 @@ class courseController {
                 return res.json({ success: true, data: courses });
     
             } else if (existUser.role === "Teacher") {
-    
                 const courseOwners = await CourseOwner.find({ teacher_id: existUser._id })
                     .populate({
                         path: "course_id",
@@ -162,13 +164,15 @@ class courseController {
                 const courses = await Promise.all(
                     courseOwners.map(async (courseOwner) => {
                         const chat = await Chat.findOne({ isCourseChat: courseOwner.course_id._id });
-    
+                        const students = await CourseAccess.find({course_id: courseOwner.course_id._id})
+
                         return {
                             course_id: courseOwner.course_id._id,
                             course_name: courseOwner.course_id.course_name,
                             course_desc: courseOwner.course_id.course_desc,
                             teacher_name: `${existUser.first_name} ${existUser.last_name}`,
                             chatId: chat ? chat._id : null,
+                            students: students.length
                         };
                     })
                 );

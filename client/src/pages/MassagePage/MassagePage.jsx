@@ -1,16 +1,16 @@
-import React, {useState, useRef } from "react";
+import React, {useState, useRef, useEffect } from "react";
 import styles from "./MessagePage.module.css";
 import PersonalChat from "../../components/PersonalChatComponents/Chat/PersonalChat";
 import MainChatList from "../../components/PersonalChatComponents/List/List";
 import ChatDetails from "../../components/PersonalChatComponents/ChatDetails/ChatDetails";
+import { useSelector } from "react-redux";
 
 const MessagesPage = () => {
-  const [chatId, setChatId] = useState("");
-  const [messages, setMessages] = useState([]);
+  const {chatId} = useSelector(state => state.chat)
 
-  const handleChatSelect = (id) => {
-    setChatId(id);
-  };
+  useEffect(() => {
+    console.log("chat: ", chatId)
+  }, [chatId])
 
   return (
     <div className={styles.messagesContainer}>
@@ -21,9 +21,9 @@ const MessagesPage = () => {
       <div className={styles.messagesContent}>
         <MainChatList />
 
-        <PersonalChat chatId={chatId} setChatId={handleChatSelect} messages={messages} setMessages={setMessages} />
+        {chatId.trim() !== "-1" && <PersonalChat/>}
 
-        <ChatDetails messages={messages} />
+        {chatId.trim() !== "-1" &&  <ChatDetails/>}
       </div>
     </div>
   );

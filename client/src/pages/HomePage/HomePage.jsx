@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createCourse, joinCourse, getMyCourses } from '../../api/courseService';
 import { useSelector } from 'react-redux';
-import './HomePage.css'
+import styles from './HomePage.module.css'
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -72,55 +72,55 @@ const HomePage = () => {
   };
 
   return (
-    <div className="home-container">
-      <div className="dashboard-header">
+    <div className={styles.homePageContainer}>
+      <div className={styles.homePageHeader}>
         <h1>Welcome to Dispersion</h1>
-        <div className="action-buttons">
+        <div className={styles.actionButtons}>
           {role === 'Teacher' ? (
-            <button className="create-button" onClick={() => handleModalOpen('create')}>
+            <button className={styles.createButton} onClick={() => handleModalOpen('create')}>
               Create Course
             </button>
           ) : (
-            <button className="join-button" onClick={() => handleModalOpen('join')}>
+            <button className={styles.joinButton} onClick={() => handleModalOpen('join')}>
               Join Course
             </button>
           )}
-          <button className="logout-button" onClick={handleLogout}>
+          <button className={styles.logoutButton} onClick={handleLogout}>
             Logout
           </button>
         </div>
       </div>
 
-      <div className="courses-grid">
+      <div className={styles.coursesGrid}>
         {courses.map((course) => (
           <div
             key={course.course_id}
-            className="course-card"
+            className={styles.courseCard}
             onClick={() => navigate(`/course/${course.course_id}/stream/${course.chatId}`)}
           >
-            <div className="course-card-content">
+            <div className={styles.courseCardContent}>
               <h3>{course.course_name}
                 {notification?.unreadCourses?.includes(course.chatId) && (
-                  <span className="notification-dot">🔴</span>
+                  <span>🔴</span>
                 )}
               </h3>
               <p>{course.course_desc || 'No description available'}</p>
             </div>
-            <div className="course-card-footer">
+            <div className={styles.courseCardFooter}>
               <span>Teacher: {course.teacher_name || 'Unknown'}</span>
-              <span>{course.students?.length || 0} students</span>
+              <span>{course.students} students</span>
             </div>
           </div>
         ))}
       </div>
 
       {modalState.showModal && (
-        <div className="modal">
-          <div className="modal-content">
+        <div className={styles.modalWindow}>
+          <div className={styles.modalContent}>
             <h2>{modalState.courseAction === 'create' ? 'Create New Course' : 'Join Course'}</h2>
             {modalState.courseAction === 'create' ? (
-              <div style={{ display: "flex", flexDirection: "column" }}>
-                <input
+               <>
+                 <input
                   type="text"
                   name="courseName"
                   placeholder="Course Name"
@@ -134,7 +134,7 @@ const HomePage = () => {
                   value={modalState.courseDesc}
                   onChange={handleInputChange}
                 />
-              </div>
+               </>
             ) : (
               <input
                 type="text"
@@ -144,11 +144,11 @@ const HomePage = () => {
                 onChange={handleInputChange}
               />
             )}
-            <div className="modal-buttons">
-              <button className="submit-button" onClick={handleSubmit}>
+            <div className={styles.modalButtons}>
+              <button className={styles.submitButton} onClick={handleSubmit}>
                 {modalState.courseAction === 'create' ? 'Create' : 'Join'}
               </button>
-              <button className="cancel-button" onClick={handleModalClose}>
+              <button className={styles.cancelButton} onClick={handleModalClose}>
                 Cancel
               </button>
             </div>

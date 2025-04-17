@@ -24,7 +24,6 @@ export const SocketProvider = ({ children }) => {
           const decodedTokenData = jwtDecode(authToken);
           dispatch(setUserId(decodedTokenData.id || ''));
           dispatch(setRole(decodedTokenData.role || ''));
-          console.log("UserID: " + decodedTokenData.id);
         } catch (error) {
           console.error('Error decoding authToken:', error);
         }

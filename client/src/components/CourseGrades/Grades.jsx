@@ -5,6 +5,7 @@ import { useSelector } from 'react-redux';
 import TeacherAssigmentsTable from '../TeacherAssignmentsList/TeacherAssigmentsTable/TeacherAssigmentsTable';
 import { getAllAssignmentsForOneCourseByTeacher } from '../../api/materialService'
 import styles from './Grades.module.css'
+import StudentAssigmentsTable from '../TeacherAssignmentsList/StudentAssigmentsTable/StudentAssigmentsTable';
 
 const Grades = () => {
     const { courseId } = useParams();
@@ -39,30 +40,9 @@ const Grades = () => {
                     </tbody>
                 </table>
             ) : (
-                <table className="student-grades-table">
-                    <thead>
-                        <tr>
-                            <th>Assignment</th>
-                            <th>Status</th>
-                            <th>Grade</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
+                <table className={styles.gradeTable}>
                     <tbody>
-                        {assignments.map((assignment) => {
-                            return (
-                                <tr key={assignment._id}>
-                                    <td>{assignment.title}</td>
-                                    <td>{assignment.status || 'Not submitted'}</td>
-                                    <td>{assignment.grade || 'Not graded'}</td>
-                                    <td>
-                                        <button className="grade-button" onClick={() => navigate(`/assignment/${assignment._id}`)}>
-                                            View
-                                        </button>
-                                    </td>
-                                </tr>
-                            );
-                        })}
+                        <StudentAssigmentsTable assignments={assignments}/>
                     </tbody>
                 </table>
             )}

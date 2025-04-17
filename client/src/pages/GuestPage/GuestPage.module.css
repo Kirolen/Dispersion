@@ -1,0 +1,179 @@
+.guestPageContainer {
+    padding: 50px;
+    background: #000;
+
+    .guestPage {
+        background: #000;
+        padding: 0 100px;
+        color: white;
+        display: grid;
+        align-items: center;
+        justify-items: center;
+        min-height: 700px;
+        border: 3px solid #8560be;
+        border-radius: 10px;
+
+        h2 {
+            color: #8560be;
+        }
+
+        p {
+            color: #819198;
+            font-size: 14px;
+        }
+
+        p,
+        h3,
+        h2,
+        h1 {
+            margin: 0;
+        }
+
+        .introText {
+            font-size: 16px;
+            color: #819198;
+            text-align: center;
+            max-width: 700px;
+        }
+
+        .pageTitle, .welcomeMessage {
+            text-align: center;
+        }
+
+        .accessPanel {
+            display: flex;
+            justify-content: space-between;
+
+            .authSection,
+            .aboutUsSection {
+                width: 45%;
+                border-radius: 10px;
+            }
+
+            .authSection {
+                background: #0d0d0d;
+                border: 1px solid #fff;
+
+                .registration,
+                .login {
+                    padding: 20px;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 15px;
+                }
+
+                .login {
+                    border-top: 1px solid #fff;
+                }
+
+                .registrationTitle {
+                    color: #8560be;
+                    cursor: pointer;
+
+                    &:hover {
+                        color: #3a197b;
+                    }
+                }
+            }
+
+            .aboutUsSection {
+                background: #200055;
+                border: 1px solid #3a197b;
+                padding: 20px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: space-around;
+                height: 300px;
+
+                .aboutUsImage {
+                    width: 80px;
+                    height: 80px;
+                    border-radius: 50%;
+                }
+            }
+
+            .aboutUsButton,
+            .loginButton {
+                border: none;
+                padding: 10px 20px;
+                border-radius: 5px;
+                cursor: pointer;
+
+                &:hover {
+                    background-color: #674f99;
+                }
+            }
+
+
+            .loginButton {
+                background: #1b005a;
+                color: #6d3fd3;
+                width: 200px;
+            }
+
+            .aboutUsButton {
+                color: #1b005a;
+                background: #6d3fd3;
+                font-size: 15px;
+                font-style: bold;
+            }
+        }
+
+        .contactInfo {
+            display: flex;
+            justify-content: space-around;
+            gap: 20px;
+            padding: 10px 0;
+
+            p {
+                font-size: 14px;
+                color: #819198;
+            }
+        }
+    }
+}
+
+
+@media (max-width: 900px) {
+    .guestPageContainer .guestPage {
+      padding: 0 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    .guestPageContainer {
+        padding: 20px;
+        min-height: 100vh;
+        .guestPage {
+            gap: 20px;
+            .accessPanel {
+                flex-direction: column;
+                align-items: center;
+                gap: 10px;
+    
+                .aboutUsSection {
+                    width: 100%;
+                    padding: 0%;
+                    P {
+                        padding: 0 20px;
+                        text-align: center;
+                    }
+                }
+    
+                .authSection{
+                    width: 100%;
+                    display: flex;
+                    .login, .registration {
+                        width: 50%;
+                    }
+    
+                    .login {
+                        border-bottom: none;
+                        border-left: 1px solid #fff;;
+                    }
+                }
+              }
+        }
+    }
+}
