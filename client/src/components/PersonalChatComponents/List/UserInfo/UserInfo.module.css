@@ -7,6 +7,7 @@
     .infoContainer {
         display: flex;
         gap: 10px;
+        align-items: center;
         .userImg {
             width: 50px;
             height: 50px;

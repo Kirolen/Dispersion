@@ -12,6 +12,7 @@ const Aside = () => {
   const { socket } = useSocket();
   const isMenuOpen = useSelector((state) => state.menu.isMenuOpen);
   const { user_id, notification } = useSelector((state) => state.user);
+  const isPushEnabled = useSelector((state) => state.user.isPushEnabled); // ✅ правильний спосіб
 
   const dispatch = useDispatch();
   useEffect(() => {
@@ -22,9 +23,9 @@ const Aside = () => {
         try {
           const response = await getUnreadChats(user_id);
           dispatch(setNotification(response.data));
-  
-          if (response.data.unreadCourses.length > 0 || response.data.unreadChats.length > 0) {
-            makeToast("info", `${data.sender}: ${data.message}`);
+        
+          if (isPushEnabled && (response.data.unreadCourses.length > 0 || response.data.unreadChats.length > 0)) {
+            makeToast("info", `${data.sender}: ${data.message} in ${data.name}`);
           }
         } catch (error) {
           console.error("Error fetching unread notifications:", error);
@@ -41,7 +42,7 @@ const Aside = () => {
         socket.off("newGlobalNotification", handleNewGlobalNotification);
       };
     }
-  }, [socket, user_id, setNotification]);
+  }, [socket, user_id, setNotification, isPushEnabled]);
   
 
   const links = [

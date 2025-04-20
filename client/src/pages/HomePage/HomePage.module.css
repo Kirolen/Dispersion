@@ -1,6 +1,6 @@
 .homePageContainer {
     padding: 20px;
-    color: #fff;
+    color: var(--text-primary);
 
     .homePageHeader {
         display: flex;
@@ -8,10 +8,10 @@
         align-items: center;
         margin-bottom: 30px;
         padding-bottom: 20px;
-        border-bottom: 2px solid #8560be;
+        border-bottom: 2px solid var(--accent-primary);
 
         h1 {
-            color: #8560be;
+            color: var(--text-title);
             margin: 0;
         }
 
@@ -30,23 +30,22 @@
 
             .createButton,
             .joinButton {
-                background-color: #8560be;
-                color: white;
+                background-color: var(--bg-button);
+                color: var(--color-text-button);
 
                 &:hover {
-                    background-color: #674f99;
+                    background-color: var(--bg-button-hover);
                 }
             }
 
             .logoutButton {
-                background-color: #1b005a;
-                color: #6d3fd3;
+                background-color: var(--bg-button-cancel);
+                color: var(--color-text-button-cancel);
 
                 &:hover {
-                    background-color: #2a0066;
+                    background-color: var(--bg-button-cancel-hover);
                 }
             }
-
         }
     }
 
@@ -57,8 +56,8 @@
         padding: 20px 0;
 
         .courseCard {
-            background: #200055;
-            border: 1px solid #8560be;
+            background: var(--card-bg);
+            border: 1px solid var(--accent-primary);
             border-radius: 10px;
             overflow: hidden;
             cursor: pointer;
@@ -72,12 +71,12 @@
                 padding: 20px;
 
                 h3 {
-                    color: #8560be;
+                    color: var(--text-primary);
                     margin: 0 0 10px 0;
                 }
 
                 p {
-                    color: #819198;
+                    color: var(--text-secondary);
                     margin: 0;
                     font-size: 0.9em;
                 }
@@ -85,14 +84,13 @@
 
             .courseCardFooter {
                 padding: 15px 20px;
-                background: #1b005a;
+                background: var(--card-bg-footer);
                 display: flex;
                 justify-content: space-between;
-                color: #819198;
+                color: var(--text-secondary);
                 font-size: 0.85em;
             }
         }
-
     }
 
     .modalWindow {
@@ -108,30 +106,29 @@
         z-index: 1000;
 
         .modalContent {
-            background: #200055;
+            background: var(--card-bg);
             padding: 30px;
             border-radius: 10px;
             width: 400px;
-            border: 2px solid #8560be;
+            border: 2px solid var(--accent-primary);
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 10px;
 
             h2 {
-                color: #8560be;
+                color: var(--text-title);
                 text-align: center;
                 margin: 0;
-
             }
 
             input {
                 width: 100%;
                 padding: 12px;
-                border: 1px solid #8560be;
+                border: 1px solid var(--accent-primary);
                 border-radius: 5px;
-                background: #1b005a;
-                color: white;
+                background: var(--input-bg);
+                color: var(--text-primary);
             }
 
             .modalButtons {
@@ -148,27 +145,23 @@
                 }
 
                 .submitButton {
-                    background-color: #8560be;
-                    color: white;
+                    background-color: var(--bg-button);
+                    color: var(--color-text-button);
 
                     &:hover {
-                        background-color: #674f99;
+                        background-color: var(--bg-button-hover);
                     }
                 }
 
                 .cancelButton {
-                    background-color: #1b005a;
-                    color: #6d3fd3;
+                    background-color: var(--bg-button-cancel);
+                    color: var(--color-text-button-cancel);
 
                     &:hover {
-                        background-color: #2a0066;
+                        background-color: var(--bg-button-cancel-hover);
                     }
                 }
             }
-
-
         }
     }
-
-
 }

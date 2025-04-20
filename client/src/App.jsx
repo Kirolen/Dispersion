@@ -1,9 +1,8 @@
-// src/App.js
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
 import Layout from './components/Layout/Layout';
-
 import { RegisterPage } from './pages/AuthPages/RegisterPage';
 import { LoginPage } from './pages/AuthPages/LoginPage';
 import GuestPage from './pages/GuestPage/GuestPage';
@@ -22,8 +21,14 @@ import IndexPage from './pages/IndexPage/IndexPage';
 import People from './components/CoursePeople/People';
 import Grades from './components/CourseGrades/Grades'
 import "./styles/main.css"
+import "./styles/themes.css"
 
 const App = () => {
+  const {isDarkMode} = useSelector((state) => state.user);
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', isDarkMode ? 'dark' : 'light');
+  }, [isDarkMode]);
 
   return (
     <Router>
@@ -38,13 +43,14 @@ const App = () => {
           <Route path="/course/:courseId/classwork" element={<Layout><CoursePage><Classwork /></CoursePage></Layout>} />
           <Route path="/course/:courseId/student" element={<Layout><CoursePage><People /></CoursePage></Layout>} />
           <Route path="/course/:courseId/grades" element={<Layout><CoursePage><Grades /></CoursePage></Layout>} />
-          <Route path="/profile" element={<Layout><ProfilePage /></Layout>} />
-          <Route path="/settings" element={<Layout><SettingsPage /></Layout>} />
-          {/*<Route path="/test" element={<TestCreationForm />} />*/}
           <Route path="/assignments" element={<Layout><AssignmentsPage /></Layout>} />
           <Route path="/assignment/:assignmentId" element={<Layout><AssignmentView /></Layout>} />
           <Route path="/calendar" element={<Layout><CalendarPage /></Layout>} />
+          <Route path="/profile" element={<Layout><ProfilePage /></Layout>} />
+
           <Route path="/messages" element={<Layout><MessagesPage /></Layout>} />
+          <Route path="/settings" element={<Layout><SettingsPage /></Layout>} />
+
         </Routes>
       </div>
     </Router>

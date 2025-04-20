@@ -1,0 +1,103 @@
+:root[data-theme="light"] {
+  --bg-primary: #bdd2e7;
+  --header-bg: #bdd2e7;
+  --accent-primary: #5f3dc4;
+  --accent-secondary: #6741d9;
+  --text-title: #6741d9;
+  --text-primary: #212529;
+
+  --bg-button: #358be1;
+  --bg-button-hover: #406e9b;
+  --bg-button-cancel: #f9dede;
+  --bg-button-cancel-hover: #fec4c4;
+  --bg-button-submit: #29f15e;
+  --bg-button-submit-hover: #89f7a6;
+  --color-text-button: #fff;
+  --color-text-button-cancel: #a90404;
+  --color-text-button-submit: #00330c;
+
+
+  --card-bg: #7ebaf7;
+  --card-bg-footer: #b5d9fc;
+
+  --input-bg: #d7e9fc;
+
+  --bg-course: #b5d9fc;
+  --tab-active-color: #a20087;
+  --bg-assignment-table: #68b4ff;
+  --bg-grading-table: #97cbff;
+  --assignment-table-active-color: #689168;
+
+  --bg-course-table: #3c9bfb;
+
+  --bg-message: #517fd54d;;
+  --bg-message-text: #c0cfea4d;
+
+  --bg-feedback: #7ebaf7;
+
+  --bg-secondary: #dee2e6;
+  --text-secondary: #495057;
+  --border-color: #ced4da;
+  --sidebar-bg: #dee2e6;
+  --sidebar-active-bg: #b5d9fc;
+
+  --bg-checkbox: #97cbff;
+  --bg-checkbox-active: #68b4ff;
+  --check-box-color: #4da6ff;
+  --check-box-active-color: #0582ff;
+}
+
+
+:root[data-theme="dark"] {
+  --bg-primary: #000000;
+  --bg-secondary: #200055;
+  --text-title: #8560be;
+  --accent-primary: #8560be;
+  --accent-secondary: #674f99;
+  --text-primary: #ffffff;
+  --text-secondary: #819198;
+
+  --bg-button: #8560be;
+  --bg-button-hover: #5f4e78;
+  --bg-button-cancel: #6c1616;
+  --bg-button-cancel-hover: #832424;
+  --bg-button-submit: #0b6724;
+  --bg-button-submit-hover: #013810;
+  --color-text-button: #fff;
+  --color-text-button-cancel: #f3c4c4;
+  --color-text-button-submit: #73ff93;
+
+  --card-bg: #200055;
+  --card-bg-footer: #390887;
+
+  --input-bg: #100037;
+
+  --bg-course: #0e004f;
+  --tab-active-color: #581bb5;
+  --bg-assignment-table: #5d149d;
+  --bg-grading-table: rgb(136, 34, 226);
+  --assignment-table-active-color: #689168;
+
+  --bg-course-table: #430f70;
+
+  --bg-message: #3953834d;;
+  --bg-message-text: #3953834d;
+
+  --bg-feedback: #7ebaf7;
+  --bg-return-assignment: #e12f2f;
+
+  --border-color: #8560be;
+  --header-bg: #000000;
+  --sidebar-bg: #200055;
+  --sidebar-active-bg: #5d149d;;
+
+  --bg-checkbox: #8560be;
+  --bg-checkbox-active: #6221c3;
+  --check-box-color: #bfa0ee;
+  --check-box-active-color: #927ab6;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}

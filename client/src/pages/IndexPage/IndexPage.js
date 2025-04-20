@@ -4,29 +4,37 @@ import { jwtDecode } from 'jwt-decode';
 
 const IndexPage = () => {
     const navigate = useNavigate();
+    console.log("index")
 
     useEffect(() => {
-        let isMounted = true;
-
-        if (isMounted) {
-            const authToken = localStorage.getItem('authToken');
-            if (!authToken) return;
-            else {
-                if (authToken) {
-                    try {
-                        const decodedTokenData = jwtDecode(authToken);
-                        decodedTokenData.id?.trim() ? navigate('/home') : navigate('/guest')
-                    } catch (error) {
-                        console.error('Error decoding authToken:', error);
-                    }
-                }
-            }
-
+        const authToken = localStorage.getItem('authToken');
+    
+        if (!authToken) {
+            navigate('/guest');
+            return;
         }
-
-        return () => { isMounted = false; };
+    
+        try {
+            const decoded = jwtDecode(authToken);
+            const now = Date.now() / 1000;
+    
+            if (decoded.exp && decoded.exp < now) {
+                console.log("Token expired");
+                localStorage.removeItem('authToken');
+                navigate('/guest');
+            } else if (decoded.id?.trim()) {
+                navigate('/home');
+            } else {
+                navigate('/guest');
+            }
+    
+        } catch (err) {
+            console.error("Token decode error", err);
+            localStorage.removeItem('authToken');
+            navigate('/guest');
+        }
     }, [navigate]);
-
+    
     return <div></div>;
 };
 

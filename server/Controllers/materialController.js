@@ -462,7 +462,6 @@ class materialController {
             }));
     
             return res.status(200).json({ success: true, data: tasks });
-    
         } catch (error) {
             console.error("❌ Error getting teacher assignments:", error);
             return res.status(500).json({

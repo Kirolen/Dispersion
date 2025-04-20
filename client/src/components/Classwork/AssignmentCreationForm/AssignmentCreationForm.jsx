@@ -119,7 +119,7 @@ const AssignmentCreationForm = ({ materialType, setMaterialType, setShowAssignme
         console.log("File to remove:", fileToRemove.url);
     
         if (openMenuId && fileToRemove && !(fileToRemove instanceof File)) {
-            await deleteFile(openMenuId, fileToRemove.url); 
+            await deleteFile(fileToRemove.url); 
         }
 
         setAssignmentForm(prev => ({

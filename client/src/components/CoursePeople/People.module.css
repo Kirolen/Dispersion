@@ -10,7 +10,7 @@
         gap: 10px;
 
         h2 {
-            color: #8560be;
+            color: var(--text-title);
             margin: 0;
             padding-top: 5px;
         }
@@ -19,8 +19,8 @@
             display: grid;
             grid-template-columns: repeat(3, 33.33%);
             padding: 10px 0;
-            background: #1b005a;
-            border: 1px solid #8560be;
+            background: var(--bg-primary);
+            border: 1px solid var(--accent-primary);
             border-radius: 5px;
             justify-items: center;
             align-items: center;
@@ -31,11 +31,11 @@
             }
 
             .personName {
-                color: #fff;
+                color: var(--text-primary);
             }
 
             .icon, .personEmail {
-                color: #819198;
+                color:var(--text-secondary);
             }
         }
     }

@@ -5,6 +5,7 @@ import { getUserChats } from "../../../../api/personalChatService";
 import AddChat from "./addChat/addChat";
 import {useDispatch, useSelector } from "react-redux";
 import { setChatId } from "../../../../store/reducers/personalChatSlice";
+import unknownAvatar from "../../../../img/unknownAvatar.png"
 
 const ChatList = () => {
     const dispatch = useDispatch()
@@ -42,12 +43,12 @@ const ChatList = () => {
                     return (
                         <div className={styles.chatItem} key={chat._id} onClick={() => dispatch(setChatId(chat._id))}>
                             <img
-                                src="https://i.pinimg.com/736x/5e/32/aa/5e32aa2c79cd463ab74e034aaace4eb1.jpg"
+                                src={otherUser.avatar?.trim() || unknownAvatar}
                                 alt="user"
                                 className={styles.anotherUserAvatar}
                             />
                             <div className={styles.chatItemText}>
-                                <span>{otherUser?.first_name} {otherUser?.last_name}</span>
+                                <span>{otherUser.first_name} {otherUser.last_name}</span>
                                 <p>{chat.lastMessage ? chat.lastMessage.text : "No messages yet"}</p>
                             </div>
                         </div>

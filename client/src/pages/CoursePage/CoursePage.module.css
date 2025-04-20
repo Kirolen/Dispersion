@@ -1,6 +1,6 @@
 .coursePageContainer {
     flex: 1;
-    color: #fff;
+    color: var(--text-primary);
     height: 100%;
     display: flex;
     flex-direction: column;
@@ -27,19 +27,19 @@
     scrollbar-color: rgb(133, 96, 190) rgba(57, 83, 131, 0.5);
 
     .courseHeader {
-        background: #200055;
+        background: var(--bg-course);
         padding: 30px;
         border-radius: 10px;
         margin-bottom: 20px;
-        border: 1px solid #8560be;
+        border: 1px solid var(--accent-primary);
 
         h1 {
-            color: #8560be;
+            color: var(--text-title);
             margin: 0 0 10px 0;
         }
 
         .code {
-            color: #819198;
+            color: var(--text-primary);
             margin: 0;
         }
     }
@@ -48,34 +48,34 @@
         display: flex;
         gap: 10px;
         margin-bottom: 20px;
-        border-bottom: 2px solid #8560be;
+        border-bottom: 2px solid var(--accent-primary);
         padding-bottom: 10px;
 
         .tab {
             padding: 10px 20px;
             background: none;
             border: none;
-            color: #819198;
+            color: var(--text-primary);
             cursor: pointer;
             font-size: 16px;
             transition: all 0.3s ease;
 
             &:hover {
-                color: #8560be;
+                color: var(--tab-active-color);
             }
 
             &.active {
-                color: #8560be;
-                border-bottom: 2px solid #8560be;
+                color: var(--tab-active-color);
+                border-bottom: 2px solid var(--tab-active-color);
             }
         }
     }
 
     .courseContent {
-        background: #200055;
+        background: var(--bg-course);
         border-radius: 10px;
         padding: 0 100px;
-        border: 1px solid #8560be;
+        border: 1px solid var(--accent-primary);
         flex: 1;
         overflow-y: auto;
         max-height: 600px;

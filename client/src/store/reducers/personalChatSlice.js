@@ -1,11 +1,17 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, current } from '@reduxjs/toolkit';
 
 const chatSlice = createSlice({
   name: 'chat',
   initialState: {
     chatId: "-1",
     messages: [],
-    chatDetailsActive: false
+    chatDetailsActive: false,
+    currentChatDetail: {
+      id: "",
+      name: "",
+      avatar: "",
+      bi0: ""
+    }
   },
   reducers: {
     setChatId: (state, action) => {
@@ -22,9 +28,12 @@ const chatSlice = createSlice({
     },
     setChatDetailsActive: (state, action) => {
         state.chatDetailsActive = action.payload;
-    },    
+    },
+    setCurrentChatDetail: (state, action) => {
+      state.currentChatDetail = action.payload;
+    }
   },
 });
 
-export const { setChatId, addMessage, addMessageReverse, clearMessages, setChatDetailsActive, setMessages } = chatSlice.actions;
+export const { setChatId, addMessage, addMessageReverse, clearMessages, setChatDetailsActive, setMessages, setCurrentChatDetail } = chatSlice.actions;
 export default chatSlice.reducer;

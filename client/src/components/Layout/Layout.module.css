@@ -4,7 +4,7 @@
 
     .layoutContainer {
         display: flex;
-        background-color: #000;
+        background-color: var(--bg-primary);
 
         .mainContainer {
             display: flex;

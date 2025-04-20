@@ -32,7 +32,7 @@ class fileController {
 
     async deleteFile(req, res) {
         try {
-            const {url } = req.body;
+            const {url} = req.body;
             if (!url.includes(`${req.user.id}`)) {
                 return res.status(404).json({ success: false, message: "❌ Ви на маєте права видаляти чужий файл" });
             }
@@ -42,7 +42,7 @@ class fileController {
             if (!fs.existsSync(filePath)) {
                 return res.status(404).json({ success: false, message: "❌ Файл не знайдено" });
             }
-
+            console.log(filePath)
             fs.unlinkSync(filePath);
 
             return res.status(200).json({ success: true, message: "✅ Файл успішно видалено!" });

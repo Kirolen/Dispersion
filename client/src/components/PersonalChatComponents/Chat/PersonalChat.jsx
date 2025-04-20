@@ -10,19 +10,19 @@ import { useSocket } from "../../../context/SocketContext";
 import { uploadFiles } from "../../../api/fileService";
 import { useSelector, useDispatch } from "react-redux";
 import { setNotification } from "../../../store/reducers/userSlice";
-import { addMessage, setMessages, setChatId, setChatDetailsActive } from '../../../store/reducers/personalChatSlice';
+import { addMessage, setMessages, setChatId, setChatDetailsActive, setCurrentChatDetail } from '../../../store/reducers/personalChatSlice';
 import MessageAttachmentsPrewiev from "../../MessageAttachmentsPrewiev/MessageAttachmentsPrewiev"
 import MessageAttachments from "../../MessageAttachments/MessageAttachments";
+import unknownAvatar from "../../../img/unknownAvatar.png"
 
 const PersonalChat = () => {
     const dispatch = useDispatch();
-    const [member, setMember] = useState([]);
     const [open, setOpen] = useState(false);
     const [showAttachMenu, setShowAttachMenu] = useState(false);
     const [text, setText] = useState("");
     const [attachments, setAttachments] = useState([]);
     const { user_id, notification } = useSelector((state) => state.user)
-    const { chatDetailsActive, chatId, messages } = useSelector((state) => state.chat)
+    const { chatDetailsActive, chatId, messages, currentChatDetail } = useSelector((state) => state.chat)
     const { socket } = useSocket();
     const isMenuOpen = useSelector(state => state.menu.isMenuOpen);
     const fileInputRef = useRef(null);
@@ -58,7 +58,13 @@ const PersonalChat = () => {
 
                 if (chat && chat.members && chat.members.length >= 2) {
                     const [member1, member2] = chat.members;
-                    setMember(member1._id === user_id ? member2 : member1);
+                    const member = member1._id === user_id ? member2 : member1;
+                    dispatch(setCurrentChatDetail({
+                        id: member._id,
+                        name: `${member.first_name} ${member.last_name}`,
+                        avatar: member.avatar,
+                        bio: member.bio?.trim() || "Not bio"
+                    }))
                 }
             } catch (error) {
                 console.error("Error fetching chat:", error);
@@ -69,6 +75,7 @@ const PersonalChat = () => {
 
         return () => {
             if (socket?.emit) {
+                dispatch(setMessages([]))
                 socket.emit("leaveChat", { chatId });
             }
 
@@ -162,16 +169,16 @@ const PersonalChat = () => {
             <div className={styles.chatTop} onClick={() => dispatch(setChatDetailsActive(!chatDetailsActive))}>
                 <AiOutlineArrowLeft className={styles.backButton} onClick={(event) => {
                     event.stopPropagation();
-                    dispatch(setChatId(""));
+                    dispatch(setChatId("-1"));
                     dispatch(setChatDetailsActive(false));
                 }} />
 
                 <div className={styles.anotherUserInfo}>
                     <img
-                        src="https://i.pinimg.com/736x/5e/32/aa/5e32aa2c79cd463ab74e034aaace4eb1.jpg"
+                        src={currentChatDetail.avatar || unknownAvatar}
                         alt="avatar"
                     />
-                    <span>{member.first_name} {member.last_name}</span>
+                    <span>{currentChatDetail.name}</span>
                 </div>
             </div>
             <div className={styles.chatCenter}>
@@ -179,7 +186,7 @@ const PersonalChat = () => {
                     <div key={message.id} className={`${styles.message} ${message.sender._id === user_id ? styles.own : ""}`}>
                         {message.sender._id !== user_id && (
                             <img
-                                src="https://i.pinimg.com/736x/5e/32/aa/5e32aa2c79cd463ab74e034aaace4eb1.jpg"
+                                src={message.sender.avatar?.trim() || unknownAvatar}
                                 alt="avatar"
                                 className={styles.anotherUserChatAvatar}
                             />

@@ -16,7 +16,6 @@ const SubmissionForm = () => {
     const { assignment, attachments, status } = useSelector((state) => state.assignment)
     const { user_id } = useSelector((state) => state.user);
 
-
     const handleFileChange = async (e) => {
         const newFile = Array.from(e.target.files);
         const response = await uploadFiles(newFile, "assignments")
@@ -40,7 +39,7 @@ const SubmissionForm = () => {
             console.error("❌ Помилка: URL файлу не знайдено");
             return;
         }
-        await deleteFile(assignmentId, fileToDelete.url);
+        await deleteFile(fileToDelete.url);
         const newAttachments = attachments.filter((_, index) => index !== indexToRemove)
         await updateStundetTask(assignmentId, user_id, newAttachments)
         dispacth(setAttachments(newAttachments))

@@ -13,9 +13,7 @@ const storage = multer.diskStorage({
         if (!req.user) return cb(new Error("❌ Неавторизований доступ"), null);
 
         const folder = req.body.folder; 
-        console.log("None body: " + req.folder)
-        console.log("With body: " + req.body.folder)
-        if (!["assignments", "chats"].includes(folder)) {
+        if (!["assignments", "chats", "avatars"].includes(folder)) {
             return cb(new Error("❌ Неправильна категорія файлів"), null);
         }
 

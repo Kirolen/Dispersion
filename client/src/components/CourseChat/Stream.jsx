@@ -11,7 +11,7 @@ import CourseMessageAttachments from '../MessageAttachments/MessageAttachments';
 import styles from "./Stream.module.css"
 
 import { GoPaperclip } from "react-icons/go";
-
+import unknownAvatar from "../../img/unknownAvatar.png"
 
 const Stream = () => {
   const { socket } = useSocket();
@@ -34,7 +34,6 @@ const Stream = () => {
 
       socket.on("getMessages", (loadedMessages) => {
         const reverseMessage = [...loadedMessages].reverse();
-        console.log(reverseMessage);
         dispatch(setMessages(reverseMessage));
       });
 
@@ -48,7 +47,7 @@ const Stream = () => {
 
     return () => {
       if (socket?.emit) {
-        console.log(`📤 Leaving course chat ${courseId}`);
+        dispatch(setMessages([]))
         socket.emit("leaveChat", { courseId });
       }
 
@@ -141,7 +140,7 @@ const Stream = () => {
             <div key={announcement.id || index} className={`${styles.messageContent} ${announcement.sender._id === user_id ? styles.own : ""}`}>
               {announcement.sender._id !== user_id && (
                   <img
-                    src="https://i.pinimg.com/736x/5e/32/aa/5e32aa2c79cd463ab74e034aaace4eb1.jpg"
+                    src={announcement.sender.avatar?.trim() || unknownAvatar}
                     alt="avatar"
                     className={styles.anotherUserChatAvatar}
                   />

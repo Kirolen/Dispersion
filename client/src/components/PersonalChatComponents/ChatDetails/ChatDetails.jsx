@@ -2,11 +2,12 @@ import styles from "./ChatDetails.module.css";
 import { AiOutlineArrowUp, AiOutlineArrowDown, AiOutlineDownload } from "react-icons/ai";
 import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
+import unknownAvatar from "../../../img/unknownAvatar.png"
 
 const ChatDetails = () => {
     const [attachments, setAttachments] = useState({ files: [], media: [] });
     const isMenuOpen = useSelector(state => state.menu.isMenuOpen);
-    const {messages, chatDetailsActive} = useSelector((state) => state.chat);
+    const {messages, chatDetailsActive, currentChatDetail} = useSelector((state) => state.chat);
     
     useEffect(() => {
         const files = [];
@@ -24,9 +25,9 @@ const ChatDetails = () => {
     return (
         <div className={`${styles.chatDetails} ${chatDetailsActive ? styles.active : ""} ${isMenuOpen ? styles.withOpenMenu : ""}`}>
             <div className={styles.anotherUserInfo}>
-                <img src="https://i.pinimg.com/736x/5e/32/aa/5e32aa2c79cd463ab74e034aaace4eb1.jpg" alt="ayase"/>
-                <h2>Ayase Momo</h2>
-                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
+                <img src={currentChatDetail.avatar?.trim() || unknownAvatar} alt="ayase"/>
+                <h2>{currentChatDetail.name}</h2>
+                <p>{currentChatDetail.bio}</p>
             </div>
 
             <div className={styles.shared}>

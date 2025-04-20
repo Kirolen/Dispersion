@@ -1,67 +1,84 @@
 .submissionForm {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  h3 {
+    margin: 0;
+    color: var(--text-title);
+  }
+
+  .attachmentItem {
     display: flex;
-    flex-direction: column;
+    align-items: center;
     gap: 10px;
 
-    h3 {
-        margin: 0;
+    .icon,
+    a {
+      font-size: 20px;
     }
 
-    .attachmentItem {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-
-        .icon,
-        a {
-            font-size: 20px;
-        }
-
-        .icon {
-            color: #8e44ad;
-        }
-
-        a {
-            color: #fff;
-            text-decoration: none;
-            font-weight: 500;
-
-            &:hover {
-                text-decoration: underline;
-            }
-        }
-        
-        .removeAttachment {
-            background-color: transparent;
-            border: none;
-            color: red;
-            cursor: pointer;
-            font-size: 20px;
-        }
+    .icon {
+      color: var(--accent-primary);
     }
 
-    .submitAssignment,
-    .returnAssignment {
-        width: 160px;
-        margin-top: 15px;
-        color: #fff;
-        padding: 5px 10px;
-        border: none;
-        border-radius: 5px;
+    a {
+      color: var(--text-primary);
+      text-decoration: none;
+      font-weight: 500;
+
+      &:hover {
+        text-decoration: underline;
+      }
     }
 
-    .submitAssignment {
-        background-color: #2ad45d;
-    }
+    .removeAttachment {
+      background-color: transparent;
+      border: none;
+      color: #ff4d4f;
+      cursor: pointer;
+      font-size: 20px;
 
-    .returnAssignment {
-        background-color: #d4492a;
+      &:hover {
+        opacity: 0.8;
+      }
     }
+  }
 
-    .feedback {
-        background-color: #8e44ad;
-        padding: 20px;
-        border-radius: 10px;
-        text-align: center;
+  .submitAssignment,
+  .returnAssignment {
+    width: 160px;
+    margin-top: 15px;
+    color: var(--text-primary);
+    padding: 5px 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+  }
+
+  .submitAssignment {
+    background-color: var(--bg-button-submit);
+    color: var(--color-text-button-submit);
+    &:hover {
+      background-color: var(--bg-button-submit-hover);
     }
+  }
+
+  .returnAssignment {
+    background-color: var(--bg-button-cancel);
+    color: var(--color-text-button-cancel);
+    &:hover {
+      background-color: var(--bg-button-cancel-hover);
+    }
+  }
+
+  .feedback {
+    background-color: var(--accent-primary);
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    color: var(--text-primary);
+  }
 }

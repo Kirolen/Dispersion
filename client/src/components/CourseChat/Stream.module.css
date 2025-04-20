@@ -18,15 +18,15 @@
             display: flex;
             gap: 10px;
             padding: 10px 0;
-            background-color: #200055;
+            color: var(--text-primary);
 
             .messageInput {
                 width: 100%;
                 padding: 15px;
-                border: 1px solid #8560be;
+                border: 1px solid var(--accent-primary);
                 border-radius: 5px;
-                background: #1b005a;
-                color: white;
+                background: var(--input-bg);
+                color: var(--text-primary);
             }
 
             .fileInputLabel {
@@ -40,11 +40,10 @@
 
                 .paperclipIcon {
                     font-size: 20px;
-                    color: #8560be;
                     transition: color 0.2s;
 
                     &:hover {
-                        color: #8540ad;
+                        color: var(--tab-active-color)
                     }
                 }
             }
@@ -52,14 +51,14 @@
             .postButton {
                 padding: 0 20px;
                 width: 100px;
-                background-color: #8560be;
+                background-color: var(--bg-button);
                 border: none;
                 border-radius: 5px;
                 color: white;
                 cursor: pointer;
 
                 &:hover {
-                    background-color: #674f99;
+                    background-color: var(--bg-button-hover);
                 }
             }
         }
@@ -91,8 +90,8 @@
                 flex-direction: column;
                 gap: 10px;
                 max-width: 90%;
-                background-color: rgba(57, 83, 131, 0.3);
-                border: 1px solid #8560be;
+                background-color: var(--bg-message);
+                border: 1px solid var(--accent-primary);
                 border-radius: 5px;
                 padding: 10px;
 
@@ -103,12 +102,12 @@
                 }
 
                 .author {
-                    color: #8560be;
+                    color: var(--text-title);
                     font-weight: bold;
                 }
 
                 .date {
-                    color: #819198;
+                    color: var(--text-primary);
                     text-align: end;
                 }
 
@@ -116,11 +115,9 @@
                     margin: 0;
                     padding: 8px 12px;
                     border-radius: 10px;
-                    background-color: rgba(57, 83, 131, 0.3);
+                    background-color: var(--bg-message-text)
                 }
             }
-
-
         }
 
     }

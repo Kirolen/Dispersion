@@ -6,6 +6,7 @@ const courseRoutes = require('./routes/courseRoutes')
 const materialRoutes = require('./routes/materialRoutes')
 const calendarEventRoutes = require('./routes/calendarEventRoutes')
 const fileRoutes = require("./routes/fileRoutes")
+const userRoutes = require("./routes/userRoutes")
 const chatRoutes = require("./routes/chatRoutes")
 const jwt = require('jsonwebtoken')
 const cors = require('cors');
@@ -15,6 +16,7 @@ const {getMessages, addMessage} = require('./Controllers/chatController')
 const app = express()
 const server = http.createServer(app);
 const path = require('path');
+const Chat = require('./Models/Chat');
 
 const logSocket = false;
 
@@ -25,6 +27,7 @@ app.use("/auth", authRoutes)
 app.use("", courseRoutes)
 app.use("/material", materialRoutes)
 app.use("/calendar", calendarEventRoutes)
+app.use("/user", userRoutes)
 
 app.use("/file", fileRoutes)
 app.use("/chat", chatRoutes)
@@ -100,10 +103,13 @@ io.on("connection", (socket) => {
             console.log(newMessage)
             io.to(chatId).emit("newMessage", newMessage);
 
+            const chatName = await Chat.findById(newMessage.chatId).select('groupName')
+
+            console.log(chatName)
             socket.broadcast.emit("newGlobalNotification", {
-                message: `New message in: ${newMessage.text}`,
-                chatId: chatId,
-                sender: sender ? `${sender.first_name} ${sender.last_name}` : "Unknown"
+                message: newMessage.text,
+                name: chatName.groupName ? chatName.groupName.trim() : "personal chat",
+                sender: newMessage.sender ? `${newMessage.sender.first_name} ${newMessage.sender.last_name}` : "Unknown"
             });
         } catch (error) {
             console.error("❌ Error sending message:", error);

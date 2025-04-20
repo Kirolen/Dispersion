@@ -8,26 +8,28 @@
         align-items: center;
         margin-bottom: 30px;
         padding-bottom: 20px;
-        border-bottom: 2px solid #8560be;
+        border-bottom: 2px solid var(--accent-primary);
 
         h1 {
-            color: #8560be;
+            color: var(--text-title);
             margin: 0;
         }
 
         .addEventButton {
-            background: #8560be;
-            color: white;
+            background-color: var(--bg-button);
+            color: var(--color-text-button);
             border: none;
             padding: 10px 20px;
             border-radius: 5px;
             cursor: pointer;
+
+            &:hover {
+                background-color: var(--bg-button-hover);
+            }
         }
     }
 
     .calendarContent {
-        background: #200055;
-        border: 1px solid #8560be;
         border-radius: 10px;
         padding: 20px;
 
@@ -37,8 +39,8 @@
             gap: 15px;
 
             .eventCard {
-                background: #1b005a;
-                border: 1px solid #8560be;
+                background: var(--card-bg);
+                border: 1px solid var(--accent-primary);
                 border-radius: 8px;
                 padding: 15px;
                 position: relative;
@@ -50,7 +52,7 @@
                     margin-bottom: 10px;
             
                     h3 {
-                        color: #8560be;
+                        color: var(--text-title);
                         margin: 0;
                     }
             
@@ -116,14 +118,14 @@
             z-index: 1000;
 
             .eventForm {
-                background: #200055;
+                background: var(--card-bg);
                 padding: 30px;
                 border-radius: 10px;
                 width: 400px;
-                border: 2px solid #8560be;
+                border: 2px solid var(--accent-primary);
 
                 h2 {
-                    color: #8560be;
+                    color: var(--text-title);
                     margin-bottom: 20px;
                 }
 
@@ -140,15 +142,23 @@
                     }
 
                     button[type="submit"] {
-                        background: #8560be;
-                        color: white;
+                        background: var(--bg-button-submit);
+                        color: var(--color-text-button-submit);
                         border: none;
+
+                        &:hover {
+                            background-color: var(--bg-button-submit-hover);
+                        }
                     }
 
                     button[type="button"] {
-                        background: #1b005a;
-                        color: #8560be;
-                        border: 1px solid #8560be;
+                        background: var(--bg-button-cancel);
+                        color: var(--color-text-button-cancel);
+                        border: none;
+
+                        &:hover {
+                            background-color: var(--bg-button-cancel-hover);
+                        }
                     }
                 }
 
@@ -157,7 +167,7 @@
 
                     label {
                         display: block;
-                        color: #8560be;
+                        color: var(--accent-primary);
                         margin-bottom: 5px;
                     }
 
@@ -165,14 +175,13 @@
                     select {
                         width: 100%;
                         padding: 8px;
-                        background: #1b005a;
-                        border: 1px solid #8560be;
+                        background: var(--input-bg);
+                        border: 1px solid var(--accent-primary);
                         border-radius: 5px;
-                        color: white;
+                        color: var(--text-primary);
                     }
                 }
             }
         }
     }
-
 }

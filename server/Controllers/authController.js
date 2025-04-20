@@ -54,20 +54,6 @@ class authController {
             res.status(500).json({ message: 'Login error', error });
         }
     }
-
-    async getInfo(req, res) {
-        try {
-            const token = req.headers['authorization']?.split(' ')[1]; 
-            if (!token) {
-                return res.status(400).json({ success: false, message: 'Token not provided' });
-            }
-            
-            const decoded = jwt.verify(token, secret);
-            return res.json({ success: true, decoded });
-        } catch (error) {
-            return res.status(401).json({ success: false, message: 'Invalid or expired token', error: error.message });
-        }
-    }
 }
 
 module.exports = new authController();

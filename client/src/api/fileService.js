@@ -2,14 +2,14 @@ import api from './api';
 export const uploadFiles = async (files, folder) => {
     try {
         const formData = new FormData();
-        formData.append("folder", folder); 
-        files.forEach((file) => {
-            formData.append("files", file);  
-        });
-
-        console.log("File data: ")
-        console.log(formData)
-
+        formData.append("folder", folder);
+        if (!Array.isArray(files)) {
+            formData.append("files", files);
+        } else {
+            files.forEach((file) => {
+                formData.append("files", file);
+            });
+        }
         const response = await api.post("/file/upload", formData, {
             headers: { "Content-Type": "multipart/form-data" },
         });
@@ -20,10 +20,11 @@ export const uploadFiles = async (files, folder) => {
         throw new Error("Error upload file: " + error.message);
     }
 };
-export const deleteFile = async (material_id, url) => {
+export const deleteFile = async (url) => {
     try {
-        console.log(url)
-        const response = await api.post("/file/delete", {material_id, url});
+        console.log("delete")
+
+        const response = await api.post("/file/delete", { url });
 
         return response.data.data;
     } catch (error) {

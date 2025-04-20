@@ -1,9 +1,9 @@
 .footer {
-  background-color: #200055;
-  color: white;
+  background-color: var(--header-bg);
+  color: var(--text-primary);
   padding: 5px 0;
   text-align: center;
-  border-top: 3px solid #8560be;
+  border-top: 1px solid var(--accent-primary);
   width: 100%;
 
   p {
@@ -16,7 +16,7 @@
 
     .footerText {
       font-size: 14px;
-      color: #819198;
+      color: var(--text-secondary);
     }
 
     .socialLinks {
@@ -24,7 +24,7 @@
     }
 
     .link {
-      color: #6d3fd3;
+      color: var(--accent-secondary);
       font-size: 16px;
       text-decoration: none;
       margin: 0 5px;
@@ -32,7 +32,7 @@
     }
 
     .link:hover {
-      color: #8560be;
+      color: var(--accent-primary);
     }
   }
 }

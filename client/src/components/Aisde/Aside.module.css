@@ -3,8 +3,8 @@
     width: 250px;
     display: flex;
     flex-direction: column;
-    border-right: 1px solid #8560be;
-    background-color: #200055;
+    border-right: 1px solid var(--accent-primary);
+    background-color: var(--sidebar-bg);
     transition: opacity 0.5s ease, visibility 0.5s ease, min-width 0.5s ease, width 0.5s ease;
 
     &.collapsed {
@@ -16,11 +16,11 @@
     }
 
     .asideHeader {
-        border-bottom: 1px solid #8560be;
+        border-bottom: 1px solid var(--accent-primary);
 
         h2 {
             text-align: center;
-            color: #8560be;
+            color: var(--accent-primary);
         }
     }
 
@@ -31,17 +31,17 @@
         .navLink {
             padding: 12px 15px;
             margin-bottom: 8px;
-            color: #819198;
+            color: var(--text-secondary);
             text-decoration: none;
 
             &:hover {
-                background-color: #2a0066;
-                color: #fff;
+                background-color: var(--sidebar-active-bg);
+                color: var(--text-primary);
             }
 
             &.active {
-                background-color: #8560be;
-                color: #fff;
+                background-color: var(--sidebar-active-bg);
+                color: var(--text-primary);
             }
 
             .navIcon {

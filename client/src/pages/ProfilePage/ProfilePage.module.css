@@ -1,98 +1,128 @@
-.profile-container {
-    padding: 20px;
-    color: #fff;
-  }
-  
-  .profile-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 30px;
-    padding-bottom: 20px;
-    border-bottom: 2px solid #8560be;
-  }
-  
-  .profile-header h1 {
-    color: #8560be;
+.profileContainer {
+  padding: 20px;
+  color: var(--text-primary);
+}
+
+.profileHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid var(--accent-primary);
+
+  h1 {
+    color: var(--text-title);
     margin: 0;
   }
-  
-  .edit-button {
-    background: #8560be;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: all 0.3s ease;
+
+  .headerActions {
+    .editButton {
+      background-color: var(--bg-button);
+      color: var(--color-text-button);
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+
+      &:hover {
+        background-color: var(--bg-button-hover);
+      }
+    }
   }
-  
-  .edit-button:hover {
-    background: #674f99;
-  }
-  
-  .profile-content {
-    background: #200055;
-    border: 1px solid #8560be;
-    border-radius: 10px;
-    padding: 30px;
-  }
-  
-  .profile-avatar {
+}
+
+
+.profileContent {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 30px;
+
+  .avatarSection {
     text-align: center;
     margin-bottom: 30px;
+
+    .avatarContainer {
+      position: relative;
+      display: inline-block;
+      border-radius: 50%;
+      overflow: hidden;
+
+      .avatar {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        border: 3px solid var(--accent-primary);
+        object-fit: cover;
+      }
+
+      .avatarOverlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        opacity: 0;
+        transition: opacity 0.3s;
+      }
+
+      &:hover {
+        .avatarOverlay {
+          opacity: 1;
+        }
+      }
+    }
   }
-  
-  .profile-avatar img {
-    width: 150px;
-    height: 150px;
-    border-radius: 50%;
-    border: 3px solid #8560be;
-  }
-  
-  .profile-info, .profile-form {
+
+
+  .profileForm {
     max-width: 600px;
     margin: 0 auto;
-  }
   
-  .info-group, .form-group {
-    margin-bottom: 20px;
-  }
+    .formGroup {
+      margin-bottom: 20px;
   
-  .info-group label, .form-group label {
-    display: block;
-    color: #8560be;
-    margin-bottom: 5px;
-  }
+      label {
+        display: block;
+        color: var(--text-primary);
+        margin-bottom: 5px;
+      }
   
-  .info-group p {
-    color: #819198;
-    margin: 0;
-    padding: 10px;
-    background: #1b005a;
-    border-radius: 5px;
-  }
+      input,
+      textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid var(--border-color);
+        border-radius: 5px;
+        background-color: var(--input-bg);
+        color: var(--text-primary);
   
-  .form-group input {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #8560be;
-    border-radius: 5px;
-    background: #1b005a;
-    color: white;
+        &:disabled {
+          background-color: var(--bg-secondary);
+          cursor: not-allowed;
+        }
+      }
+    }
+    .saveButton {
+      background-color: var(--bg-button);
+      color: var(--color-text-button);
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 20px;
+
+      &:hover {
+        background-color: var(--bg-button-hover);
+      }
+    }
   }
-  
-  .save-button {
-    background: #8560be;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    width: 100%;
-    margin-top: 20px;
-  }
-  
-  .save-button:hover {
-    background: #674f99;
-  }
+}

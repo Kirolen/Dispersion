@@ -11,6 +11,6 @@ export const store = configureStore({
     user: userReducer,
     chat: chatReducer,
     assignment: assignmentReducer,
-    imgModal: imageModal
+    imgModal: imageModal,
   }
 });

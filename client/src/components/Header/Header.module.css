@@ -1,21 +1,29 @@
 .header {
-  background-color: #000; 
-  color: white;
+  background-color: var(--header-bg);
   text-align: center;
   padding: 15px 20px;
-  border-bottom: 3px solid #8560be; 
+  border-bottom: 3px solid var(--accent-primary);
   position: relative;
   z-index: 5;
+
+  .themeToggle {
+    position: absolute;
+    right: 100px;
+    top: 50%;
+    transform: translateY(-50%);
+
+  }
+
   .title {
     font-size: 36px;
     font-weight: bold;
     margin: 0;
-    color: #8560be;
+    color: var(--text-title);
   }
   
   .subtitle {
     font-size: 18px;
-    color: #819198;
+    color: var(--text-secondary);
     margin-top: 10px;
   }
 
@@ -27,13 +35,13 @@
     cursor: pointer;
     transform: translateY(-50%);
     transition: transform 0.3s ease;
+    color: var(--text-primary);
 
     &.open {
-      transform: translateY(-50%) rotate(90deg); 
+      transform: translateY(-50%) rotate(90deg);
     }
   }
 }
-
 
 @media (max-width: 768px) {
   .header {

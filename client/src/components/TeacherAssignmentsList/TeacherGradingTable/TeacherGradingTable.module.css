@@ -1,19 +1,5 @@
 .gradingTable {
     width: 100%;
     padding-left: 40px;
-    background-color: #8e5bbf;
-
-    button {
-        padding: 4px 2px;
-        background-color: #a975d6;
-        color: white;
-        border: none;
-        border-radius: 3px;
-        cursor: pointer;
-
-        &:hover {
-            background-color: #8e5bbf;
-            transform: scale(1.05);
-        }
-    }
+    background-color: var(--bg-grading-table);
 }

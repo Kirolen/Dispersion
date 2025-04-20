@@ -8,7 +8,7 @@ const MainChatList = () => {
     const chatId = useSelector(state => state.chat.chatId)
 
     return (
-    <div className={`${styles.mainChatList} ${isMenuOpen ? styles.withOpenMenu : ""} ${chatId.trim() ? styles.hide : ''}`}>
+    <div className={`${styles.mainChatList} ${isMenuOpen ? styles.withOpenMenu : ""} ${chatId !== "-1" ? styles.hide : ''}`}>
         <UserInfo/>
         <ChatList/>
     </div>   )

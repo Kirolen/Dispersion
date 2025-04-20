@@ -83,7 +83,7 @@ class ChatController {
                 members: userId,
                 isActiveFor: userId,
                 isCourseChat: null
-            }).populate("members", "first_name last_name email")
+            }).populate("members", "first_name last_name email avatar")
                 .populate("lastMessage");
 
             res.json({ success: true, chats });
@@ -139,7 +139,7 @@ class ChatController {
 
             const populatedMessage = await newMessage.populate({
                 path: "sender",
-                select: "_id first_name last_name"
+                select: "_id first_name last_name avatar"
             });
 
             return {
@@ -174,7 +174,7 @@ class ChatController {
                     path: "messages",
                     populate: {
                         path: "sender",
-                        select: "_id first_name last_name"
+                        select: "_id first_name last_name avatar"
                     }
                 })
                 .lean();
