@@ -1,0 +1,82 @@
+.testsContainer {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    color: var(--text-primary);
+  }
+  
+  .testsHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+  }
+  
+  .testsHeader h1 {
+    font-size: 2rem;
+    color: var(--text-title);
+    margin: 0;
+  }
+  
+  .createButton {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: var(--bg-button-submit);
+    color: var(--color-text-button-submit);
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .createButton:hover {
+    background-color: var(--bg-button-submit-hover);
+  }
+  
+  .testsList {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+  }
+  
+  .testCard {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  
+  .testCard:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+  
+  .testCard h3 {
+    margin: 0 0 10px;
+    color: var(--text-title);
+    font-size: 1.25rem;
+  }
+  
+  .testCard p {
+    margin: 5px 0;
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+  }
+  
+  .testCard button {
+    margin-top: 10px;
+    padding: 8px 16px;
+    font-size: 14px;
+    background-color: var(--bg-button);
+    color: var(--color-text-button);
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .testCard button:hover {
+    background-color: var(--bg-button-hover);
+  }
+  

@@ -16,8 +16,9 @@ const AssignmentView = () => {
   const searchParams = new URLSearchParams(location.search);
   const refId = searchParams.get("ref");
   const dispacth = useDispatch();
-  const {assignment, grade, status} = useSelector((state) => state.assignment)
+  const { assignment, grade, status } = useSelector((state) => state.assignment)
   const { user_id, role } = useSelector((state) => state.user);
+
 
   useEffect(() => {
     const fetchAssignmentDetails = async () => {
@@ -26,10 +27,10 @@ const AssignmentView = () => {
       try {
         const studentID = role === "Teacher" ? refId : user_id;
         const response = await getStudentTaskInfo(assignmentId, studentID);
-        console.log(response.userDetails?.response.message)
+        console.log(response.userDetails)
         dispacth(setFeedback(response.userDetails?.response.message ?? ""))
         dispacth(setAssignment(response))
-        dispacth(setAttachments(response.userDetails.attachments))
+        dispacth(setAttachments(response.userDetails?.attachments || []))
         dispacth(setStatus(response.userDetails?.status || "not_passed"))
         dispacth(setGrade(response.userDetails?.grade ?? ""))
       } catch (error) {
@@ -48,7 +49,7 @@ const AssignmentView = () => {
     <div className={styles.assignmentContainer}>
       <div className={styles.assignmentHeader}>
         <h1>{assignment.title}</h1>
-        <button className={styles.backButton} onClick={() => navigate(-1)} > Back to Assignments </button>
+        <button className={styles.backButton} onClick={() => navigate(-1)}> Back to Assignments </button>
       </div>
 
       <div className={styles.assignmentContent}>
@@ -59,6 +60,10 @@ const AssignmentView = () => {
               <span className={styles.label}>Description: </span>
               {assignment.description}
             </p>
+            {!assignment?.test?.isCompleted && role === "Student" && <p onClick={() => navigate(`/test/attempt/${assignment._id}`)}>Start the test</p>}
+            {assignment?.test?.isCompleted && role === "Student" && <p>Test ended</p>}
+            {!assignment?.test?.isCompleted && role === "Teacher" && <p>Student dont pass the test</p>}
+            {assignment?.test?.isCompleted && role === "Teacher" && <p onClick={() => navigate(`/test/review/${assignment._id}/${refId}`)}>View answers</p>}
             {assignment.type !== "material" && <p className={styles.dueDate}>
               <span className={styles.label}>Due Date: </span>
               {new Date(assignment.dueDate).toLocaleString("en-GB", {
@@ -75,11 +80,18 @@ const AssignmentView = () => {
             {assignment.type !== "material" && <p className={styles.points}>
               <span className={styles.label}>Points: </span>
               {grade} / {assignment.points}
-            </p> }
+            </p>}
             {assignment.type !== "material" && <p className={styles.status}>
               <span className={styles.label}>Status: </span>
               {status}
             </p>}
+            {status === "graded" && (
+              <div className={styles.feedback}>
+                <h3>Відгук:</h3>
+                <h3>{assignment.userDetails.response?.name || "Відгук ще не надано."}</h3>
+                <p>{assignment.userDetails.response?.message || "Відгук ще не надано."}</p>
+              </div>
+            )}
           </div>
           {assignment.attachments.length > 0 && <div className={styles.assignmentAttachmentsContent}>
             <h2>Прикріплені файли</h2>
@@ -96,9 +108,9 @@ const AssignmentView = () => {
           </div>}
         </div>
 
-        {role === "Student" && assignment.type !== "material" && <SubmissionForm/>}
+        {role === "Student" && assignment.type === "practice" && <SubmissionForm />}
 
-        {role === "Teacher" && (<GradeAssignmentForm/>)}
+        {role === "Teacher" && (<GradeAssignmentForm />)}
       </div>
     </div>
   );

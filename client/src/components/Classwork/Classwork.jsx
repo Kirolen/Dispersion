@@ -107,7 +107,9 @@ const Classwork = () => {
 
                         <div className={styles.assignmentFooter}>
                             <div className={styles.assignmentMeta}>
-                                <span>Due: {assignment.dueDate ? new Date(assignment.dueDate).toLocaleString() : "not specified"}</span>
+                                <span>Due: {assignment.dueDate 
+                                ? new Date(assignment.dueDate).toLocaleString() 
+                             : "not specified"}</span>
                                 <span>Points: {assignment.points ? assignment.points : 'not specified'}</span>
                             </div>
                             <AiOutlineMore className={styles.menuButton} onClick={() => toggleMenu(assignment._id)} />

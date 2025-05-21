@@ -1,146 +1,257 @@
-.test-creation-form {
-    padding: 20px;
-    background: #200055;
-    border: 1px solid #8560be;
-    border-radius: 10px;
-    color: #fff;
+.testCreationForm {
+  padding: 20px;
+  color: var(--text-primary);
+
+  .formHeader {
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid var(--accent-primary);
+
+    h1 {
+      color: var(--text-title);
+      margin: 0;
+    }
   }
-  
-  .test-creation-form h2 {
-    color: #8560be;
+
+  .formGroup {
     margin-bottom: 20px;
+
+    label {
+      display: block;
+      color: var(--text-title);
+      margin-bottom: 8px;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    textarea,
+    select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid var(--border-color);
+      border-radius: 5px;
+      background: var(--input-bg);
+      color: var(--text-primary);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    .imagePreviewContainer {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+
+      .imagePreview {
+        position: relative;
+        width: 150px;
+        height: 150px;
+        border: 1px solid var(--border-color);
+        border-radius: 5px;
+        overflow: hidden;
+
+        .backgroundBlur {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background-size: cover;
+          background-position: center;
+          filter: blur(10px);
+          transform: scale(1.1);
+          z-index: 0;
+        }
+
+        .foregroundImage {
+          position: relative;
+          width: 100%;
+          height: 100%;
+          object-fit: contain;
+          z-index: 1;
+        }
+
+        .removeImage {
+          opacity: 0;
+          position: absolute;
+          top: 5px;
+          right: 5px;
+          width: 24px;
+          height: 24px;
+          border-radius: 50%;
+          background: var(--bg-button-cancel);
+          color: var(--color-text-button-cancel);
+          border: none;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 18px;
+          z-index: 2;
+
+          &:hover {
+            background: var(--bg-button-cancel-hover);
+          }
+        }
+
+        &:hover {
+          .removeImage {
+            opacity: 1;
+          }
+        }
+      }
+    }
   }
-  
-  .form--test-group {
-    margin-bottom: 20px;
-  }
-  
-  .form-test-group label {
-    display: block;
-    color: #8560be;
-    margin-bottom: 5px;
-  }
-  
-  .form-test-group input,
-  .form-test-group textarea,
-  .form-test-group option,
-  .form-test-group select {
-    width: 20%;
-    padding: 10px;
-    background: #1b005a;
-    border: 1px solid #8560be;
-    border-radius: 5px;
-    color: #fff;
-  }
-  
-  .form-group textarea {
-    min-height: 100px;
-    resize: vertical;
-  }
-  
-  .questions-section {
+
+  .questionsSection {
     margin-top: 30px;
+
+    h2 {
+      color: var(--text-title);
+      margin-bottom: 20px;
+    }
+
+    .questionCard {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+
+      .questionHeader {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+
+        h3 {
+          color: var(--text-title);
+          margin: 0;
+        }
+      }
+
+      .optionsGroup {
+        margin-top: 15px;
+
+        .optionsHeader {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 10px;
+
+          .addOptionButton {
+            background: var(--bg-button);
+            color: var(--color-text-button);
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+
+            &:hover {
+              background: var(--bg-button-hover);
+            }
+          }
+        }
+
+        .optionInput {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          margin-bottom: 10px;
+
+          input[type="text"] {
+            flex: 1;
+          }
+
+          input[type="radio"],
+          input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+          }
+
+          .removeOptionButton {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--bg-button-cancel);
+            color: var(--color-text-button-cancel);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+
+            &:hover {
+              background: var(--bg-button-cancel-hover);
+            }
+          }
+        }
+      }
+    }
+
+    .addQuestion {
+      background: var(--bg-button);
+      color: var(--color-text-button);
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 10px;
+
+      &:hover {
+        background: var(--bg-button-hover);
+      }
+    }
   }
-  
-  .questions-section h3 {
-    color: #8560be;
-    margin-bottom: 20px;
-  }
-  
-  .question-card {
-    background: #1b005a;
-    border: 1px solid #8560be;
-    border-radius: 8px;
-    padding: 20px;
-    margin-bottom: 20px;
-  }
-  
-  .question-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-  }
-  
-  .question-header h4 {
-    color: #8560be;
-    margin: 0;
-  }
-  
-  .options-group {
-    margin-top: 15px;
-  }
-  
-  .option-input {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 10px;
-  }
-  
-  .option-input input[type="text"] {
-    flex: 1;
-    padding: 8px;
-    background: #200055;
-    border: 1px solid #8560be;
-    border-radius: 5px;
-    color: #fff;
-  }
-  
-  .option-input input[type="radio"] {
-    width: 20px;
-    height: 20px;
-    cursor: pointer;
-  }
-  
-  .add-question {
-    background: #8560be;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-top: 10px;
-  }
-  
-  .remove-question {
-    background: #ff4d4f;
-    color: white;
+
+  .removeQuestion {
+    background: var(--bg-button-cancel);
+    color: var(--color-text-button-cancel);
     border: none;
     padding: 5px 10px;
     border-radius: 5px;
     cursor: pointer;
+
+    &:hover {
+      background: var(--bg-button-cancel-hover);
+    }
   }
-  
-  .form-actions {
+
+  .formActions {
     display: flex;
     gap: 10px;
     margin-top: 30px;
+
+    button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    .submitButton {
+      background: var(--bg-button-submit);
+      color: var(--color-text-button-submit);
+
+      &:hover {
+        background: var(--bg-button-submit-hover);
+      }
+    }
+
+    .cancelButton {
+      background: var(--bg-button-cancel);
+      color: var(--color-text-button-cancel);
+
+      &:hover {
+        background: var(--bg-button-cancel-hover);
+      }
+    }
   }
-  
-  .submit-button,
-  .cancel-button {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-weight: 500;
-  }
-  
-  .submit-button {
-    background: #8560be;
-    color: white;
-  }
-  
-  .cancel-button {
-    background: #1b005a;
-    color: #6d3fd3;
-  }
-  
-  .submit-button:hover {
-    background: #674f99;
-  }
-  
-  .cancel-button:hover {
-    background: #2a0066;
-  }
+}

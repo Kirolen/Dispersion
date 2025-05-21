@@ -48,6 +48,7 @@ const Aside = () => {
   const links = [
     { href: "/home", label: "Dashboard", icon: "📊" },
     { href: "/assignments", label: "Assignments", icon: "✍️" },
+    { href: "/tests", label: "Tests", icon: "📝" },
     { href: "/calendar", label: "Calendar", icon: "📅" },
     { href: "/messages", label: "Messages", icon: "💬" },
     { href: "/profile", label: "Profile", icon: "👤" },

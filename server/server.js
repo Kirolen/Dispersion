@@ -8,6 +8,7 @@ const calendarEventRoutes = require('./routes/calendarEventRoutes')
 const fileRoutes = require("./routes/fileRoutes")
 const userRoutes = require("./routes/userRoutes")
 const chatRoutes = require("./routes/chatRoutes")
+const testRoutes = require('./routes/testRoutes')
 const jwt = require('jsonwebtoken')
 const cors = require('cors');
 const PORT = process.env.PORT || 5000
@@ -28,7 +29,7 @@ app.use("", courseRoutes)
 app.use("/material", materialRoutes)
 app.use("/calendar", calendarEventRoutes)
 app.use("/user", userRoutes)
-
+app.use("/test", testRoutes)
 app.use("/file", fileRoutes)
 app.use("/chat", chatRoutes)
 

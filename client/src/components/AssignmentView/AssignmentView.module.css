@@ -1,102 +1,110 @@
 .assignmentContainer {
-    padding: 30px;
-    color: var(--text-primary);
-    background-color: var(--bg-primary);
-    min-height: 100vh;
-    position: relative;
-  
-    .assignmentHeader {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 30px;
-      padding: 20px 0;
-      border-bottom: 2px solid var(--accent-primary);
-  
-      h1 {
-        color: var(--text-title);
-        margin: 0;
-        font-size: 2rem;
-      }
-  
-      .backButton {
-        background: transparent;
-        color: var(--text-title);
-        border: 2px solid var(--accent-primary);
-        padding: 10px 15px;
-        border-radius: 8px;
-        cursor: pointer;
-        transition: 0.3s;
-  
-        &:hover {
-          background-color: var(--accent-primary);
-          color: var(--bg-primary);
-        }
+  padding: 30px;
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
+  min-height: 100vh;
+  position: relative;
+
+  .assignmentHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding: 20px 0;
+    border-bottom: 2px solid var(--accent-primary);
+
+    h1 {
+      color: var(--text-title);
+      margin: 0;
+      font-size: 2rem;
+    }
+
+    .backButton {
+      background: transparent;
+      color: var(--text-title);
+      border: 2px solid var(--accent-primary);
+      padding: 10px 15px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s;
+
+      &:hover {
+        background-color: var(--accent-primary);
+        color: var(--bg-primary);
       }
     }
-  
-    .assignmentContent {
+  }
+
+  .assignmentContent {
+    display: flex;
+    justify-content: space-around;
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    height: 100%;
+
+    .assignmentLabel {
+      align-self: center;
+    }
+
+    .assignmentInfo {
       display: flex;
-      justify-content: space-around;
-      background: var(--bg-secondary);
-      border-radius: 12px;
-      padding: 25px;
-      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
-      height: 100%;
-  
-      .assignmentLabel {
-        align-self: center;
-      }
-  
-      .assignmentInfo {
+      flex-direction: column;
+
+      .assignmentDetails,
+      .assignmentAttachmentsContent {
         display: flex;
         flex-direction: column;
-  
-        .assignmentDetails,
-        .assignmentAttachmentsContent {
-          display: flex;
-          flex-direction: column;
-          align-items: flex-start;
+        align-items: flex-start;
+      }
+
+      .assignmentDetails {
+        .label {
+          font-size: 20px;
+          color: var(--accent-primary);
         }
-  
-        .assignmentDetails {
-          .label {
+      }
+
+      .assignmentAttachmentsContent {
+        .attachmentItem {
+          display: flex;
+          gap: 10px;
+
+          .icon,
+          a {
             font-size: 20px;
+          }
+
+          .icon {
             color: var(--accent-primary);
           }
-        }
-  
-        .assignmentAttachmentsContent {
-          .attachmentItem {
-            display: flex;
-            gap: 10px;
-  
-            .icon,
-            a {
-              font-size: 20px;
-            }
-  
-            .icon {
-              color: var(--accent-primary);
-            }
-  
-            a {
-              color: var(--text-primary);
-              text-decoration: none;
-  
-              &:hover {
-                text-decoration: underline;
-              }
+
+          a {
+            color: var(--text-primary);
+            text-decoration: none;
+
+            &:hover {
+              text-decoration: underline;
             }
           }
         }
       }
+
+      .feedback {
+        background-color: var(--accent-primary);
+        padding: 5px;
+        width: 70%;
+        border-radius: 10px;
+        text-align: center;
+        color: var(--text-primary);
+      }
     }
   }
-  
-  @media (max-width: 768px) {
-    .assignmentContent {
-      flex-direction: column;
-    }
+}
+
+@media (max-width: 768px) {
+  .assignmentContent {
+    flex-direction: column;
   }
-  
+}

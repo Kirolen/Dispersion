@@ -22,9 +22,12 @@ import People from './components/CoursePeople/People';
 import Grades from './components/CourseGrades/Grades'
 import "./styles/main.css"
 import "./styles/themes.css"
+import TestsPage from './pages/TestsPage/TestsPage';
+import TestAttemptPage from './pages/TestAttemptPage/TestAttemptPage';
+import TestReviewPage from './pages/TestReviewPage/TestReviewPage';
 
 const App = () => {
-  const {isDarkMode} = useSelector((state) => state.user);
+  const { isDarkMode } = useSelector((state) => state.user);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', isDarkMode ? 'dark' : 'light');
@@ -38,7 +41,7 @@ const App = () => {
           <Route path="/guest" element={<GuestPage />} />
           <Route path="/auth-register" element={<RegisterPage />} />
           <Route path="/auth-login" element={<LoginPage />} />
-          <Route path="/home" element={<Layout><HomePage/></Layout>} />
+          <Route path="/home" element={<Layout><HomePage /></Layout>} />
           <Route path="/course/:courseId/stream/:chatId" element={<Layout><CoursePage><Stream /></CoursePage></Layout>} />
           <Route path="/course/:courseId/classwork" element={<Layout><CoursePage><Classwork /></CoursePage></Layout>} />
           <Route path="/course/:courseId/student" element={<Layout><CoursePage><People /></CoursePage></Layout>} />
@@ -50,7 +53,11 @@ const App = () => {
 
           <Route path="/messages" element={<Layout><MessagesPage /></Layout>} />
           <Route path="/settings" element={<Layout><SettingsPage /></Layout>} />
-
+          <Route path="/tests" element={<Layout><TestsPage /></Layout>} />
+          <Route path="/test/update/:test_id" element={<Layout><TestCreationForm /></Layout>} />
+          <Route path="/tests/create" element={<Layout><TestCreationForm /></Layout>} />
+          <Route path="/test/attempt/:assignmentID" element={<Layout><TestAttemptPage /></Layout>} />
+          <Route path="/test/review/:assignmentID/:studentId" element={<Layout><TestReviewPage /></Layout>} />
         </Routes>
       </div>
     </Router>

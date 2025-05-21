@@ -4,23 +4,86 @@ const User = require("../Models/User");
 const CourseOwner = require("../Models/CourseOwner")
 const mongoose = require('mongoose');
 const CourseAccess = require('../Models/CourseAccess');
+const TestSession = require('../Models/TestSession');
+const Test = require('../Models/Test');
 
+async function generateTestSessionForUser(userId, materialId, testId, testProperties) {
+    try {
+        const test = await Test.findById(testId);
+        if (!test) throw new Error("Test not found");
+
+        let selectedQuestions = [];
+
+        console.log(testProperties)
+        if (testProperties.isRandomQuestions) {
+            const groupedByType = {
+                single: [],
+                multiple: [],
+                short: [],
+                long: []
+            };
+
+            for (const question of test.questions) {
+                groupedByType[question.type]?.push(question);
+            }
+
+            for (const [type, count] of Object.entries(testProperties.questionCountByType)) {
+                const questionsOfType = groupedByType[type] || [];
+                const shuffled = questionsOfType.sort(() => Math.random() - 0.5);
+                const selected = shuffled.slice(0, count);
+                selectedQuestions.push(...selected);
+            }
+        } else {
+            selectedQuestions = test.questions;
+        }
+
+        const totalScore = selectedQuestions.reduce((sum, q) => sum + q.qPoints, 0);
+
+        const sessionQuestions = selectedQuestions.map((q) => ({
+            originalQuestionId: q._id,
+            question: q.question,
+            type: q.type,
+            options: q.options,
+            images: q.images,
+            points: q.qPoints
+        }));
+
+        console.log(totalScore)
+        const testSession = await TestSession.create({
+            user: userId,
+            test: test.id,
+            material: materialId,
+            questions: sessionQuestions,
+            totalScore: totalScore
+        });
+
+        return testSession;
+
+    } catch (error) {
+        console.error("❌ Failed to generate test session:", error);
+        throw error;
+    }
+}
 
 class materialController {
     async addTask(req, res) {
         try {
-            const { title, description, type, dueDate, points, course_id, assignedUsers, attachments, availableFrom, isAvailableToAll } = req.body;
+            const { title, description, type, dueDate, points, course_id, assignedStudents: assignedUsers, attachments, availableFrom, isAvailableToAll, test, testProperties } = req.body;
 
             const newMaterial = await Material.create({
                 title,
                 description,
                 type,
-                dueDate,
+                dueDate: dueDate || testProperties.endDate,
                 points,
                 course_id,
                 attachments,
                 availableFrom,
-                isAvailableToAll
+                isAvailableToAll: type === "material" ? true : isAvailableToAll,
+                test: {
+                    test: test,
+                    testProperties: testProperties
+                }
             });
 
             if (type !== 'material') {
@@ -29,6 +92,9 @@ class materialController {
 
                     if (!existingAssignment) {
                         await AssignedUsers.create({ user_id: userId, material_id: newMaterial._id });
+                    }
+                    if (test) {
+                        await generateTestSessionForUser(userId, newMaterial._id, test, testProperties);
                     }
                 }
             }
@@ -49,9 +115,10 @@ class materialController {
             if (!material) {
                 return res.status(404).json({ success: false, message: "❌ Material not found" });
             }
-    
+
             if (material.type !== 'material') await AssignedUsers.deleteMany({ material_id: assignmentID });
-    
+            if (material.type === 'practice_with_test') await TestSession.deleteMany({ test: material.test.test })
+
             await Material.findByIdAndDelete(assignmentID);
 
             return res.status(201).json({ success: true, message: "✅ Material delete successfully" });
@@ -65,14 +132,30 @@ class materialController {
     async getMaterialInfo(req, res) {
         try {
             const assignmentID = req.params.assignmentId;
-            const material = await Material.findById(assignmentID);
+            const material = await Material.findById(assignmentID)
             if (!material) return res.status(404).json({ success: false, message: "❌ Material not found", error });
 
-            const assignedUsers = await AssignedUsers.find({material_id: assignmentID})
+            const assignedUsers = await AssignedUsers.find({ material_id: assignmentID })
             const assignedStudents = assignedUsers.map(student => {
                 return student.user_id.toString();
             })
-            return res.status(200).json({ success: true, data: {...material.toObject(), assignedStudents} })
+
+            const reformedMaterial = {
+                title: material.title,
+                description: material.description,
+                points: material.points,
+                ueDateOption: material.dueDate ? 'set' : 'none',
+                dueDate: material.dueDate ? material.dueDate : '',
+                availableFromOption: material.availableFrom ? 'set' : 'none',
+                availableFrom: material.availableFrom ? material.availableFrom : '',
+                assignToAll: material.isAvailableToAll,
+                attachments: material.attachments || [],
+                assignedStudents: assignedStudents || [],
+                searchQuery: '',
+                test: material.test.test
+            }
+
+            return res.status(200).json({ success: true, reformedMaterial, testProperties: material.test.testProperties })
         } catch (error) {
             return res.status(500).json({ success: false, message: "❌ Error getting material info", error });
         }
@@ -80,34 +163,41 @@ class materialController {
 
     async updateMaterialInfo(req, res) {
         try {
-            const { title, description, type, dueDate, points, course_id, assignedUsers, attachments, availableFrom, isAvailableToAll } = req.body;
-    
+            const { title, description, type, dueDate, points, course_id, assignedStudents: assignedUsers, attachments, availableFrom, isAvailableToAll, test, testProperties } = req.body;
             const assignmentID = req.params.assignmentId;
-    
+
             const material = await Material.findById(assignmentID);
             if (!material) return res.status(404).json({ success: false, message: "❌ Material not found" });
-    
+
+            const newTest = {
+                test: test,
+                testProperties: testProperties
+            }
+            const endDate = (type === "practice_with_test") ? testProperties.endDate : dueDate
+
             const updatedMaterial = await Material.findByIdAndUpdate(
                 assignmentID,
-                { title, description, type, dueDate, points, course_id, attachments, availableFrom, isAvailableToAll },
+                { title, description, type, dueDate: endDate, points, course_id, attachments, availableFrom, isAvailableToAll, test: newTest },
                 { new: true }
             );
-    
-            const pastAssignedUsers = await AssignedUsers.find({ material_id: assignmentID });
-            const assignedStudents = pastAssignedUsers.map(student => student.user_id.toString());
 
-    
-            const studentsToRemove = assignedStudents.filter(student => !assignedUsers.includes(student));
-            const studentsToAdd = assignedUsers.filter(student => !assignedStudents.includes(student));
+            if (type !== "material") {
+                const pastAssignedUsers = await AssignedUsers.find({ material_id: assignmentID });
+                const assignedStudents = pastAssignedUsers.map(student => student.user_id.toString());
 
-            for (const studentId of studentsToRemove) {
-                await AssignedUsers.deleteOne({ user_id: studentId, material_id: assignmentID });
-            }
-    
-            for (const studentId of studentsToAdd) {
-                const existingAssignment = await AssignedUsers.findOne({ user_id: studentId, material_id: assignmentID });
-                if (!existingAssignment) {
-                    await AssignedUsers.create({ user_id: studentId, material_id: assignmentID });
+                const studentsToRemove = assignedStudents.filter(student => !assignedUsers.includes(student));
+                const studentsToAdd = assignedUsers.filter(student => !assignedStudents.includes(student));
+
+                for (const studentId of studentsToRemove) {
+                    await AssignedUsers.deleteOne({ user_id: studentId, material_id: assignmentID });
+                    // if (type === "practice_with_test") await TestSession.deleteOne({user: studentId, material: assignmentID})
+                }
+
+                for (const studentId of studentsToAdd) {
+                    const existingAssignment = await AssignedUsers.findOne({ user_id: studentId, material_id: assignmentID });
+                    if (!existingAssignment) {
+                        await AssignedUsers.create({ user_id: studentId, material_id: assignmentID });
+                    }
                 }
             }
 
@@ -117,7 +207,7 @@ class materialController {
             return res.status(500).json({ success: false, message: "❌ Error updating material", error });
         }
     }
-    
+
     //return all published materials for one student
     async getCourseMaterialsForStudent(req, res) {
         try {
@@ -130,8 +220,8 @@ class materialController {
             const materials = await Material.find({
                 course_id: courseId,
                 $or: [
-                    { _id: { $in: materialIds } }, 
-                    { type: 'material' }  
+                    { _id: { $in: materialIds } },
+                    { type: 'material' }
                 ]
             }).sort({ createdAt: -1 });
 
@@ -188,6 +278,12 @@ class materialController {
             const userAssignment = await AssignedUsers.findOne({ material_id: materialId, user_id: userId })
                 .select("grade attachments status response")
                 .lean();
+
+            if (material?.test?.test) {
+                const testStatusForStudent = await TestSession.findOne({ user: userId, material: materialId, test: material.test.test }).select("isCompleted")
+                console.log(testStatusForStudent)
+                material.test.isCompleted = testStatusForStudent.isCompleted
+            }
 
             return res.status(200).json({
                 success: true,
@@ -338,6 +434,7 @@ class materialController {
                 return res.status(404).json({ success: false, message: "❌ Завдання не знайдено" });
             }
 
+            console.log(message)
             const teacher = await User.findById(teacher_id);
             if (!teacher) {
                 return res.status(404).json({ success: false, message: "❌ Вчитель не знайдений" });
@@ -380,7 +477,7 @@ class materialController {
             const courseOwners = await CourseOwner.find({ teacher_id: userId }).populate("course_id", "course_name course_desc");
 
             const coursesWithTasks = await Promise.all(courseOwners.map(async ({ course_id }) => {
-                const assignments = await Material.find({ course_id: course_id._id, type: "practice" }).select("title").lean();
+                const assignments = await Material.find({ course_id: course_id._id, type: { $in: ["practice", "practice_with_test"] } }).select("title").lean();
 
                 const tasks = await Promise.all(assignments.map(async (assignment) => {
                     const assignedUsers = await AssignedUsers.find({ material_id: assignment._id }).populate("user_id").lean();
@@ -427,32 +524,32 @@ class materialController {
     async getAllAssignmentsForOneCourseByTeacher(req, res) {
         try {
             const { userId, courseId } = req.params;
-    
+
             if (!mongoose.Types.ObjectId.isValid(userId) || !mongoose.Types.ObjectId.isValid(courseId)) {
                 return res.status(400).json({ success: false, message: "❌ Invalid user or course ID" });
             }
-    
+
             const teacher = await User.findById(userId);
             if (!teacher) {
                 return res.status(404).json({ success: false, message: "❌ Teacher not found" });
             }
-    
-            const assignments = await Material.find({ course_id: courseId, type: "practice" })
+
+            const assignments = await Material.find({ course_id: courseId, type: { $in: ["practice", "practice_with_test"] } })
                 .select("title points")
                 .lean();
-    
+
             const tasks = await Promise.all(assignments.map(async (assignment) => {
                 const assignedUsers = await AssignedUsers.find({ material_id: assignment._id })
-                    .populate("user_id", "first_name last_name") 
+                    .populate("user_id", "first_name last_name")
                     .lean();
-    
+
                 const students = assignedUsers.map(({ user_id, grade = "Not graded", status = "Not submitted" }) => ({
                     user_id: user_id._id,
                     name: `${user_id.first_name} ${user_id.last_name}`,
                     grade,
                     status
                 }));
-    
+
                 return {
                     _id: assignment._id,
                     title: assignment.title,
@@ -460,7 +557,7 @@ class materialController {
                     students
                 };
             }));
-    
+
             return res.status(200).json({ success: true, data: tasks });
         } catch (error) {
             console.error("❌ Error getting teacher assignments:", error);
@@ -471,8 +568,6 @@ class materialController {
             });
         }
     }
-    
-
 
     async getFilteredAssignmentsByStudent(req, res) {
         const { userId } = req.params;
@@ -491,7 +586,7 @@ class materialController {
         const coursesWithTasks = await Promise.all(enrolledCourses.map(async ({ course_id }) => {
             const practiceAssignments = await Material.find({
                 course_id: course_id._id,
-                type: "practice"
+                type: { $in: ["practice", "practice_with_test"] }
             }).select("title points dueDate").lean();
 
             const tasks = await Promise.all(practiceAssignments.map(async (assignment) => {
@@ -539,11 +634,6 @@ class materialController {
             data: filteredCourses
         });
     }
-
-
-
-
-
 }
 
 module.exports = new materialController();

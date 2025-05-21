@@ -1,6 +1,5 @@
-import React, { use, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { useSelector } from 'react-redux';
 import styles from "./AssignmentCreationForm.module.css";
 import { GoPaperclip } from "react-icons/go";
 import { AiFillDelete } from "react-icons/ai";
@@ -8,59 +7,66 @@ import { getFileIcon } from '../../../utils/fileUtils';
 import { getCoursePeople } from '../../../api/courseService';
 import { addTask, getMaterialInfo, updateMaterialInfo } from '../../../api/materialService';
 import { deleteFile, uploadFiles } from '../../../api/fileService';
+import { getTests } from '../../../api/testService';
+import MaterialForm from './MaterialForm';
+import PracticeForm from './PracticeForm';
+import TestForm from './TestForm';
+
+const initialAssignmentForm = {
+    title: '',
+    description: '',
+    points: '',
+    dueDateOption: 'none',
+    dueDate: '',
+    availableFromOption: 'none',
+    availableFrom: '',
+    assignToAll: true,
+    assignedStudents: [],
+    searchQuery: '',
+    attachments: [],
+    test: null
+};
+
+const initialTestProperties = {
+        isRandomQuestions: false,
+        questionCountByType: {
+            single: 0,
+            multiple: 0,
+            short: 0,
+            long: 0,
+        },
+        timeLimit: 0,
+        startDate: '',
+        endDate: ''
+    }
 
 const AssignmentCreationForm = ({ materialType, setMaterialType, setShowAssignmentForm, setPublishedAssignments, openMenuId, setOpenMenuId }) => {
     const { courseId } = useParams();
-    const [assignmentForm, setAssignmentForm] = useState({
-        title: '',
-        description: '',
-        points: '',
-        dueDateOption: 'none',
-        dueDate: '',
-        availableFromOption: 'none',
-        availableFrom: '',
-        assignToAll: true,
-        assignedStudents: [],
-        searchQuery: '',
-        attachments: [],
-    });
-
+    const [assignmentForm, setAssignmentForm] = useState(initialAssignmentForm);
+    const [testProperties, setTestProperties] = useState(initialTestProperties)
+    const [testsArray, setTestArray] = useState([])
     const [students, setStudents] = useState([]);
     const [filteredStudents, setFilteredStudents] = useState([])
+    const [imageForRemoving, setImageForRemoving] = useState([]);
 
     useEffect(() => {
         const fetchData = async () => {
             const data = await getCoursePeople(courseId);
+            const tests = await getTests();
             if (openMenuId) {
                 const materialData = await getMaterialInfo(openMenuId)
-
                 if (materialData.success) {
-                    console.log("MaterialData")
-                    console.log(materialData.data)
-                    setAssignmentForm(prev => ({
-                        ...prev,
-                        title: materialData.data.title.trim() || '',
-                        description: materialData.data.description.trim() || '',
-                        points: materialData.data.points || '',
-                        dueDateOption: materialData.data.dueDate ? 'set' : 'none',
-                        dueDate: materialData.data.dueDate ? materialData.dueDate : '',
-                        availableFromOption: materialData.data.availableFrom ? 'set' : 'none',
-                        availableFrom: materialData.data.availableFrom ? materialData.availableFrom : '',
-                        assignToAll: materialData.data.isAvailableToAll,
-                        attachments: materialData.data.attachments || [],
-                        assignedStudents: materialData.data.assignedStudents || []
-                    }))
+                    setAssignmentForm(materialData.reformedMaterial)
+                    setTestProperties(materialData.testProperties)
+                    console.log(materialData.testProperties)
                 }
             }
             else {
-
-                setAssignmentForm(prev => ({
-                    ...prev,
-                    assignedStudents: data.students.map(student => student.id)
-                }));
+                updateAssignmentFormField('assignedStudents', data.students.map(student => student.id))
                 setFilteredStudents(data.students)
             }
             setStudents(data.students)
+            setTestArray(tests)
         }
 
         fetchData();
@@ -74,6 +80,13 @@ const AssignmentCreationForm = ({ materialType, setMaterialType, setShowAssignme
         setFilteredStudents(filteredStudents)
     }, [assignmentForm.searchQuery, students])
 
+    const updateAssignmentFormField = (key, value) => {
+        setAssignmentForm(prev => ({
+            ...prev,
+            [key]: value
+        }));
+    };
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         setAssignmentForm(prev => ({ ...prev, [name]: value }));
@@ -82,21 +95,13 @@ const AssignmentCreationForm = ({ materialType, setMaterialType, setShowAssignme
     const handleCheckboxChange = (e) => {
         const { value, checked } = e.target;
 
-        if (value === 'all') {
-            setAssignmentForm(prev => ({
-                ...prev,
-                assignedStudents: checked ? students.map(student => student.id) : [],
-                assignToAll: checked
-            }));
-        } else {
-            setAssignmentForm(prev => ({
-                ...prev,
-                assignedStudents: checked
-                    ? [...prev.assignedStudents, value]
-                    : prev.assignedStudents.filter(id => id !== value),
-                assignToAll: false
-            }));
+        if (value === 'all') updateAssignmentFormField('assignedStudents', checked ? students.map(student => student.id) : [])
+        else {
+            updateAssignmentFormField('assignedStudents', checked
+                ? [...assignmentForm.assignedStudents, value]
+                : assignmentForm.assignedStudents.filter(id => id !== value))
         }
+        updateAssignmentFormField(value === "all" ? checked : false)
     };
 
     const handleSearchChange = (e) => {
@@ -106,93 +111,114 @@ const AssignmentCreationForm = ({ materialType, setMaterialType, setShowAssignme
 
     const handleFileChange = (e) => {
         const files = Array.from(e.target.files);
-        setAssignmentForm(prev => ({
-            ...prev,
-            attachments: [...prev.attachments, ...files],
-        }));
-        console.log(files)
+        updateAssignmentFormField("attachments", [...assignmentForm.attachments, ...files])
     };
 
-    const handleFileRemove = async (index) => {
-
+    const handleFileRemove = (index) => {
         const fileToRemove = assignmentForm.attachments[index];
-        console.log("File to remove:", fileToRemove.url);
-    
-        if (openMenuId && fileToRemove && !(fileToRemove instanceof File)) {
-            await deleteFile(fileToRemove.url); 
+
+        if (!(fileToRemove instanceof File) && fileToRemove.url) {
+            setImageForRemoving(prev => ([...prev, fileToRemove.url]))
         }
-
-        setAssignmentForm(prev => ({
-            ...prev,
-            attachments: prev.attachments.filter((_, i) => i !== index),
-        }));
-
+        updateAssignmentFormField("attachments", assignmentForm.attachments.filter((_, i) => i !== index))
     };
 
     const handleSubmit = async () => {
-        const attachmentsToUpload = assignmentForm.attachments.filter(file => file instanceof File)
-        const uploadedAttachments = assignmentForm.attachments.filter(file => !(file instanceof File))
-        let uploadedFiles = [];
-        if (attachmentsToUpload.length > 0) uploadedFiles = await uploadFiles(attachmentsToUpload, 'assignments')
-        const attachments = [...uploadedAttachments, ...uploadedFiles];
-
-        const formData = {
-            title: assignmentForm.title,
-            description: assignmentForm.description,
-            type: materialType,
-            dueDate: assignmentForm.dueDate,
-            points: assignmentForm.points,
-            course_id: courseId,
-            assignedUsers: assignmentForm.assignedStudents,
-            attachments: attachments || [],
-            availableFrom: assignmentForm.availableFrom,
-            isAvailableToAll: students.length === assignmentForm.assignedStudents.length
+        if (imageForRemoving.length > 0) {
+            imageForRemoving.forEach(async (i) => await deleteFile(i))
         }
+
+        const attachments = await Promise.all(assignmentForm.attachments.map(async (file) => {
+            if (file instanceof File) return (await uploadFiles(file, 'assignments'))[0]
+            else if (file.url) return file;
+            return undefined;
+        }));
+
+
+        const formData = { ...assignmentForm };
+        formData.type = materialType;
+        formData.course_id = courseId
+        formData.attachments = attachments.filter(file => file !== undefined);
+        formData.testProperties = testProperties
+        console.log(testProperties)
         if (openMenuId) {
             const data = await updateMaterialInfo(openMenuId, formData)
-
-            console.log(data.data)
             setPublishedAssignments(prev => prev.map(assignment =>
                 assignment._id === data.data._id ? data.data : assignment
             ))
-            setShowAssignmentForm(false)
-            setMaterialType('');
-            setOpenMenuId('')
         }
         else {
             const material = await addTask(formData)
-            if (material.success) {
-                console.log(material.data)
-                setPublishedAssignments(prev => [material.data, ...prev])
-                setShowAssignmentForm(false)
-                setMaterialType('');
-            }
+            if (material.success) setPublishedAssignments(prev => [material.data, ...prev])
         }
+        setShowAssignmentForm(false)
+        setMaterialType('');
+        setOpenMenuId('')
     }
 
     const handleCancel = () => {
-        setAssignmentForm({
-            title: '',
-            description: '',
-            points: '',
-            dueDateOption: 'none',
-            dueDate: '',
-            availableFromOption: 'none',
-            availableFrom: '',
-            assignToAll: true,
-            assignedStudents: [],
-            searchQuery: '',
-            attachments: [],
-        })
+        setAssignmentForm(initialAssignmentForm)
         setShowAssignmentForm(false)
         setMaterialType('');
+        setOpenMenuId('')
     }
+
+    const handleTestChange = (e) => {
+        const selectedTestId = e.target.value;
+        console.log(assignmentForm.test)
+        console.log(e.target.value)
+        
+  updateAssignmentFormField("test", e.target.value)
+        const selectedTest = testsArray.find(test => test.id === selectedTestId);
+
+        updateAssignmentFormField("test", selectedTestId);
+        setTestProperties({
+            ...initialTestProperties,
+            isRandomQuestions: true
+        })
+    };
 
     return (
         <div className={styles.assignmentFormOverlay}>
             <div className={styles.assignmentFormSection}>
                 <h2>Create Assignment</h2>
                 <form className={styles.assignmentForm}>
+                    <div className={styles.assignmentFormContent}>
+                        <div className={styles.left}>
+                            <MaterialForm
+                                setImageForRemoving={setImageForRemoving}
+                                assignmentForm={assignmentForm}
+                                updateAssignmentFormField={updateAssignmentFormField} />
+
+                        </div>
+
+                            {materialType === "practice_with_test" && <div className={`${styles.center}`}>
+                                <TestForm
+                                       assignmentForm={assignmentForm}
+                                        testProperties={testProperties}
+                                        setTestProperties={setTestProperties}
+                                        testsArray={testsArray} 
+                                        handleTestChange={handleTestChange}
+                                />
+                            </div>}
+                        {materialType !== "material" && <div className={styles.right}>
+                            <PracticeForm
+                                assignmentForm={assignmentForm}
+                                updateAssignmentFormField={updateAssignmentFormField}
+                                handleChange={handleChange}
+                                filteredStudents={filteredStudents}
+                                handleCheckboxChange={handleCheckboxChange} />
+                        </div>}
+                    </div>
+
+                    <div className={styles.formActions}>
+                        <button type="button" className={styles.submitButton} onClick={handleSubmit}>Submit</button>
+                        <button type="button" className={styles.cancelButton} onClick={handleCancel}>Cancel</button>
+                    </div>
+                </form>
+
+
+                {materialType === "smaterial" && <form className={styles.assignmentForm}>
                     <div className={styles.assignmentFormContent}>
                         <div className={styles.left}>
                             <input
@@ -210,6 +236,94 @@ const AssignmentCreationForm = ({ materialType, setMaterialType, setShowAssignme
                                 value={assignmentForm.description}
                                 onChange={handleChange}
                             />
+                            {materialType === "practice_with_test"
+                                && <>
+                                    <select onChange={handleTestChange}>
+                                        <option value="">Вибрати тест</option>
+                                        {testsArray.map((option, index) => (
+                                            <option key={option.id} value={option.id}>
+                                                {option.title}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <label className={styles.dueDateLabel}>Start Date</label>
+                                    <select
+                                        name="dueDateOption"
+                                        value={assignmentForm.dueDateOption}
+                                        onChange={handleChange}
+                                    >
+                                        <option value="none">No start date</option>
+                                        <option value="set">Set start date</option>
+                                    </select>
+                                    {assignmentForm.dueDateOption === "set" && (
+                                        <input
+                                            type="datetime-local"
+                                            name="dueDate"
+                                            value={assignmentForm.dueDate}
+                                            onChange={handleChange}
+                                        />
+                                    )}
+                                </>
+                            }
+                            {materialType !== "material" && <div className={styles.dateGroup}>
+                                <label className={styles.dueDateLabel}>Due Date</label>
+                                <select
+                                    name="dueDateOption"
+                                    value={assignmentForm.dueDateOption}
+                                    onChange={handleChange}
+                                >
+                                    <option value="none">No deadline</option>
+                                    <option value="set">Set deadline</option>
+                                </select>
+                                {assignmentForm.dueDateOption === "set" && (
+                                    <input
+                                        type="datetime-local"
+                                        name="dueDate"
+                                        value={assignmentForm.dueDate}
+                                        onChange={handleChange}
+                                    />
+                                )}
+                            </div>}
+                            {materialType === "practice_with_test" && <div className={styles.formGroup}>
+                                <label className={styles.checkboxLabel}>
+                                    <input
+                                        type="checkbox"
+                                        checked={testProperties.isRandomQuestions}
+                                        onChange={(e) => setTestProperties({ ...testProperties, isRandomQuestions: e.target.checked })}
+                                    />
+                                    Enable Random Questions Selection
+                                </label>
+                            </div>}
+
+                            {testProperties.isRandomQuestions && assignmentForm.test && (
+                                <div className={styles.randomQuestionsSection}>
+                                    <h4>Number of Questions by Type</h4>
+                                    <div className={styles.questionTypeGrid}>
+                                        {Object.entries(testProperties.questionCountByType).map(([type, count]) => (
+                                            <div key={type} className={styles.questionTypeInput}>
+                                                <label>{type.charAt(0).toUpperCase() + type.slice(1)}:</label>
+                                                <input
+                                                    type="number"
+                                                    min="0"
+                                                    max={assignmentForm.test.questionTypeCount[type]}
+                                                    value={count === 0 ? '' : count}
+                                                    placeholder={`max ${assignmentForm.test.questionTypeCount[type]} questions`}
+                                                    onChange={(e) =>
+                                                        setTestProperties({
+                                                            ...testProperties,
+                                                            questionCountByType: {
+                                                                ...testProperties.questionCountByType,
+                                                                [type]: parseInt(e.target.value || '0'),
+                                                            }
+                                                        })
+                                                    }
+                                                />
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
                             <div className={styles.fileUploadGroup}>
                                 <label className={styles.fileInputLabel}>
                                     <p>Choose file</p>
@@ -250,26 +364,6 @@ const AssignmentCreationForm = ({ materialType, setMaterialType, setShowAssignme
                                     value={assignmentForm.points}
                                     onChange={handleChange}
                                 />
-
-                                <div className={styles.dateGroup}>
-                                    <label className={styles.dueDateLabel}>Due Date</label>
-                                    <select
-                                        name="dueDateOption"
-                                        value={assignmentForm.dueDateOption}
-                                        onChange={handleChange}
-                                    >
-                                        <option value="none">No deadline</option>
-                                        <option value="set">Set deadline</option>
-                                    </select>
-                                    {assignmentForm.dueDateOption === "set" && (
-                                        <input
-                                            type="datetime-local"
-                                            name="dueDate"
-                                            value={assignmentForm.dueDate}
-                                            onChange={handleChange}
-                                        />
-                                    )}
-                                </div>
 
                                 <div className={styles.dateGroup}>
                                     <label className={styles.availableLabel}>Available From</label>
@@ -331,7 +425,8 @@ const AssignmentCreationForm = ({ materialType, setMaterialType, setShowAssignme
                         <button type="button" className={styles.submitButton} onClick={handleSubmit}>Submit</button>
                         <button type="button" className={styles.cancelButton} onClick={handleCancel}>Cancel</button>
                     </div>
-                </form>
+                </form>}
+
             </div>
         </div>
     );

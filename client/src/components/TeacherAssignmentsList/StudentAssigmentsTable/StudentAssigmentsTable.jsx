@@ -22,7 +22,7 @@ const StudentAssigmentsTable = ({ assignments }) => {
                                     <td>{assignment.status}</td>
                                     <td>{assignment.grade || 'Not graded'}</td>
                                     <td>
-                                        <button onClick={() => navigate(`/assignment/${assignment.material_id}`)}>
+                                        <button onClick={() => navigate(`/assignment/${assignment._id}`)}>
                                             Viev Assignment
                                         </button>
                                     </td>

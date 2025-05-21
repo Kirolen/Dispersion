@@ -1,0 +1,150 @@
+.reviewContainer {
+    padding: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+    color: var(--text-primary);
+}
+
+.reviewHeader {
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid var(--accent-primary);
+
+    h1 {
+        color: var(--text-title);
+        margin: 0 0 15px 0;
+    }
+
+    .studentInfo {
+        h2 {
+            color: var(--text-title);
+            margin: 0 0 10px 0;
+        }
+
+        p {
+            margin: 0;
+            font-size: 1.2em;
+            color: var(--accent-primary);
+        }
+    }
+}
+
+.questionsContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.questionCard {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 20px;
+
+    h3 {
+        color: var(--text-title);
+        margin: 0 0 15px 0;
+    }
+
+    .answerSection {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin: 20px 0;
+
+        h4 {
+            color: var(--text-title);
+            margin: 0 0 10px 0;
+        }
+
+        .option {
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 5px;
+            list-style: none;
+
+            &.selected {
+                background: rgba(255, 0, 0, 0.1);
+            }
+
+            &.correct {
+                background: rgba(0, 255, 0, 0.1);
+            }
+
+            &.selected.correct {
+                background: rgba(0, 255, 0, 0.2);
+            }
+        }
+    }
+
+    .feedback {
+        h4 {
+            color: var(--text-title);
+            margin: 0 0 10px 0;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 100px;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            background: var(--input-bg);
+            color: var(--text-primary);
+            resize: vertical;
+        }
+    }
+
+    .imageGrid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .questionImage {
+        width: 200px;
+        height: 200px;
+        object-fit: contain;
+        border-radius: 8px;
+        position: relative;
+        z-index: 1;
+        background-color: transparent;
+    }
+
+    /* Контейнер з блюром */
+    .imageWrapper {
+        position: relative;
+        width: 200px;
+        height: 200px;
+        overflow: hidden;
+        border-radius: 8px;
+    }
+
+    .imageWrapper::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-image: inherit;
+        /* успадковує фон з inline style */
+        background-size: cover;
+        /* Розтягуємо блюр, щоб покрити весь блок */
+        background-position: center;
+        filter: blur(20px);
+        z-index: 0;
+    }
+
+    .scoreInput {
+        margin-top: 10px;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+
+    .scoreInput input {
+        width: 60px;
+        padding: 5px;
+        font-size: 16px;
+    }
+
+
+}

@@ -63,6 +63,7 @@ const GradeAssignmentForm = () => {
                         onChange={(e) => setLocalGrade(e.target.value)}
                         max={assignment.points}
                         min="0"
+                        step="0.01"
                     />
                 </div>
                 <div className={styles.feedback}>                    

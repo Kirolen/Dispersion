@@ -9,6 +9,7 @@
     justify-content: center;
     align-items: center;
     z-index: 1000;
+    color: white;
 
     .assignmentFormSection {
         display: flex;
@@ -32,24 +33,76 @@
                 display: flex;
                 width: 100%;
                 gap: 10px;
-
                 .left,
-                .right {
+                .right,
+                .center {
                     display: flex;
                     flex-direction: column;
-                    padding: 4%;
-                    width: 100%;
+                    flex: 1;
                     gap: 15px;
+
+                    .checkboxLabel {
+                        display: flex;
+                        align-items: center;
+                        gap: 10px;
+                        cursor: pointer;
+
+                        input[type="checkbox"] {
+                            width: 20px;
+                            height: 20px;
+                            cursor: pointer;
+                            box-sizing: border-box;
+                        }
+                    }
+
+                    .randomQuestionsSection {
+                        background: var(--bg-secondary);
+                        padding: 10px;
+                        border-radius: 8px;
+
+                        h4 {
+                            color: var(--text-title);
+                            margin: 0 0 5px 0;
+                        }
+
+                        .questionTypeGrid {
+                            display: grid;
+                            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                            gap: 5px;
+
+                            .questionTypeInput {
+                                display: flex;
+                                align-items: center;
+                                gap: 10px;
+
+                                label {
+                                    width: 60px;
+                                    margin: 0;
+                                }
+
+                                input {
+                                    flex: 1;
+                                    padding: 5px;
+                                    border: 1px solid var(--border-color);
+                                    border-radius: 5px;
+                                    background: var(--input-bg);
+                                    color: var(--text-primary);
+                                    box-sizing: border-box;
+                                }
+                            }
+                        }
+                    }
 
                     .textInput,
                     textarea,
                     select {
-                        width: 90%;
+                        width: 100%;
                         padding: 6px;
                         background-color: rgba(164, 215, 249, 0.816);
                         color: rgba(44, 44, 44, 1);
                         border: none;
                         border-radius: 4px;
+                        box-sizing: border-box;
 
                         &::placeholder {
                             color: rgba(44, 44, 44, 0.8);
@@ -57,7 +110,7 @@
                     }
 
                     textarea {
-                        height: 120px;
+                        height: 40px;
                         max-height: 150px;
                         resize: vertical;
                     }
@@ -85,9 +138,10 @@
                         display: flex;
                         flex-direction: column;
                         max-height: 120px;
-                        width: 95%;
+                        width: 100%;
                         overflow-y: auto;
                         gap: 5px;
+                        box-sizing: border-box;
 
                         .searchInput {
                             padding: 10px;
@@ -187,18 +241,20 @@
                     background-color: #f8d7da;
                     color: red;
                     border: 1px solid red;
+
                     &:hover {
-                        background-color: #f1acb3; 
-                    } 
+                        background-color: #f1acb3;
+                    }
                 }
 
                 .submitButton {
-                    background-color: #d4edda; 
+                    background-color: #d4edda;
                     color: green;
                     border: 1px solid green;
+
                     &:hover {
-                      background-color: #a3eab4; 
-                    } 
+                        background-color: #a3eab4;
+                    }
                 }
             }
         }

@@ -1,5 +1,5 @@
 import React from "react";
-import { useParams, useLocation } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { submitSubmission, returnSubmission, updateStundetTask } from "../../../api/materialService";
 import { uploadFiles, deleteFile } from "../../../api/fileService";
@@ -10,8 +10,6 @@ import styles from "./SubmissionForm.module.css";
 
 const SubmissionForm = () => {
     const { assignmentId } = useParams();
-    const location = useLocation();
-    const searchParams = new URLSearchParams(location.search);
     const dispacth = useDispatch();
     const { assignment, attachments, status } = useSelector((state) => state.assignment)
     const { user_id } = useSelector((state) => state.user);
