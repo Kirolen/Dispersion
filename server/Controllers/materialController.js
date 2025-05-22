@@ -7,6 +7,23 @@ const CourseAccess = require('../Models/CourseAccess');
 const TestSession = require('../Models/TestSession');
 const Test = require('../Models/Test');
 
+/**
+ * Generates a test session for a specific user based on the provided test and test properties.
+ * 
+ * It selects questions either randomly by type or takes all questions,
+ * calculates the total score, and creates a TestSession document.
+ * 
+ * @param {mongoose.Types.ObjectId|string} userId - ID of the user for whom to generate the test session.
+ * @param {mongoose.Types.ObjectId|string} materialId - ID of the material related to the test.
+ * @param {mongoose.Types.ObjectId|string} testId - ID of the test to generate a session for.
+ * @param {Object} testProperties - Properties that control test generation, e.g. randomization and question counts.
+ * @param {boolean} testProperties.isRandomQuestions - Whether to randomize questions or not.
+ * @param {Object} testProperties.questionCountByType - Number of questions to select per question type.
+ * @param {Date} testProperties.endDate - The end date of the test (not used directly here but typically important).
+ * 
+ * @returns {Promise<Object>} The created TestSession document.
+ * @throws Will throw an error if the test is not found or any DB operation fails.
+ */
 async function generateTestSessionForUser(userId, materialId, testId, testProperties) {
     try {
         const test = await Test.findById(testId);
@@ -14,7 +31,6 @@ async function generateTestSessionForUser(userId, materialId, testId, testProper
 
         let selectedQuestions = [];
 
-        console.log(testProperties)
         if (testProperties.isRandomQuestions) {
             const groupedByType = {
                 single: [],
@@ -48,13 +64,13 @@ async function generateTestSessionForUser(userId, materialId, testId, testProper
             points: q.qPoints
         }));
 
-        console.log(totalScore)
         const testSession = await TestSession.create({
             user: userId,
             test: test.id,
             material: materialId,
             questions: sessionQuestions,
-            totalScore: totalScore
+            totalScore: totalScore,
+            startedAt: null
         });
 
         return testSession;
@@ -65,7 +81,42 @@ async function generateTestSessionForUser(userId, materialId, testId, testProper
     }
 }
 
+/**
+ * @class materialController
+ * @classdesc Manages course materials including assignments, practices, and attached resources.
+ *
+ * ### Features:
+ * - Create, retrieve, update, and delete course materials.
+ * - Fetch all assignments for a course by teacher.
+ * - Assign materials to students and manage their statuses.
+ *
+ * @exports materialController
+ */
 class materialController {
+    /**
+     * Adds a new material or task.
+     * 
+     * Creates a material document and assigns it to users if the type requires.
+     * For tests, generates test sessions for assigned users.
+     * 
+     * @param {Object} req - Express request object; expects body with material/task details.
+     * @param {Object} req.body - Body of the request containing material info.
+     * @param {string} req.body.title - Title of the material.
+     * @param {string} req.body.description - Description of the material.
+     * @param {string} req.body.type - Type of the material (e.g., 'material', 'practice_with_test').
+     * @param {Date} [req.body.dueDate] - Due date for the material.
+     * @param {number} req.body.points - Points for the material.
+     * @param {string} req.body.course_id - ID of the related course.
+     * @param {Array<string>} req.body.assignedStudents - Array of user IDs assigned to the material.
+     * @param {Array<Object>} [req.body.attachments] - Attached files or resources.
+     * @param {Date} [req.body.availableFrom] - When material becomes available.
+     * @param {boolean} [req.body.isAvailableToAll] - Whether material is available to all students.
+     * @param {string} [req.body.test] - Test ID if material includes a test.
+     * @param {Object} [req.body.testProperties] - Test generation properties.
+     * 
+     * @param {Object} res - Express response object.
+     * @returns {Promise<void>} JSON response with success or error message.
+     */
     async addTask(req, res) {
         try {
             const { title, description, type, dueDate, points, course_id, assignedStudents: assignedUsers, attachments, availableFrom, isAvailableToAll, test, testProperties } = req.body;
@@ -107,6 +158,14 @@ class materialController {
         }
     }
 
+    /**
+     * Deletes a material and all related assignments and test sessions if applicable.
+     * 
+     * @param {Object} req - Express request object.
+     * @param {string} req.params.assignmentId - ID of the material to delete.
+     * @param {Object} res - Express response object.
+     * @returns {Promise<void>} JSON response with success or error message.
+     */
     async deleteAssignment(req, res) {
         try {
             const assignmentID = req.params.assignmentId;
@@ -117,7 +176,7 @@ class materialController {
             }
 
             if (material.type !== 'material') await AssignedUsers.deleteMany({ material_id: assignmentID });
-            if (material.type === 'practice_with_test') await TestSession.deleteMany({ test: material.test.test })
+            if (material.type === 'practice_with_test') await TestSession.deleteMany({ test: material.test.test, material: assignmentID})
 
             await Material.findByIdAndDelete(assignmentID);
 
@@ -129,6 +188,15 @@ class materialController {
         }
     }
 
+    /**
+   * Retrieves detailed information about a specific material,
+   * including assigned students and test properties if applicable.
+   * 
+   * @param {Object} req - Express request object.
+   * @param {string} req.params.assignmentId - ID of the material to fetch.
+   * @param {Object} res - Express response object.
+   * @returns {Promise<void>} JSON response with material details or error.
+   */
     async getMaterialInfo(req, res) {
         try {
             const assignmentID = req.params.assignmentId;
@@ -161,6 +229,29 @@ class materialController {
         }
     }
 
+    /**
+     * Updates the information of a material,
+     * including updating assigned students and test properties.
+     * 
+     * @param {Object} req - Express request object.
+     * @param {string} req.params.assignmentId - ID of the material to update.
+     * @param {Object} req.body - Updated material properties.
+     * @param {string} req.body.title - Updated title.
+     * @param {string} req.body.description - Updated description.
+     * @param {string} req.body.type - Updated material type.
+     * @param {Date} req.body.dueDate - Updated due date.
+     * @param {number} req.body.points - Updated points.
+     * @param {string} req.body.course_id - Updated course ID.
+     * @param {Array<string>} req.body.assignedStudents - Updated list of assigned students.
+     * @param {Array<Object>} req.body.attachments - Updated attachments.
+     * @param {Date} req.body.availableFrom - Updated availability start date.
+     * @param {boolean} req.body.isAvailableToAll - Updated availability flag.
+     * @param {string} req.body.test - Updated test ID.
+     * @param {Object} req.body.testProperties - Updated test properties.
+     * 
+     * @param {Object} res - Express response object.
+     * @returns {Promise<void>} JSON response with updated material data or error.
+     */
     async updateMaterialInfo(req, res) {
         try {
             const { title, description, type, dueDate, points, course_id, assignedStudents: assignedUsers, attachments, availableFrom, isAvailableToAll, test, testProperties } = req.body;
@@ -190,7 +281,6 @@ class materialController {
 
                 for (const studentId of studentsToRemove) {
                     await AssignedUsers.deleteOne({ user_id: studentId, material_id: assignmentID });
-                    // if (type === "practice_with_test") await TestSession.deleteOne({user: studentId, material: assignmentID})
                 }
 
                 for (const studentId of studentsToAdd) {
@@ -208,7 +298,13 @@ class materialController {
         }
     }
 
-    //return all published materials for one student
+    /**
+  * Retrieves all published course materials for a specific student.
+  *
+  * @param {object} req - Express request object, expects `courseId` param and `userId` query.
+  * @param {object} res - Express response object.
+  * @returns {Promise<void>} - Sends list of available materials or error.
+  */
     async getCourseMaterialsForStudent(req, res) {
         try {
             const { courseId } = req.params;
@@ -235,7 +331,13 @@ class materialController {
         }
     }
 
-    //return all published materials for all students. Get access only teacher
+    /**
+     * Retrieves all course materials (for teacher access).
+     *
+     * @param {object} req - Express request object, expects `courseId` param.
+     * @param {object} res - Express response object.
+     * @returns {Promise<void>} - Sends list of materials or error.
+     */
     async getAllCourseMaterials(req, res) {
         try {
             let { courseId } = req.params;
@@ -254,14 +356,19 @@ class materialController {
         }
     }
 
-    //return info about task materials for all students. Get access only teacher
+    /**
+  * Retrieves detailed task information for a specific student and material.
+  * Includes submission status and test session completion status.
+  *
+  * @param {object} req - Express request object, expects `materialId` param and `userId` query.
+  * @param {object} res - Express response object.
+  * @returns {Promise<void>} - Sends material and student-specific info or error.
+  */
     async getStudentTaskInfo(req, res) {
         try {
             let { materialId } = req.params;
             let { userId } = req.query;
             userId = userId.trim()
-            console.log(`Material ID: ${materialId}, User ID: ${userId}`);
-
             if (!mongoose.Types.ObjectId.isValid(materialId)) {
                 return res.status(400).json({ success: false, message: "❌ Invalid material ID" });
             }
@@ -280,9 +387,10 @@ class materialController {
                 .lean();
 
             if (material?.test?.test) {
-                const testStatusForStudent = await TestSession.findOne({ user: userId, material: materialId, test: material.test.test }).select("isCompleted")
+                console.log(userId, materialId)
+                const testStatusForStudent = await TestSession.findOne({ user: userId, material: materialId})
                 console.log(testStatusForStudent)
-                material.test.isCompleted = testStatusForStudent.isCompleted
+                material.test.isCompleted = testStatusForStudent?.isCompleted || false;
             }
 
             return res.status(200).json({
@@ -299,6 +407,13 @@ class materialController {
         }
     }
 
+    /**
+    * Retrieves a list of assignments with submission and grading status for a student in a course.
+    *
+    * @param {object} req - Express request object, expects `courseId` param and `userId` query.
+    * @param {object} res - Express response object.
+    * @returns {Promise<void>} - Sends status of all tasks or error.
+    */
     async getStudentTasksResult(req, res) {
         try {
             const { courseId } = req.params;
@@ -341,6 +456,13 @@ class materialController {
         }
     }
 
+    /**
+    * Submits a student's assignment and updates status depending on due date.
+    *
+    * @param {object} req - Express request object, expects `material_id` and `user_id` in body.
+    * @param {object} res - Express response object.
+    * @returns {Promise<void>} - Sends confirmation of submission or error.
+    */
     async submitSubmission(req, res) {
         try {
             const { material_id, user_id } = req.body;
@@ -375,6 +497,13 @@ class materialController {
         }
     }
 
+    /**
+    * Reverts a student's submission status, e.g., for resubmission after teacher feedback.
+    *
+    * @param {object} req - Express request object, expects `material_id` and `user_id` in params.
+    * @param {object} res - Express response object.
+    * @returns {Promise<void>} - Sends reverted submission status or error.
+    */
     async getSubmission(req, res) {
         try {
             const { material_id, user_id } = req.params;
@@ -404,6 +533,13 @@ class materialController {
         }
     }
 
+    /**
+    * Updates a student's task submission by attaching new files.
+    *
+    * @param {object} req - Express request object. Requires `material_id`, `user_id`, and `files` in the body.
+    * @param {object} res - Express response object.
+    *  @returns {Promise<void>} - Responds with the updated submission or an error.
+    */
     async updateStudentTask(req, res) {
         try {
             const { material_id, user_id, files } = req.body;
@@ -425,6 +561,14 @@ class materialController {
             return res.status(500).json({ success: false, message: "❌ Помилка сервера", error });
         }
     }
+
+    /**
+    * Grades a student's task submission and optionally includes a message from the teacher.
+    *
+    * @param {object} req - Express request object. Requires `material_id`, `student_id`, `teacher_id`, `grade`, and `message` in the body.
+    * @param {object} res - Express response object.
+    * @returns {Promise<void>} - Responds with the graded submission or an error.
+    */
 
     async gradeTask(req, res) {
         try {
@@ -466,6 +610,13 @@ class materialController {
         }
     }
 
+    /**
+    * Retrieves assignments filtered by status (e.g., submitted, passed) for each course a teacher manages.
+    *
+    * @param {object} req - Express request object. Requires `userId` param and optional `filterValue` query (e.g., "graded", "passed").
+    * @param {object} res - Express response object.
+    * @returns {Promise<void>} - Responds with a list of courses, tasks, and filtered student data.
+    */
     async getFilteredAssignmentsByTeacher(req, res) {
         try {
             const { userId } = req.params;
@@ -521,6 +672,14 @@ class materialController {
         }
     }
 
+    /**
+    * Retrieves all assignments (practice and practice_with_test) for a specific course taught by a teacher.
+    * Each assignment includes basic student info, grade, and status.
+    *
+    * @param {object} req - Express request object. Requires `userId` and `courseId` as route parameters.
+    * @param {object} res - Express response object.
+    * @returns {Promise<void>} - Responds with an array of tasks and their student submission data or an error.
+    */
     async getAllAssignmentsForOneCourseByTeacher(req, res) {
         try {
             const { userId, courseId } = req.params;
@@ -569,6 +728,14 @@ class materialController {
         }
     }
 
+    /**
+    * Retrieves filtered assignments for a specific student across all enrolled courses.
+    * Filters may include: `graded`, `passed`, `not_passed`, or `all`.
+    *
+    * @param {object} req - Express request object. Requires `userId` as a route parameter and optional `filterValue` query.
+    * @param {object} res - Express response object.
+    * @returns {Promise<void>} - Responds with filtered tasks per course or an error.
+    */
     async getFilteredAssignmentsByStudent(req, res) {
         const { userId } = req.params;
         let { filterValue } = req.query;

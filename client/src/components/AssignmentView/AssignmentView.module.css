@@ -99,6 +99,22 @@
         text-align: center;
         color: var(--text-primary);
       }
+
+      .testStart, .testViewAnswers {
+        cursor: pointer;
+        background-color: var(--bg-button-submit);
+        color: var(--color-text-button);
+        padding: 5px;
+        &:hover {
+          background-color: var(--bg-button-submit-hover);
+        }
+      }
+
+      .testDontStarted, .testEnded {
+        background-color: var(--bg-button-cancel);
+        color: var(--color-text-button);
+        padding: 5px;
+      }
     }
   }
 }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { startTest, takeTest } from '../../api/testService';
 import styles from './TestAttemptPage.module.css';
@@ -10,46 +10,69 @@ const TestAttemptPage = () => {
   const [answers, setAnswers] = useState({});
   const [timeLeft, setTimeLeft] = useState(null);
 
+  const endTimeRef = useRef(null);
+  const timerRef = useRef(null);
+
   useEffect(() => {
     const fetchTest = async () => {
       try {
         const testData = await startTest(assignmentID);
-        const testStart = new Date(testData.test.startedAt);
+        console.log(testData)
+        let startTime = testData.test?.startedAt ? new Date(testData.test.startedAt) : new Date();
         const now = new Date();
-
-        const elapsedSeconds = Math.floor((now - testStart) / 1000);
         const allowedSeconds = (testData.testLimit || 0) * 60;
-
-        if (allowedSeconds && elapsedSeconds >= allowedSeconds) {
-          setTimeLeft(0); // Час вичерпано
+console.log(allowedSeconds)
+        if (!testData.test?.startedAt) {
+          startTime = now;
+        }
+console.log(startTime)
+        const elapsedSeconds = Math.floor((now - startTime) / 1000);
+console.log(elapsedSeconds)
+        if (allowedSeconds === 0) {
+          setTest(testData.test);
+          setTimeLeft(null);
+        } else if (elapsedSeconds >= allowedSeconds) {
+          setTimeLeft(0);
+          setTest(testData.test);
         } else {
           setTest(testData.test);
-          setTimeLeft(allowedSeconds - elapsedSeconds); // Залишок часу
+          const timeRemaining = allowedSeconds - elapsedSeconds;
+          setTimeLeft(timeRemaining);
+          endTimeRef.current = Date.now() + timeRemaining * 1000;
         }
       } catch (error) {
         console.error('Error fetching test:', error);
       }
     };
+
     fetchTest();
+
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
   }, [assignmentID]);
 
 
   useEffect(() => {
-    if (timeLeft === null) return;
+    if (timeLeft === null || !test || test.testProperties?.timeLimit === 0) return;
 
-    const timer = setInterval(() => {
-      setTimeLeft(prev => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          handleSubmit();
-          return 0;
-        }
-        return prev - 1;
-      });
+    if (timerRef.current) clearInterval(timerRef.current);
+
+    timerRef.current = setInterval(() => {
+      const now = Date.now();
+      const secondsLeft = Math.max(Math.floor((endTimeRef.current - now) / 1000), 0);
+      setTimeLeft(secondsLeft);
+
+      if (secondsLeft <= 0) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+        handleSubmit();
+      }
     }, 1000);
 
-    return () => clearInterval(timer);
-  }, [timeLeft]);
+    return () => clearInterval(timerRef.current);
+  }, [timeLeft, test]);
+
 
   const handleAnswerChange = (questionIndex, value, type) => {
     setAnswers(prev => {
@@ -74,7 +97,7 @@ const TestAttemptPage = () => {
 
   const handleSubmit = async () => {
     try {
-      const response = await takeTest(assignmentID, answers)
+      const response = await takeTest(assignmentID, answers);
       if (response.success) navigate(`/assignment/${assignmentID}`);
     } catch (error) {
       console.error('Error submitting test:', error);
@@ -87,7 +110,7 @@ const TestAttemptPage = () => {
     <div className={styles.testContainer}>
       <div className={styles.testHeader}>
         <h1>{test.title}</h1>
-        {timeLeft !== null && (
+        {timeLeft !== null && test.testProperties?.timeLimit !== 0 && (
           <div className={styles.timer}>
             Time left: {Math.floor(timeLeft / 60)}:{String(timeLeft % 60).padStart(2, '0')}
           </div>

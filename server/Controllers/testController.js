@@ -4,7 +4,43 @@ const Material = require("../Models/Material");
 const TestSession = require("../Models/TestSession");
 const AssignedUsers = require("../Models/AssignedUsers");
 
+/**
+ * @class testController
+ * @classdesc Handles test-related operations such as creation, retrieval, updating, grading, and submission.
+ * 
+ * ### Features:
+ * - Create, retrieve, update, and delete tests.
+ * - Start and complete test sessions for students.
+ * - Auto-grade and manually update test scores.
+ * - Return formatted responses for test attempts and analytics.
+ * 
+ * ### Dependencies:
+ * - User: User model for teacher/student info.
+ * - Test: Test model for storing test structures.
+ * - Material: Material model linking tests to course materials.
+ * - TestSession: Stores in-progress and completed test attempts by users.
+ * - AssignedUsers: Tracks assignment and submission status per material and user.
+ * 
+ * ### Methods:
+ * - `createTest(req, res)`: Create a new test.
+ * - `getTests(req, res)`: Fetch all tests for the logged-in teacher.
+ * - `getTestById(req, res)`: Fetch a test by ID.
+ * - `updateTest(req, res)`: Update an existing test.
+ * - `startTest(req, res)`: Retrieve a student’s test session or prepare it for use.
+ * - `takeTest(req, res)`: Submit answers and mark the test as complete.
+ * - `getAttempt(req, res)`: Retrieve a student's completed test and auto-grade it.
+ * - `updateScore(req, res)`: Manually update individual question scores for a student.
+ * 
+ * @exports testController
+ */
 class testController {
+  /**
+  * Creates a new test and saves it to the database.
+  *
+  * @param {object} req - Express request object. Contains the test data in `req.body.test`.
+  * @param {object} res - Express response object.
+  * @returns {Promise<void>} - Responds with created test data or error.
+  */
   async createTest(req, res) {
     try {
       const { test } = req.body;
@@ -31,9 +67,17 @@ class testController {
     }
   }
 
+  /**
+  * Retrieves all tests created by the logged-in user.
+  * Returns summarized info including question counts by type.
+  *
+  * @param {object} req - Express request object (expects authenticated user).
+  * @param {object} res - Express response object.
+  * @returns {Promise<void>} - Responds with a list of tests or error.
+  */
   async getTests(req, res) {
     try {
-      const tests = await Test.find({}, 'title description questions'); // обмеження полів
+      const tests = await Test.find({ createdBy: req.user.id }, 'title description questions');
 
       const formatted = tests.map(test => {
         const questionTypeCount = {
@@ -65,6 +109,13 @@ class testController {
     }
   }
 
+  /**
+  * Fetches a single test by its ID.
+  *
+  * @param {object} req - Express request object. Contains test ID in `req.params.id`.
+  * @param {object} res - Express response object.
+  * @returns {Promise<void>} - Responds with test object or error if not found.
+  */
   async getTestById(req, res) {
     try {
       const { id } = req.params;
@@ -81,6 +132,13 @@ class testController {
     }
   }
 
+  /**
+  * Updates a test with new data.
+  *
+  * @param {object} req - Express request object. Contains test ID in `req.params.id` and updates in `req.body.updatedTest`.
+  * @param {object} res - Express response object.
+  * @returns {Promise<void>} - Responds with the updated test or an error.
+  */
   async updateTest(req, res) {
     try {
       const { id } = req.params;
@@ -98,6 +156,13 @@ class testController {
     }
   }
 
+  /**
+  * Starts a test session for a user based on material ID.
+  *
+  * @param {object} req - Express request object. Contains material ID in `req.params.material_id`.
+  * @param {object} res - Express response object.
+  * @returns {Promise<void>} - Responds with user's test session and test time limit.
+  */
   async startTest(req, res) {
     try {
       const { material_id } = req.params;
@@ -105,13 +170,22 @@ class testController {
       const material = await Material.findById(material_id).select('test')
 
       const userTest = await TestSession.findOne({ user: user.id, test: material.test.test, material: material_id })
-
+      if (!userTest.startedAt) userTest.startedAt = Date.now();
+      userTest.save();
       return res.json({ message: 'Тест оновлено успішно', test: userTest, testLimit: material.test.testProperties.timeLimit });
     } catch (error) {
       res.status(500).json({ message: 'Помилка при оновленні тесту', error });
     }
   }
 
+  /**
+  * Saves the user's test answers and marks the test as completed.
+  * Updates the assigned user status to 'passed_in_time'.
+  *
+  * @param {object} req - Express request object. Contains material ID and submitted answers.
+  * @param {object} res - Express response object.
+  * @returns {Promise<void>} - Responds with success message.
+  */
   async takeTest(req, res) {
     try {
       const { material_id } = req.params;
@@ -139,6 +213,14 @@ class testController {
     }
   }
 
+  /**
+  * Retrieves and autogrades a student's test attempt, if not already graded.
+  * Returns detailed grading information.
+  *
+  * @param {object} req - Express request object. Contains `material_id` and `student_id` in `req.params`.
+  * @param {object} res - Express response object.
+  * @returns {Promise<void>} - Responds with detailed test grading info.
+  */
   async getAttempt(req, res) {
     try {
       const { material_id, student_id } = req.params;
@@ -252,6 +334,14 @@ class testController {
     }
   }
 
+  /**
+  * Manually updates scores for individual test questions.
+  * Recalculates total score accordingly.
+  *
+  * @param {object} req - Express request object. Contains `material_id`, `student_id`, and array of score updates in body.
+  * @param {object} res - Express response object.
+  * @returns {Promise<void>} - Responds with success confirmation.
+  */
   async updateScore(req, res) {
     try {
       const { material_id, student_id } = req.params;
@@ -276,8 +366,6 @@ class testController {
       res.status(500).json({ message: 'Помилка при перевірці тесту', error });
     }
   }
-
-
 }
 
 module.exports = new testController();

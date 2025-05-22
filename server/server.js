@@ -1,6 +1,7 @@
 const express = require('express')
 const mongoose = require('mongoose')
 const http = require('http');
+require('dotenv').config();
 const authRoutes = require('./routes/authRoutes')
 const courseRoutes = require('./routes/courseRoutes')
 const materialRoutes = require('./routes/materialRoutes')
@@ -11,15 +12,19 @@ const chatRoutes = require("./routes/chatRoutes")
 const testRoutes = require('./routes/testRoutes')
 const jwt = require('jsonwebtoken')
 const cors = require('cors');
-const PORT = process.env.PORT || 5000
-const { secret } = require('./Config/config')
-const {getMessages, addMessage} = require('./Controllers/chatController')
+const { getMessages, addMessage } = require('./Controllers/chatController')
 const app = express()
 const server = http.createServer(app);
 const path = require('path');
 const Chat = require('./Models/Chat');
 
-const logSocket = false;
+const PORT = process.env.PORT || 5000
+const SECRET = process.env.JWT_SECRET;
+const DB_USER = process.env.DB_USER;
+const DB_PASSWORD = process.env.DB_PASSWORD;
+const DB_HOST = process.env.DB_HOST;
+
+const DB_URI = `mongodb+srv://${DB_USER}:${DB_PASSWORD}@${DB_HOST}/?retryWrites=true&w=majority&appName=DispersionCluster`;
 
 app.use(cors())
 app.use(express.json())
@@ -34,7 +39,8 @@ app.use("/file", fileRoutes)
 app.use("/chat", chatRoutes)
 
 app.use('/storage', express.static(path.join(__dirname, 'storage')));
-mongoose.connect("mongodb+srv://kostik:kostik@dispersioncluster.fy1nx.mongodb.net/?retryWrites=true&w=majority&appName=DispersionCluster")
+
+mongoose.connect(DB_URI)
 
 const io = require("socket.io")(server, {
     cors: {
@@ -45,20 +51,16 @@ const io = require("socket.io")(server, {
 
 io.use((socket, next) => {
     const token = socket.handshake.query.token;
-    if (logSocket) console.log(`🔑 Incoming auth token: ${token}`);
 
     if (!token) {
-        if (logSocket) console.log("❌ No token provided");
         return next(new Error("Authentication error"));
     }
 
     try {
-        const decodedData = jwt.verify(token, secret);
+        const decodedData = jwt.verify(token, SECRET);
         socket.userId = decodedData.id;
-        if (logSocket) console.log(`✅ Authenticated user ID: ${socket.userId}`);
         next();
     } catch (err) {
-        if (logSocket) console.log("❌ Invalid token:", err.message);
         return next(new Error("Authentication error"));
     }
 });
@@ -66,9 +68,7 @@ io.use((socket, next) => {
 let onlineUsers = new Map();
 
 io.on("connection", (socket) => {
-    if (logSocket) console.log(`🟢 New WebSocket connection: ${socket.id}`);
     onlineUsers.set(socket.userId, socket.id);
-    if (logSocket) console.log(onlineUsers)
 
     socket.on("disconnect", (reason) => {
         onlineUsers.forEach((value, key) => {
@@ -76,7 +76,6 @@ io.on("connection", (socket) => {
                 onlineUsers.delete(key);
             }
         });
-        if (logSocket) console.log(`🔴 WebSocket disconnected: ${socket.id} (${reason})`);
     });
 
     socket.on("joinChat", async ({ chatId, user_id, course_id }) => {
@@ -85,8 +84,7 @@ io.on("connection", (socket) => {
 
         try {
             const messages = await getMessages(chatId, user_id, course_id)
-   
-            if (logSocket) console.log(messages)
+
             socket.emit("getMessages", messages);
         } catch (error) {
             console.error("Error loaing messages:", error);

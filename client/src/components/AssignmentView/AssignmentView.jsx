@@ -27,7 +27,7 @@ const AssignmentView = () => {
       try {
         const studentID = role === "Teacher" ? refId : user_id;
         const response = await getStudentTaskInfo(assignmentId, studentID);
-        console.log(response.userDetails)
+        console.log(response)
         dispacth(setFeedback(response.userDetails?.response.message ?? ""))
         dispacth(setAssignment(response))
         dispacth(setAttachments(response.userDetails?.attachments || []))
@@ -60,10 +60,10 @@ const AssignmentView = () => {
               <span className={styles.label}>Description: </span>
               {assignment.description}
             </p>
-            {!assignment?.test?.isCompleted && role === "Student" && <p onClick={() => navigate(`/test/attempt/${assignment._id}`)}>Start the test</p>}
-            {assignment?.test?.isCompleted && role === "Student" && <p>Test ended</p>}
-            {!assignment?.test?.isCompleted && role === "Teacher" && <p>Student dont pass the test</p>}
-            {assignment?.test?.isCompleted && role === "Teacher" && <p onClick={() => navigate(`/test/review/${assignment._id}/${refId}`)}>View answers</p>}
+            {!assignment?.test?.isCompleted && role === "Student" && <p className={styles.testStart} onClick={() => navigate(`/test/attempt/${assignment._id}`)}>Start the test</p>}
+            {assignment?.test?.isCompleted && role === "Student" && <p className={styles.testEnded}>Test ended</p>}
+            {!assignment?.test?.isCompleted && role === "Teacher" && <p className={styles.testDontStarted}>Student dont pass the test</p>}
+            {assignment?.test?.isCompleted && role === "Teacher" && <p className={styles.testViewAnswers} onClick={() => navigate(`/test/review/${assignment._id}/${refId}`)}>View answers</p>}
             {assignment.type !== "material" && <p className={styles.dueDate}>
               <span className={styles.label}>Due Date: </span>
               {new Date(assignment.dueDate).toLocaleString("en-GB", {

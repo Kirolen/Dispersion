@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: Models/Material.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: Models/Material.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>const { Schema, model } = require('mongoose');
+
+/**
+ * @typedef {Object} Attachment
+ * @property {string} filename - Name of the uploaded file.
+ * @property {string} url - URL to access the attachment.
+ * @property {string} [type] - MIME type or custom type of the attachment.
+ */
+
+/**
+ * @typedef {Object} TestProperties
+ * @property {boolean} isRandomQuestions - If true, test questions are randomized.
+ * @property {Object} questionCountByType - Defines how many questions per type.
+ * @property {number} questionCountByType.single - Count of single-answer questions.
+ * @property {number} questionCountByType.multiple - Count of multiple-answer questions.
+ * @property {number} questionCountByType.short - Count of short-answer questions.
+ * @property {number} questionCountByType.long - Count of long-answer questions.
+ * @property {number} timeLimit - Time limit for test in minutes.
+ * @property {Date} [startDate] - When the test becomes available.
+ * @property {Date} [endDate] - When the test is no longer available.
+ * @property {number} [testLimit] - The duration (in minutes) allowed for a student to complete the test once started.
+ */
+
+/**
+ * @typedef {Object} TestReference
+ * @property {import('mongoose').Types.ObjectId} test - Reference to a Test object.
+ * @property {TestProperties} testProperties - Configuration of the test behavior.
+ */
+
+/**
+ * @typedef {Object} Material
+ * @property {string} title - Title of the material.
+ * @property {string} [description] - Description or content of the material.
+ * @property {'material' | 'practice' | 'practice_with_test'} type - Type of material.
+ * @property {Date} [dueDate] - Deadline for submitting the material (for assignments/practice).
+ * @property {number} [points] - Max points/score for the material.
+ * @property {import('mongoose').Types.ObjectId} course_id - Associated course ID.
+ * @property {Attachment[]} [attachments] - Files attached to the material.
+ * @property {Date} [availableFrom] - When the material becomes visible to students.
+ * @property {boolean} isAvailableToAll - Whether the material is visible to all students by default.
+ * @property {Date} createdAt - Date when the material was created.
+ * @property {TestReference} [test] - Optional test associated with the material.
+ */
+
+/**
+ * Material Schema
+ * 
+ * Represents a learning resource that can be of type:
+ * - Static learning material
+ * - Practice assignment
+ * - Practice with attached test
+ * 
+ * Features:
+ * - Supports file attachments
+ * - Linked to a course
+ * - Optionally has an associated test with customizable settings
+ * - Can have visibility settings and due dates
+ */
+const MaterialSchema = new Schema({
+    title: { type: String, required: true },
+    description: { type: String },
+    type: { type: String, enum: ['material', 'practice', 'practice_with_test'], required: true },
+    dueDate: { type: Date },
+    points: { type: Number },
+    course_id: { type: Schema.Types.ObjectId, ref: 'Course', required: true },
+    attachments: [
+        {
+            filename: { type: String, required: true },
+            url: { type: String, required: true },
+            type: { type: String }
+        }
+    ],
+    availableFrom: { type: Date },
+    isAvailableToAll: { type: Boolean, default: false },
+    createdAt: { type: Date, default: Date.now },
+    test: {
+        test: { type: Schema.Types.ObjectId, ref: 'Test' },
+        testProperties: {
+            isRandomQuestions: { type: Boolean, default: false },
+            questionCountByType: {
+                single: { type: Number, default: 0 },
+                multiple: { type: Number, default: 0 },
+                short: { type: Number, default: 0 },
+                long: { type: Number, default: 0 },
+            },
+            timeLimit: { type: Number, default: 0 },
+            startDate: { type: Date },
+            endDate: { type: Date },
+            testLimit: { type: Number }
+        }
+    }
+});
+
+/**
+ * Mongoose model for the `Material` collection.
+ */
+module.exports = model('Material', MaterialSchema);
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-CalendarEventController.html">CalendarEventController</a></li><li><a href="module-ChatController.html">ChatController</a></li><li><a href="module-authController.html">authController</a></li><li><a href="module-courseController.html">courseController</a></li><li><a href="module-fileController.html">fileController</a></li><li><a href="module-materialController.html">materialController</a></li><li><a href="module-testController.html">testController</a></li></ul><h3>Classes</h3><ul><li><a href="userController.html">userController</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ChatSchema">ChatSchema</a></li><li><a href="global.html#MaterialSchema">MaterialSchema</a></li><li><a href="global.html#MessageSchema">MessageSchema</a></li><li><a href="global.html#TestSchema">TestSchema</a></li><li><a href="global.html#TestSessionSchema">TestSessionSchema</a></li><li><a href="global.html#generateAccessToken">generateAccessToken</a></li><li><a href="global.html#generateTestSessionForUser">generateTestSessionForUser</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Thu May 22 2025 14:07:06 GMT+0300 (за східноєвропейським літнім часом)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: Controllers/testController.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: Controllers/testController.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>const User = require("../Models/User");
+const Test = require("../Models/Test");
+const Material = require("../Models/Material");
+const TestSession = require("../Models/TestSession");
+const AssignedUsers = require("../Models/AssignedUsers");
+
+/**
+ * @class testController
+ * @classdesc Handles test-related operations such as creation, retrieval, updating, grading, and submission.
+ * 
+ * ### Features:
+ * - Create, retrieve, update, and delete tests.
+ * - Start and complete test sessions for students.
+ * - Auto-grade and manually update test scores.
+ * - Return formatted responses for test attempts and analytics.
+ * 
+ * ### Dependencies:
+ * - User: User model for teacher/student info.
+ * - Test: Test model for storing test structures.
+ * - Material: Material model linking tests to course materials.
+ * - TestSession: Stores in-progress and completed test attempts by users.
+ * - AssignedUsers: Tracks assignment and submission status per material and user.
+ * 
+ * ### Methods:
+ * - `createTest(req, res)`: Create a new test.
+ * - `getTests(req, res)`: Fetch all tests for the logged-in teacher.
+ * - `getTestById(req, res)`: Fetch a test by ID.
+ * - `updateTest(req, res)`: Update an existing test.
+ * - `startTest(req, res)`: Retrieve a student’s test session or prepare it for use.
+ * - `takeTest(req, res)`: Submit answers and mark the test as complete.
+ * - `getAttempt(req, res)`: Retrieve a student's completed test and auto-grade it.
+ * - `updateScore(req, res)`: Manually update individual question scores for a student.
+ * 
+ * @exports testController
+ */
+class testController {
+  /**
+  * Creates a new test and saves it to the database.
+  *
+  * @param {object} req - Express request object. Contains the test data in `req.body.test`.
+  * @param {object} res - Express response object.
+  * @returns {Promise&lt;void>} - Responds with created test data or error.
+  */
+  async createTest(req, res) {
+    try {
+      const { test } = req.body;
+      const user = req.user;
+
+      const existUser = await User.findById(user.id);
+      if (!existUser) {
+        return res.status(404).json({ message: 'Користувача не знайдено' });
+      }
+
+      const newTest = new Test({
+        ...test,
+        createdBy: user.id,
+        createdAt: new Date(),
+      });
+
+      await newTest.save();
+
+      return res.status(201).json({ message: 'Тест створено успішно', test: newTest });
+
+    } catch (error) {
+      console.error('Create test error:', error);
+      res.status(500).json({ message: 'Помилка при створенні тесту', error });
+    }
+  }
+
+  /**
+  * Retrieves all tests created by the logged-in user.
+  * Returns summarized info including question counts by type.
+  *
+  * @param {object} req - Express request object (expects authenticated user).
+  * @param {object} res - Express response object.
+  * @returns {Promise&lt;void>} - Responds with a list of tests or error.
+  */
+  async getTests(req, res) {
+    try {
+      const tests = await Test.find({ createdBy: req.user.id }, 'title description questions');
+
+      const formatted = tests.map(test => {
+        const questionTypeCount = {
+          single: 0,
+          multiple: 0,
+          short: 0,
+          long: 0
+        };
+
+        test.questions.forEach(q => {
+          if (questionTypeCount.hasOwnProperty(q.type)) {
+            questionTypeCount[q.type]++;
+          }
+        });
+
+        return {
+          id: test._id,
+          title: test.title,
+          description: test.description,
+          questionCount: test.questions.length,
+          questionTypeCount
+        };
+      });
+
+      return res.json(formatted);
+    } catch (error) {
+      console.error('Get tests error:', error);
+      res.status(500).json({ message: 'Помилка при отриманні тестів', error });
+    }
+  }
+
+  /**
+  * Fetches a single test by its ID.
+  *
+  * @param {object} req - Express request object. Contains test ID in `req.params.id`.
+  * @param {object} res - Express response object.
+  * @returns {Promise&lt;void>} - Responds with test object or error if not found.
+  */
+  async getTestById(req, res) {
+    try {
+      const { id } = req.params;
+
+      const test = await Test.findById(id);
+      if (!test) {
+        return res.status(404).json({ message: 'Тест не знайдено' });
+      }
+
+      return res.json(test);
+    } catch (error) {
+      console.error('Get test by ID error:', error);
+      res.status(500).json({ message: 'Помилка при отриманні тесту', error });
+    }
+  }
+
+  /**
+  * Updates a test with new data.
+  *
+  * @param {object} req - Express request object. Contains test ID in `req.params.id` and updates in `req.body.updatedTest`.
+  * @param {object} res - Express response object.
+  * @returns {Promise&lt;void>} - Responds with the updated test or an error.
+  */
+  async updateTest(req, res) {
+    try {
+      const { id } = req.params;
+      const { updatedTest } = req.body;
+
+      const test = await Test.findByIdAndUpdate(id, updatedTest, { new: true });
+      if (!test) {
+        return res.status(404).json({ message: 'Тест не знайдено' });
+      }
+
+      return res.json({ message: 'Тест оновлено успішно', test });
+    } catch (error) {
+      console.error('Update test error:', error);
+      res.status(500).json({ message: 'Помилка при оновленні тесту', error });
+    }
+  }
+
+  /**
+  * Starts a test session for a user based on material ID.
+  *
+  * @param {object} req - Express request object. Contains material ID in `req.params.material_id`.
+  * @param {object} res - Express response object.
+  * @returns {Promise&lt;void>} - Responds with user's test session and test time limit.
+  */
+  async startTest(req, res) {
+    try {
+      const { material_id } = req.params;
+      const user = req.user
+      const material = await Material.findById(material_id).select('test')
+
+      const userTest = await TestSession.findOne({ user: user.id, test: material.test.test, material: material_id })
+      if (!userTest.startedAt) userTest.startedAt = Date.now();
+      userTest.save();
+      return res.json({ message: 'Тест оновлено успішно', test: userTest, testLimit: material.test.testProperties.timeLimit });
+    } catch (error) {
+      res.status(500).json({ message: 'Помилка при оновленні тесту', error });
+    }
+  }
+
+  /**
+  * Saves the user's test answers and marks the test as completed.
+  * Updates the assigned user status to 'passed_in_time'.
+  *
+  * @param {object} req - Express request object. Contains material ID and submitted answers.
+  * @param {object} res - Express response object.
+  * @returns {Promise&lt;void>} - Responds with success message.
+  */
+  async takeTest(req, res) {
+    try {
+      const { material_id } = req.params;
+      const testAnswers = req.body
+      const user = req.user
+      const material = await Material.findById(material_id).select('test')
+
+      const userTest = await TestSession.findOne({ user: user.id, test: material.test.test, material: material_id })
+      userTest.isCompleted = true
+      for (const [key, value] of Object.entries(testAnswers)) {
+        const index = parseInt(key, 10);
+        if (!isNaN(index) &amp;&amp; userTest.questions[index]) {
+          userTest.questions[index].userAnswer = value;
+        }
+      }
+      await userTest.save();
+
+      const userAssignment = await AssignedUsers.findOne({ user_id: user.id, material_id: material_id })
+      userAssignment.status = "passed_in_time"
+      userAssignment.save();
+
+      return res.json({ message: 'Тест здано успішно', success: true });
+    } catch (error) {
+      res.status(500).json({ message: 'Помилка при оновленні тесту', error });
+    }
+  }
+
+  /**
+  * Retrieves and autogrades a student's test attempt, if not already graded.
+  * Returns detailed grading information.
+  *
+  * @param {object} req - Express request object. Contains `material_id` and `student_id` in `req.params`.
+  * @param {object} res - Express response object.
+  * @returns {Promise&lt;void>} - Responds with detailed test grading info.
+  */
+  async getAttempt(req, res) {
+    try {
+      const { material_id, student_id } = req.params;
+
+      const student = await User.findById(student_id).select("first_name last_name");
+      const material = await Material.findById(material_id).select('test');
+      const userTest = await TestSession.findOne({ user: student_id, test: material.test.test, material: material_id });
+
+      const originalQuestionTest = await Test.findById(material.test.test)
+        .select('questions._id questions.question questions.options questions.correctAnswers questions.type questions.images questions.qPoints')
+        .lean();
+
+      let studentScore = 0;
+
+      if (!userTest.isCheked) {
+        userTest.questions = userTest.questions.map(q => {
+          const original = originalQuestionTest.questions.find(
+            oq => oq._id.equals(q.originalQuestionId)
+          );
+
+          if (!original) return q;
+
+          q.scorePerQuestion = 0;
+          q.isAutoGraded = true;
+
+          const correct = original.correctAnswers;
+          const student = q.userAnswer;
+          const fullPoints = original.qPoints ?? 0;
+
+          switch (original.type) {
+            case 'single':
+              const studentAns = Array.isArray(student) ? student[0] : student;
+              const correctAns = Array.isArray(correct) ? correct[0] : correct;
+              if (studentAns === correctAns) {
+                q.scorePerQuestion = fullPoints;
+                studentScore += fullPoints;
+              }
+              break;
+
+            case 'multiple':
+              const correctSet = new Set(correct);
+              const studentSet = new Set(student);
+
+              let correctCount = 0;
+              let wrongCount = 0;
+
+              studentSet.forEach(ans => {
+                if (correctSet.has(ans)) correctCount++;
+                else wrongCount++;
+              });
+
+              const pointsPerCorrect = fullPoints / correct.length;
+              const pointsLostPerWrong = pointsPerCorrect / 2;
+
+              let rawScore = (correctCount * pointsPerCorrect) - (wrongCount * pointsLostPerWrong);
+              q.scorePerQuestion = Math.max(0, Math.min(fullPoints, rawScore));
+              studentScore += q.scorePerQuestion;
+              break;
+
+            case 'short':
+            case 'long':
+              if (typeof student === 'string') {
+                const acceptableAnswers = (correct[0] || '')
+                  .toLowerCase()
+                  .split(',')
+                  .map(s => s.trim());
+
+                if (acceptableAnswers.includes(student.toLowerCase().trim())) {
+                  q.scorePerQuestion = fullPoints;
+                  studentScore += fullPoints;
+                }
+              }
+              break;
+          }
+
+          return q;
+        });
+
+        userTest.score = studentScore;
+        userTest.isCheked = true;
+        await userTest.save();
+      }
+
+
+
+      const testInfo = {
+        studentName: `${student.first_name} ${student.last_name}`,
+        score: userTest.score,
+        totalPoints: userTest.totalScore,
+        questions: userTest.questions.map(q => {
+          const original = originalQuestionTest.questions.find(oq => oq._id.equals(q.originalQuestionId));
+          return {
+            text: original?.question ?? "Unknown question",
+            type: original?.type ?? "single",
+            options: original?.options ?? [],
+            images: original?.images ?? [],
+            studentAnswer: q.userAnswer,
+            correctAnswer: original?.correctAnswers ?? [],
+            points: original?.qPoints ?? 0,
+            userScorePerQuestion: q.scorePerQuestion ?? 0,
+            isAutoGraded: q.isAutoGraded ?? false
+          };
+        })
+      };
+
+      return res.json({ message: 'Тест перевірено успішно', testInfo });
+
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ message: 'Помилка при перевірці тесту', error });
+    }
+  }
+
+  /**
+  * Manually updates scores for individual test questions.
+  * Recalculates total score accordingly.
+  *
+  * @param {object} req - Express request object. Contains `material_id`, `student_id`, and array of score updates in body.
+  * @param {object} res - Express response object.
+  * @returns {Promise&lt;void>} - Responds with success confirmation.
+  */
+  async updateScore(req, res) {
+    try {
+      const { material_id, student_id } = req.params;
+      const newScore = req.body
+
+      const material = await Material.findById(material_id).select('test');
+      const userTest = await TestSession.findOne({ user: student_id, test: material.test.test, material: material_id });
+
+      newScore.forEach(ns => {
+        if (ns.newScore) {
+          userTest.questions[ns.index].scorePerQuestion = ns.newScore
+        }
+      })
+      userTest.score = userTest.questions.reduce((sum, q) => {
+        return sum + (q.scorePerQuestion ?? 0);
+      }, 0);
+
+      await userTest.save()
+      return res.json({ message: 'Тест перевірено успішно', success: true });
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ message: 'Помилка при перевірці тесту', error });
+    }
+  }
+}
+
+module.exports = new testController();
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-CalendarEventController.html">CalendarEventController</a></li><li><a href="module-ChatController.html">ChatController</a></li><li><a href="module-authController.html">authController</a></li><li><a href="module-courseController.html">courseController</a></li><li><a href="module-fileController.html">fileController</a></li><li><a href="module-materialController.html">materialController</a></li><li><a href="module-testController.html">testController</a></li></ul><h3>Classes</h3><ul><li><a href="userController.html">userController</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ChatSchema">ChatSchema</a></li><li><a href="global.html#MaterialSchema">MaterialSchema</a></li><li><a href="global.html#MessageSchema">MessageSchema</a></li><li><a href="global.html#TestSchema">TestSchema</a></li><li><a href="global.html#TestSessionSchema">TestSessionSchema</a></li><li><a href="global.html#generateAccessToken">generateAccessToken</a></li><li><a href="global.html#generateTestSessionForUser">generateTestSessionForUser</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Thu May 22 2025 14:07:06 GMT+0300 (за східноєвропейським літнім часом)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
