@@ -4,10 +4,32 @@ const User = require('../Models/User');
 const Chat = require('../Models/Chat')
 const CourseAccess = require('../Models/CourseAccess')
 const CourseOwner = require('../Models/CourseOwner');
-const AssignedUsers = require('../Models/AssignedUsers');
 
-
+/**
+ * @class courseController
+ * @classdesc Manages course-related actions including creation, enrollment, and course listings.
+ *
+ * ### Features:
+ * - Create and update course details.
+ * - Handle student enrollment and role-based access.
+ * - Retrieve teacher or student courses with relevant data.
+ *
+ * @exports courseController
+ */
 class courseController {
+    /**
+    * Adds a new course to the system.
+    * 
+    * Validates request body, checks for existing course and valid teacher ID.
+    * Creates the course, assigns the teacher as the owner, and creates a course chat group.
+    * 
+    * @param {Object} req - Express request object, expects body with:
+    *   - {string} course_name - Name of the course.
+    *   - {string} course_desc - Description of the course.
+    *   - {string} teacher_id - ID of the teacher creating the course.
+    * @param {Object} res - Express response object.
+    * @returns {Promise<void>} Returns success message and created course data or error info.
+    */
     async addCourse(req, res) {
         try {
             const errors = validationResult(req);
@@ -55,6 +77,18 @@ class courseController {
         }
     }
 
+    /**
+     * Enrolls a user (student) into a course.
+     * 
+     * Validates the user and course exist, checks if user already enrolled.
+     * Adds user to course access list and updates the course chat group members.
+     * 
+     * @param {Object} req - Express request object, expects body with:
+     *   - {string} user_id - ID of the student joining the course.
+     *   - {string} course_id - ID of the course to join.
+     * @param {Object} res - Express response object.
+     * @returns {Promise<void>} Returns success or error message.
+     */
     async joinCourse(req, res) {
         try {
             const { user_id, course_id } = req.body;
@@ -90,6 +124,16 @@ class courseController {
         }
     }
 
+    /**
+    * Retrieves all students enrolled in a specific course.
+    * 
+    * Validates course existence and fetches all students enrolled by querying course access.
+    * 
+    * @param {Object} req - Express request object, expects body with:
+    *   - {string} course_id - ID of the course.
+    * @param {Object} res - Express response object.
+    * @returns {Promise<void>} Returns list of students or error message.
+    */
     async getStudentsByCourse(req, res) {
         try {
             const { course_id } = req.body;
@@ -108,26 +152,37 @@ class courseController {
         }
     }
 
+    /**
+    * Retrieves all courses associated with the authenticated user.
+    * 
+    * For students, it returns courses they are enrolled in along with teacher info,
+    * chat IDs, and student counts.
+    * For teachers, it returns courses they own with similar details.
+    * 
+    * @param {Object} req - Express request object, expects `req.user` with authenticated user info.
+    * @param {Object} res - Express response object.
+    * @returns {Promise<void>} JSON response with list of courses or error.
+    */
     async getAllCourses(req, res) {
-        try {    
+        try {
             const user = req.user;
             if (!user) {
                 console.log("Error: User not found");
                 return res.status(401).json({ success: false, message: "User not authenticated" });
             }
-    
+
             const existUser = await User.findById(user.id);
             if (!existUser) {
                 return res.status(404).json({ success: false, message: "User not found" });
             }
-    
+
             if (existUser.role === "Student") {
                 const enrollments = await CourseAccess.find({ student_id: existUser._id })
                     .populate({
                         path: "course_id",
                         select: "course_name course_desc",
                     });
-    
+
                 const courses = await Promise.all(
                     enrollments.map(async (enrollment) => {
                         const courseOwner = await CourseOwner.findOne({ course_id: enrollment.course_id._id })
@@ -135,9 +190,9 @@ class courseController {
                                 path: "teacher_id",
                                 select: "first_name last_name",
                             });
-    
+
                         const chat = await Chat.findOne({ isCourseChat: enrollment.course_id._id });
-                        const students = await CourseAccess.find({course_id: enrollment.course_id._id})
+                        const students = await CourseAccess.find({ course_id: enrollment.course_id._id })
 
                         return {
                             course_id: enrollment.course_id._id,
@@ -151,20 +206,20 @@ class courseController {
                         };
                     })
                 );
-    
+
                 return res.json({ success: true, data: courses });
-    
+
             } else if (existUser.role === "Teacher") {
                 const courseOwners = await CourseOwner.find({ teacher_id: existUser._id })
                     .populate({
                         path: "course_id",
                         select: "course_name course_desc",
                     });
-    
+
                 const courses = await Promise.all(
                     courseOwners.map(async (courseOwner) => {
                         const chat = await Chat.findOne({ isCourseChat: courseOwner.course_id._id });
-                        const students = await CourseAccess.find({course_id: courseOwner.course_id._id})
+                        const students = await CourseAccess.find({ course_id: courseOwner.course_id._id })
 
                         return {
                             course_id: courseOwner.course_id._id,
@@ -176,9 +231,9 @@ class courseController {
                         };
                     })
                 );
-    
+
                 return res.json({ success: true, data: courses });
-    
+
             } else {
                 return res.status(403).json({ success: false, message: "Invalid user role" });
             }
@@ -187,8 +242,16 @@ class courseController {
             res.status(500).json({ success: false, message: "Error fetching courses for the user", error });
         }
     }
-    
 
+    /**
+    * Retrieves course information by its ID.
+    * 
+    * Finds the course and the associated chat ID.
+    * 
+    * @param {Object} req - Express request object, expects `req.params.courseId` as the course ID.
+    * @param {Object} res - Express response object.
+    * @returns {Promise<void>} JSON response with course name and chat ID or error.
+    */
     async getCourseById(req, res) {
         try {
             const { courseId } = req.params;
@@ -198,7 +261,7 @@ class courseController {
                 return res.status(404).json({ success: false, message: 'Курс не знайдено' });
             }
 
-            const chat = await Chat.findOne({isCourseChat: courseId}).select("_id")
+            const chat = await Chat.findOne({ isCourseChat: courseId }).select("_id")
 
             const response = {
                 course_name: course.course_name,
@@ -211,6 +274,15 @@ class courseController {
         }
     }
 
+    /**
+    * Retrieves people related to a specific course.
+    * 
+    * Returns the course's teacher information and all enrolled students.
+    * 
+    * @param {Object} req - Express request object, expects `req.params.courseId` as the course ID.
+    * @param {Object} res - Express response object.
+    * @returns {Promise<void>} JSON response with teacher and student data or error.
+    */
     async getCoursePeople(req, res) {
         try {
             const { courseId } = req.params;

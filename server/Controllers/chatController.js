@@ -5,8 +5,27 @@ const Course = require('../Models/Course');
 const CourseAccess = require('../Models/CourseAccess');
 const CourseOwner = require('../Models/CourseOwner')
 
-
+/**
+ * @class ChatController
+ * @classdesc Facilitates chat functionality between users (students, teachers) within courses.
+ *
+ * ### Features:
+ * - Create and fetch messages in chat rooms.
+ * - Handle room creation, message history, and participant data.
+ * - Used for in-course communication.
+ *
+ * @exports ChatController
+ */
 class ChatController {
+    /**
+     * Searches for users by keyword excluding the current user.
+     * Returns users matching the keyword in first name, last name, or email,
+     * along with a flag indicating if a chat with the current user already exists.
+     *
+     * @param {import('express').Request} req - Express request object, expects req.user.id and req.params.keyWord.
+     * @param {import('express').Response} res - Express response object.
+     * @returns {Promise<void>}
+     */
     async searchUsers(req, res) {
         try {
             const { keyWord } = req.params;
@@ -23,6 +42,7 @@ class ChatController {
                     { email: { $regex: `^${keyWord}[^@]*@`, $options: 'i' } }
                 ]
             }).select("first_name last_name email _id");
+
             const usersWithChatStatus = await Promise.all(users.map(async (user) => {
                 const existingChat = await Chat.findOne({
                     isGroup: false,
@@ -41,18 +61,21 @@ class ChatController {
         }
     }
 
+    /**
+    * Creates a one-on-one chat between two users if it does not already exist.
+    *
+    * @param {import('express').Request} req - Express request object, expects req.body.user1 and req.body.user2.
+    * @param {import('express').Response} res - Express response object.
+    * @returns {Promise<void>}
+    */
     async createChat(req, res) {
         try {
             const { user1, user2 } = req.body;
 
-            console.log(user1)
-            console.log(user2)
             let existingChat = await Chat.findOne({
                 members: { $all: [user1, user2] },
                 isGroup: false
             });
-
-            console.log(existingChat)
 
             if (existingChat) {
                 return res.status(200).json({ success: true, message: "Chat already exists", chat: existingChat });
@@ -75,6 +98,13 @@ class ChatController {
         }
     }
 
+    /**
+     * Retrieves all active chats for the current user that are not course chats.
+     *
+     * @param {import('express').Request} req - Express request object, expects req.user.id.
+     * @param {import('express').Response} res - Express response object.
+     * @returns {Promise<void>}
+     */
     async getUserChats(req, res) {
         try {
             const userId = req.user.id;
@@ -92,6 +122,13 @@ class ChatController {
         }
     }
 
+    /**
+    * Retrieves a specific chat by ID for the current user, including members and the last message.
+    *
+    * @param {import('express').Request} req - Express request object, expects req.user.id and req.params.chatId.
+    * @param {import('express').Response} res - Express response object.
+    * @returns {Promise<void>}
+    */
     async getChat(req, res) {
         try {
             const userId = req.user.id;
@@ -112,7 +149,16 @@ class ChatController {
         }
     }
 
-    //add last message if course
+    /**
+     * Adds a new message to a chat.
+     *
+     * @param {string} chatId - The ID of the chat to which the message belongs.
+     * @param {string} sender - The ID of the user sending the message.
+     * @param {string} text - The text content of the message.
+     * @param {Array} [attachments] - Optional array of attachments associated with the message.
+     * @returns {Promise<Object|null>} Returns the newly created message object with populated sender data,
+     * formatted created_at timestamp, or null if chat not found or an error occurs.
+     */
     async addMessage(chatId, sender, text, attachments) {
         try {
             const chat = await Chat.findById(chatId).lean();
@@ -165,6 +211,15 @@ class ChatController {
         }
     }
 
+    /**
+     * Retrieves messages from a chat and marks unseen messages as seen by the user.
+    * Also updates course read status if chat is associated with a course.
+    *
+    * @param {string} chatId - The ID of the chat to fetch messages from.
+    * @param {string} user_id - The ID of the user requesting messages.
+    * @param {string} [course_id] - Optional course ID if the chat is a course chat.
+    * @returns {Promise<Array>} Returns an array of message objects with sender populated and formatted dates.
+    */
     async getMessages(chatId, user_id, course_id) {
         try {
             const user = await User.findById(user_id);
@@ -180,7 +235,6 @@ class ChatController {
                 .lean();
 
             if (!chat) {
-                console.log("Chat not found");
                 return [];
             }
 
@@ -196,7 +250,7 @@ class ChatController {
             }
 
             if (chat.isCourseChat && course_id) {
-                const lastMessageId = chat.lastMessage; 
+                const lastMessageId = chat.lastMessage;
 
                 if (lastMessageId) {
                     const updateQuery = { last_read_message: lastMessageId };
@@ -232,6 +286,16 @@ class ChatController {
         }
     }
 
+    /**
+    * Finds all unread chats and course chats for the authenticated user.
+    * 
+    * For students and teachers, it checks course chats for unread messages based on last read message tracking.
+    * It also checks regular (non-course) chats for unread messages by verifying if the user has seen the last message.
+    * 
+    * @param {Object} req - Express request object, expects `req.user.id` with authenticated user ID.
+    * @param {Object} res - Express response object.
+    * @returns {Promise<void>} Responds with a JSON object containing arrays of unread course chat IDs and unread regular chat IDs.
+    */
     async findUnreadChats(req, res) {
         const user = req.user
         const userExists = await User.findById(user.id);
@@ -245,7 +309,7 @@ class ChatController {
             const studentCourses = await CourseAccess.find({ student_id: user.id }).select('course_id last_read_message');
 
             for (const courseAccess of studentCourses) {
-                const { course_id, last_read_message } = courseAccess;
+                const { last_read_message } = courseAccess;
                 const chat = await Chat.findOne({
                     isCourseChat: courseAccess.course_id
                 })
@@ -259,21 +323,17 @@ class ChatController {
         } else if (userExists.role === "Teacher") {
             const teacherCourses = await CourseOwner.find({ teacher_id: user.id }).select('course_id last_read_message');
             for (const courseOwner of teacherCourses) {
-                const { course_id, last_read_message } = courseOwner;
+                const { last_read_message } = courseOwner;
                 const chat = await Chat.findOne({
                     isCourseChat: courseOwner.course_id
                 })
 
                 const lastMessage = chat.lastMessage
 
-
                 if (lastMessage && lastMessage.toString() !== (last_read_message ? last_read_message.toString() : null)) {
                     coursesWithUnreadMessages.push(chat._id);
                 }
             }
-
-
-
         } else {
             return res.status(400).json({ success: false, message: 'Invalid user role' });
         }
@@ -300,6 +360,17 @@ class ChatController {
         });
     }
 
+    /**
+    * Marks the last message in a course chat as read by updating the course access or course owner record
+    * or marks the last message in a regular chat as seen by the user.
+    * 
+    * @param {Object} req - Express request object with the body containing:
+    *   - {string} chat_id - ID of the chat to update.
+    *   - {string} user_id - ID of the user marking the message as read.
+    *   - {string} [course_id] - Optional course ID if the chat is a course chat.
+    * @param {Object} res - Express response object.
+     * @returns {Promise<void>} Responds with success status and message or error details.
+    */
     async markLastCourseMessageAsRead(req, res) {
         try {
             const { chat_id, user_id, course_id } = req.body;
@@ -356,7 +427,6 @@ class ChatController {
             return res.status(500).json({ success: false, message: 'Server error', error });
         }
     }
-
 }
 
 module.exports = new ChatController();

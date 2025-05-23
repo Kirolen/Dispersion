@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: Controllers/userController.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: Controllers/userController.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>const User = require('../Models/User');
+const bcrypt = require('bcryptjs');
+
+/**
+ * @class userController
+ * @classdesc
+ * Handles operations related to user profile management such as:
+ * - Updating user information including name, email, password, bio, and avatar.
+ * - Fetching authenticated user profile data.
+ * 
+ * This controller assumes that authentication middleware has attached the authenticated user
+ * object to the request (`req.user`). It uses MongoDB with Mongoose for data access.
+ */
+class userController {
+    /**
+    * Update authenticated user's profile information.
+    *
+    * Features:
+    * - Allows updating first name, last name, email, bio, avatar.
+    * - Supports password change with hashing and validation.
+    * - Prevents using the same password again.
+    * 
+    * @async
+    * @function
+    * @param {Object} req - Express request object.
+    * @param {Object} req.user - The authenticated user object (from middleware).
+    * @param {Object} req.body - Request payload with fields to update.
+    * @param {string} [req.body.first_name] - New first name of the user.
+    * @param {string} [req.body.last_name] - New last name of the user.
+    * @param {string} [req.body.email] - New email address.
+    * @param {string} [req.body.bio] - User bio or description.
+    * @param {string} [req.body.password] - New password to set.
+    * @param {string} [req.body.confirmPassword] - Confirmation for the new password.
+    * @param {string} [req.body.avatar] - URL or base64 string for user avatar.
+    * 
+    * @param {Object} res - Express response object.
+    * 
+    * @returns {Object} JSON response indicating success or error.
+    * 
+    * @throws {500} On server or database error.
+    */
+    async updateUserInfo(req, res) {
+        try {
+            const user = req.user;
+            const { first_name, last_name, email, bio, password, confirmPassword, avatar } = req.body;
+
+            const userExist = await User.findById(user.id);
+            if (!userExist) {
+                return res.status(404).json({ success: false, message: "User not found!", data: {} });
+            }
+
+            if (password &amp;&amp; password !== confirmPassword) {
+                return res.status(400).json({ success: false, message: "Passwords don't match", data: {} });
+            }
+
+            if (password &amp;&amp; await bcrypt.compare(password, userExist.password)) {
+                return res.status(400).json({ success: false, message: "New password must be different from the old one", data: {} });
+            }
+
+            if (first_name) userExist.first_name = first_name.trim();
+            if (last_name) userExist.last_name = last_name.trim();
+            if (email) userExist.email = email.trim();
+            if (bio) userExist.bio = bio.trim();
+            if (avatar) userExist.avatar = avatar;
+
+            if (password &amp;&amp; password.trim()) {
+                const salt = await bcrypt.genSalt(10);
+                userExist.password = await bcrypt.hash(password.trim(), salt);
+            }
+
+            await userExist.save();
+
+            return res.status(200).json({
+                success: true,
+                message: "User info updated successfully",
+                data: {
+                    id: userExist._id,
+                    first_name: userExist.first_name,
+                    last_name: userExist.last_name,
+                    email: userExist.email,
+                    bio: userExist.bio,
+                    avatar: userExist.avatar
+                }
+            });
+        } catch (e) {
+            console.error(e);
+            return res.status(500).json({ success: false, message: "Server error", data: {} });
+        }
+    }
+
+    /**
+     * Get authenticated user's profile information.
+     * 
+     * Features:
+     * - Fetches profile data except for the password field.
+     * - Intended for use on user dashboard or account settings.
+     * 
+     * @async
+     * @function
+     * @param {Object} req - Express request object.
+     * @param {Object} req.user - The authenticated user object (from middleware).
+     * @param {Object} res - Express response object.
+     * 
+     * @returns {Object} JSON response containing user profile data.
+     * 
+     * @throws {500} On database retrieval error.
+     */
+    async getUserInfo(req, res) {
+        try {
+            const user = req.user;
+            const userExist = await User.findById(user.id).select('-password');
+
+            if (!userExist) {
+                return res.status(404).json({ success: false, message: "User not found!", data: {} });
+            }
+
+            return res.status(200).json({
+                success: true,
+                message: "User info retrieved successfully",
+                data: userExist
+            });
+        } catch (e) {
+            console.error(e);
+            return res.status(500).json({ success: false, message: "Server error", data: {} });
+        }
+    }
+}
+
+module.exports = new userController();
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-CalendarEventController.html">CalendarEventController</a></li><li><a href="module-ChatController.html">ChatController</a></li><li><a href="module-authController.html">authController</a></li><li><a href="module-courseController.html">courseController</a></li><li><a href="module-fileController.html">fileController</a></li><li><a href="module-materialController.html">materialController</a></li><li><a href="module-testController.html">testController</a></li></ul><h3>Classes</h3><ul><li><a href="userController.html">userController</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ChatSchema">ChatSchema</a></li><li><a href="global.html#MaterialSchema">MaterialSchema</a></li><li><a href="global.html#MessageSchema">MessageSchema</a></li><li><a href="global.html#TestSchema">TestSchema</a></li><li><a href="global.html#TestSessionSchema">TestSessionSchema</a></li><li><a href="global.html#generateAccessToken">generateAccessToken</a></li><li><a href="global.html#generateTestSessionForUser">generateTestSessionForUser</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Thu May 22 2025 14:07:06 GMT+0300 (за східноєвропейським літнім часом)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
